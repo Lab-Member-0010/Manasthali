@@ -5,7 +5,8 @@ export const uploadStory = async (req, res) => {
     const { userId, caption } = req.body;
 
     // Check if a file was uploaded
-    const media = req.file ? req.file.filename : null;
+    // multer-s3 stores the public S3 URL in req.file.location
+    const media = req.file ? req.file.location : null;
 
     // Create and save the story
     const story = new Story({ userId, media, caption });

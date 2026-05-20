@@ -307,7 +307,8 @@ export const getUserById = async (req, res) => {
 export const updateUserById = async (req, res) => {
   try {
     const { id } = req.params;
-    const profile_picture = req.file ? req.file.path : null;
+    // multer-s3 stores the public S3 URL in req.file.location
+    const profile_picture = req.file ? req.file.location : null;
     const updateData = {
       ...req.body,
       ...(profile_picture && { profile_picture }),

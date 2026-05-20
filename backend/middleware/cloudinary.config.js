@@ -1,9 +1,3 @@
-import { v2 as cloudinary } from 'cloudinary';
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-});
-
-export default cloudinary;
+// Cloudinary has been replaced by AWS S3.
+// See middleware/s3.config.js and middleware/uploadsdb.js.
+// This file is kept only as a placeholder — it is not imported anywhere.
