@@ -26,7 +26,8 @@ import upload from '../middleware/uploadsdb.js';
 
 const router = express.Router();
 
-// Register a new user
+// ── Auth (no token required) ─────────────────────────────────────────────────
+
 router.post(
   "/register",
   body("username", "Username is required").notEmpty(),
@@ -36,69 +37,54 @@ router.post(
   SignUp
 );
 
-// Verify OTP
-router.post("/verify-otp", 
+router.post(
+  "/verify-otp",
   body("email", "Invalid email ID").isEmail(),
   body("otp", "OTP is required").notEmpty(),
   verifyOtp
 );
 
-// Authenticate and log in a user
 router.post("/login", SignIn);
 
-// Forgot password
-router.post("/forgot-password", 
+router.post(
+  "/forgot-password",
   body("email", "Invalid email ID").isEmail(),
   forgotPassword
 );
 
-// Reset password
-router.post("/reset-password", 
+router.post(
+  "/reset-password",
   body("token", "Token is required").notEmpty(),
   body("newPassword", "New password is required").notEmpty(),
   resetPassword
 );
 
-// Get user details by ID
-router.get("/:id", auth, getUserById);
+// ── Specific named GET routes BEFORE the wildcard /:id ───────────────────────
+// IMPORTANT: Express matches routes top-to-bottom.
+// All specific paths must be declared before the /:id wildcard.
 
-//Get all user
-router.get("/get-community-users/:id",auth,getCommunityUsers);
+router.get("/get-community-users/:id", auth, getCommunityUsers);
+router.get("/get-all-users-except/:id", auth, getAllUsersExceptOne);
+router.get("/dmlist/:id", auth, getDMList);
 
-// Update user details
-router.put("/:id", auth,upload.single("profile_picture"), updateUserById);
+// ── Specific named POST routes ────────────────────────────────────────────────
 
-// Update user contact
-router.put("/:id/contact",auth,contactUpdateById)
-
-// Update user DOB
-router.put("/:id/dob",auth,DobUpdateById);
-
-// Update user gender
-router.put("/:id/gender",auth,genderUpdate);
-
-// Delete a user account
-router.delete("/:id/delete", auth, deleteUserById);
-
-// Get followers of a user
-router.get("/:id/followers", auth, getUserFollowers);
-
-// Get users that the user is following
-router.get("/:id/following", auth, getUserFollowing);
-
-// Follow a user
 router.post("/follow", auth, followUser);
-
-// Unfollow a user
 router.post("/unfollow", auth, unfollowUser);
 
-// get all users
-router.get("/get-all-users-except/:id",auth,getAllUsersExceptOne);
+// ── Wildcard /:id routes (MUST come after all specific named routes) ──────────
 
-//get dm list
-router.get("/dmlist/:id",auth, getDMList); 
+router.get("/:id", auth, getUserById);
+router.get("/:id/followers", auth, getUserFollowers);
+router.get("/:id/following", auth, getUserFollowing);
 
-//update user bio
-router.put("/:id/bio",auth,bioUpdateById);
+router.put("/:id", auth, upload.single("profile_picture"), updateUserById);
+router.put("/:id/contact", auth, contactUpdateById);
+router.put("/:id/dob", auth, DobUpdateById);
+router.put("/:id/gender", auth, genderUpdate);
+router.put("/:id/bio", auth, bioUpdateById);
+router.put("/:id/updateProfilePicture", auth, upload.single("profile_picture"), updateUserById);
+
+router.delete("/:id/delete", auth, deleteUserById);
 
 export default router;
