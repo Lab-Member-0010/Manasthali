@@ -66,7 +66,7 @@ Manasthali connects people based on their **MBTI personality type**, replacing p
 | [MongoDB](https://www.mongodb.com) + [Mongoose](https://mongoosejs.com) | Database + ODM |
 | [Socket.IO](https://socket.io) | Real-time bi-directional communication |
 | [JWT](https://jwt.io) | Stateless authentication |
-| [Cloudinary](https://cloudinary.com) | Media storage for posts, profiles, stories |
+| [AWS S3](https://aws.amazon.com/s3) | Media storage for posts, profiles, stories |
 | [Nodemailer](https://nodemailer.com) | Email OTP delivery |
 | [Passport.js](https://www.passportjs.org) | Google OAuth 2.0 |
 | [Multer](https://github.com/expressjs/multer) | Multipart file uploads |
@@ -82,7 +82,7 @@ Manasthali/
 │   ├── controller/           # Route handler logic
 │   ├── model/                # Mongoose schemas
 │   ├── routes/               # Express routers
-│   ├── middleware/           # Auth, Cloudinary, Socket.IO, Google OAuth
+│   ├── middleware/           # Auth, S3 upload, Socket.IO, Google OAuth
 │   ├── mailer/               # Nodemailer OTP emails
 │   ├── scripts/              # Seed scripts (challenges)
 │   ├── app.js                # Server entry point
@@ -166,9 +166,10 @@ DB_URI=mongodb://localhost:27017/manasthali
 
 JWT_SECRET=your_jwt_secret_here
 
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
+AWS_ACCESS_KEY_ID=your_aws_access_key_id
+AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
+AWS_REGION=us-east-1
+S3_BUCKET_NAME=manasthali-media
 
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
