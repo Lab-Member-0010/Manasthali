@@ -1,9 +1,10 @@
 import React from 'react'
+import quizGif from '@assets/quiz_gif.gif'
 
 // NOTE: hover/media effects omitted — use onMouseEnter/onMouseLeave
 
 export const typeContainer: React.CSSProperties = {
-  backgroundImage: "url('../../images/quiz_gif.gif')",
+  backgroundImage: `url(${quizGif})`,
   backgroundSize: 'cover',
   backgroundPosition: 'center',
   backgroundAttachment: 'fixed',

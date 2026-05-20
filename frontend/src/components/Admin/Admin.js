@@ -1,5 +1,5 @@
 import * as styles from "./Admin.styles";
-import ManasthaliLogo from "../../images/Manasthali.png";
+import ManasthaliLogo from "@assets/Manasthali.png";
 import {
     Home as HomeIcon,
     Group as GroupIcon,

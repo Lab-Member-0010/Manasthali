@@ -1,9 +1,10 @@
 import React from 'react'
+import sporeGif from '@assets/spore.gif'
 
 // NOTE: hover/media effects omitted — use onMouseEnter/onMouseLeave
 
 export const backgroundContainer: React.CSSProperties = {
-  backgroundImage: "url('../../images/spore.gif')",
+  backgroundImage: `url(${sporeGif})`,
   backgroundSize: 'cover',
   backgroundPosition: 'center',
   backgroundAttachment: 'fixed',

@@ -1,9 +1,11 @@
 import React from 'react'
+import sporeGif from '@assets/spore.gif'
+import manasthaliLogo from '@assets/Manasthali.png'
 
 // NOTE: hover/media effects omitted — use onMouseEnter/onMouseLeave
 
 export const otpContainer: React.CSSProperties = {
-  backgroundImage: "url('../../images/spore.gif')",
+  backgroundImage: `url(${sporeGif})`,
   backgroundSize: 'cover',
   backgroundPosition: 'center',
   backgroundAttachment: 'fixed',
@@ -30,7 +32,7 @@ export const otpBox: React.CSSProperties = {
 export const otpLogo: React.CSSProperties = {
   width: '100px',
   height: '100px',
-  backgroundImage: "url('../../images/Manasthali.png')",
+  backgroundImage: `url(${manasthaliLogo})`,
   backgroundRepeat: 'no-repeat',
   backgroundPosition: 'center',
   backgroundSize: 'contain',

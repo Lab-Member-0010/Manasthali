@@ -5,22 +5,22 @@ import * as styles from "./communityAdmin.styles";
 import { toast } from 'react-toastify';
 import { ToastContainer } from 'react-bootstrap';
 
-import INFJ from "../../../images/community/infj.png";
-import ISFJ from "../../../images/community/isfj.png";
-import INFP from "../../../images/community/infp.png";
-import INTJ from "../../../images/community/intj.png";
-import INTP from "../../../images/community/intp.png";
-import ISFP from "../../../images/community/isfp.png";
-import ISTJ from "../../../images/community/istj.png";
-import ISTP from "../../../images/community/istp.png";
-import ENFJ from "../../../images/community/enfj.png";
-import ESFJ from "../../../images/community/esfj.png";
-import ENFP from "../../../images/community/enfp.png";
-import ENTJ from "../../../images/community/entj.png";
-import ENTP from "../../../images/community/entp.png";
-import ESFP from "../../../images/community/esfp.png";
-import ESTJ from "../../../images/community/estj.png";
-import ESTP from "../../../images/community/estp.png";
+import INFJ from "@assets/community/infj.png";
+import ISFJ from "@assets/community/isfj.png";
+import INFP from "@assets/community/infp.png";
+import INTJ from "@assets/community/intj.png";
+import INTP from "@assets/community/intp.png";
+import ISFP from "@assets/community/isfp.png";
+import ISTJ from "@assets/community/istj.png";
+import ISTP from "@assets/community/istp.png";
+import ENFJ from "@assets/community/enfj.png";
+import ESFJ from "@assets/community/esfj.png";
+import ENFP from "@assets/community/enfp.png";
+import ENTJ from "@assets/community/entj.png";
+import ENTP from "@assets/community/entp.png";
+import ESFP from "@assets/community/esfp.png";
+import ESTJ from "@assets/community/estj.png";
+import ESTP from "@assets/community/estp.png";
 
 const CommunityAdmin = () => {
   const [personalityData, setPersonalityData] = useState([]);

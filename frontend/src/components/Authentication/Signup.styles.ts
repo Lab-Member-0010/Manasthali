@@ -1,9 +1,11 @@
 import React from 'react'
+import sporeGif from '@assets/spore.gif'
+import manasthaliLogo from '@assets/Manasthali.png'
 
 // NOTE: hover/media effects omitted — use onMouseEnter/onMouseLeave
 
 export const signupContainer: React.CSSProperties = {
-  backgroundImage: "url('../../images/spore.gif')",
+  backgroundImage: `url(${sporeGif})`,
   backgroundSize: 'cover',
   backgroundPosition: 'center',
   backgroundAttachment: 'fixed',
@@ -31,7 +33,7 @@ export const signupBox: React.CSSProperties = {
 export const signupLogo: React.CSSProperties = {
   width: '80px',
   height: '80px',
-  backgroundImage: "url('../../images/Manasthali.png')",
+  backgroundImage: `url(${manasthaliLogo})`,
   backgroundRepeat: 'no-repeat',
   backgroundPosition: 'center',
   backgroundSize: 'contain',

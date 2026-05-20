@@ -17,7 +17,7 @@ import * as styles from "./Feed.styles";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { signOut } from "../../redux-config/UserSlice";
-import ManasthaliLogo from "../../images/Manasthali.png";
+import ManasthaliLogo from "@assets/Manasthali.png";
 import Chat from "./chat/ChatList";
 import FeedHome from "./home/FeedHome";
 import GroupChat from "./group-chat/GroupChat";
@@ -31,7 +31,7 @@ import Story from "./story/Story";
 import Post from "./post/Post";
 import ProfileSetting from "./profile/ProfileSetting";
 import Community from "./community/community";
-import defaultProfile from "../../images/default_profile.jpg";
+import defaultProfile from "@assets/default_profile.jpg";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 

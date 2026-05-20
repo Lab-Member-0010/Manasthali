@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import * as styles from "./Profile.styles";
 import { debounce } from "lodash";
-import defaultUser from "../../../images/default_profile.jpg";
+import defaultUser from "@assets/default_profile.jpg";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
