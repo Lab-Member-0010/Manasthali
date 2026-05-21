@@ -1,268 +1,364 @@
-# Manasthali — Fix Plan
+# Manasthali — Updated Fix Plan
 
-> Issues are ordered by severity. Work top-to-bottom within each phase.
-> ✅ = already fixed in earlier sessions | 🔧 = needs work
-
----
-
-## Phase 1 — Critical crashes (backend routes & controllers)
-
-### 1.1 Route ordering — `routes/user.route.js` 🔧
-`GET /:id` is registered before all named routes (`/dmlist/:id`, `/get-community-users/:id`, `/get-all-users-except/:id`, etc.), making every specific GET route permanently unreachable.
-**Fix:** Move `router.get("/:id", auth, getUserById)` to the very end of the file.
-
-### 1.2 Route ordering — `routes/story.route.js` 🔧
-`GET /:id` shadows every `/stories/*` sub-route. Same pattern as above.
-**Fix:** Move `router.get('/:id', auth, getStoryByID)` to the end.
-
-### 1.3 Double route prefix — `routes/post.route.js` 🔧
-Router is mounted at `/posts` in `app.js`, but every route inside is already prefixed with `/posts`. All post routes live at `/posts/posts/...`.
-**Fix:** Remove `/posts` prefix from every route inside `post.route.js` (e.g., `'/posts'` → `'/'`, `'/posts/:id'` → `'/:id'`).
-
-### 1.4 Double route prefix — `routes/notification.route.js` 🔧
-Same issue. Routes mount at `/notifications/notifications` instead of `/notifications`.
-**Fix:** Remove inner `/notifications` prefix from route definitions.
-
-### 1.5 `controller/comment.controller.js` — global `request`/`response` used instead of `req`/`res` 🔧
-`updateComment` and `getCommentDetails` reference the module-level `request`/`response` imports from Express instead of the `req`/`res` function parameters. Both crash on every call.
-**Fix:** Replace every `request.` and `response.` inside those two functions with `req.` and `res.`. Remove the import.
-
-### 1.6 `controller/notification.controller.js` — `receiver_id` undefined 🔧
-`sendNotification` references `receiver_id` which is never destructured. Body has `userId`, but the field name in the model is `receiver_id`.
-**Fix:** Destructure `receiver_id` from `req.body` (or rename the body field to match).
-
-### 1.7 `controller/community.controller.js` — `Group` not imported 🔧
-`getGroupsInCommunity` calls `Group.find(...)` but only `Community` is imported.
-**Fix:** Add `import { Group } from '../model/group.model.js'`.
-
-### 1.8 `controller/group.controller.js` — `createdBy` missing from schema, null-crash on update/delete 🔧
-`updateGroup` and `deleteGroup` access `group.createdBy` which is not in `groupSchema`. Result: always crashes with TypeError.
-**Fix (two parts):**
-- Add `createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }` to `groupSchema`.
-- Add `createdBy: req.user._id` when creating a group.
-- Add null guard: `if (!group) return res.status(404).json(...)` before the auth check.
-
-### 1.9 `controller/Admin.controller.js` — null crash on unknown username 🔧
-`AdminLogin` accesses `admin.token` before checking if `admin` is null.
-**Fix:** Add `if (!admin) return res.status(404).json({ error: 'Admin not found' })`.
-
-### 1.10 Google OAuth — routes never mounted + `googleId` missing from User schema 🔧
-`googleauth.routes.js` is never imported or `app.use()`'d in `app.js`. Also, `User` model has no `googleId` field, so every OAuth login creates a new orphaned user.
-**Fix (two parts):**
-- Add `import googleAuthRouter from './routes/googleauth.routes.js'` and `app.use('/auth', googleAuthRouter)` in `app.js`.
-- Add `googleId: { type: String }` to `userSchema`.
+> Previous plan items have been moved to **Done** because they are considered completed/superseded.  
+> New work starts again from **Step 1** and is focused on end-to-end working functionality, fresh data updates, JSX cleanup, and inline styling.
 
 ---
 
-## Phase 2 — Chat system (see Phase 2 detail below)
+## New Steps To Do
 
-### 2.1 Socket.IO event name mismatches 🔧 *(fixed in this session)*
-Frontend and backend use different event names for every real-time event. Zero messages are delivered in real time.
+### Step 1 — Fix broken frontend/backend API contracts first
+**Priority:** Critical  
+**Area:** App-wide API calls
 
-### 2.2 User never joins their own socket room (DMs not delivered) 🔧 *(fixed)*
-Backend emits DMs to `io.to(receiverId)` but no code ever calls `socket.join(userId)`.
+Current issue: several frontend calls still target old or missing routes, so core screens can fail even if backend logic exists.
 
-### 2.3 Group chat API URLs wrong in frontend 🔧 *(fixed)*
-Frontend calls `/messages/send` and `/messages/:id` but the router mounts at `/groupchat`.
+**Fix:**
+- Update `frontend/src/apis/Api.js`:
+  - `BASIC_POST_ROUTE` must be `${BASE_URL}/posts`, not `${BASE_URL}/posts/posts`.
+  - `SEND_NOTIFICATION` must be `${BASE_URL}/notifications`, not `${BASE_URL}/notifications/notifications`.
+  - Keep post list constants as base routes only and append `/${userId}` at call sites.
+- Update `frontend/src/components/Feed/post/Post.js`:
+  - Create post should call `POST /posts`, not `POST /posts/posts`.
+- Update `frontend/src/components/Feed/home/FeedHome.js`:
+  - Like/unlike/comment/detail/share calls should use `/posts/:id/...`, not `/posts/posts/:id/...`.
+- Add missing backend routes in `backend/routes/user.route.js`:
+  - `POST /email` → `checkEmail`
+  - `POST /username` → `checkUsername`
+- Import `checkEmail` and `checkUsername` from `user.controller.js` in `user.route.js`.
+- Update `frontend/src/components/Authentication/ResetPassword.js`:
+  - Send `{ token, newPassword: password }` because backend reads `newPassword`, not `password`.
+- Update story fetch call in `frontend/src/components/Feed/story/Story.js`:
+  - Current code calls `GET /story/${user._id}`, but backend treats this as story ID.
+  - Use `GET /story/stories/user/${user._id}` for current user's stories.
+- Normalize comment detail/update/delete routes later if possible:
+  - Current backend creates routes like `/comments/comments/:id` because router is mounted at `/comments` and inner routes also start with `/comments`.
 
-### 2.4 Group message response shape mismatch 🔧 *(fixed)*
-Backend returns `{ data: messages }` but frontend reads `response.data.messages`.
-
----
-
-## Phase 3 — Security
-
-### 3.1 JWT tokens never expire 🔧
-`jwt.sign({ payload: userId }, secretKey)` — no `expiresIn`.
-**Fix:** Add `{ expiresIn: '7d' }` as the third argument.
-
-### 3.2 JWT payload key mismatch (Google OAuth vs regular auth) 🔧
-Regular auth signs `{ payload: userId }`. Google OAuth signs `{ id: user._id }`. Auth middleware decodes `decoded.payload`. Google users can never reach protected routes.
-**Fix:** Standardise all `jwt.sign()` calls to use `{ payload: user._id }` and update auth middleware to use `decoded.payload`.
-
-### 3.3 Password / OTP / resetToken returned in SignIn response 🔧
-Full user document is returned including `password`, `otp`, `resetToken`.
-**Fix:** Use `.select('-password -otp -resetToken -resetTokenExpiry')` in the SignIn query, or spread only the safe fields.
-
-### 3.4 Follow/unfollow userId taken from request body 🔧
-Any authenticated user can follow/unfollow on behalf of any other user.
-**Fix:** Use `req.user._id` from auth middleware instead of `req.body.userId`.
-
-### 3.5 CORS is fully open 🔧
-`app.use(cors())` allows all origins.
-**Fix:** `app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }))`.
-
-### 3.6 Admin signup is unauthenticated 🔧
-Any request can create an admin account.
-**Fix:** Add `auth` middleware to `POST /admin/signUp`, or add a secret-key check.
-
-### 3.7 `/mental-coach/ask` has no auth 🔧
-Anyone can consume Gemini API quota.
-**Fix:** Add `auth` middleware to the route.
-
-### 3.8 Badge routes have no auth 🔧
-`getUserBadges` and `getTodayBadge` are unprotected.
-**Fix:** Add `auth` middleware.
-
-### 3.9 Email enumeration in `forgotPassword` 🔧
-Returns HTTP 404 when the email is not found, revealing account existence.
-**Fix:** Always return 200 with `"If this email exists, a reset link has been sent."`.
-
-### 3.10 `resetPassword` validator/controller field name mismatch 🔧
-Validator checks `newPassword`; controller reads `password`. Password is always `undefined`.
-**Fix:** Change `const { token, password } = req.body` → `const { token, newPassword: password } = req.body`.
+**Acceptance check:** signup email/username validation, reset password, create post, like/unlike, comment, notification creation, and story fetch should no longer hit 404 because of wrong URLs.
 
 ---
 
-## Phase 4 — Logic bugs
+### Step 2 — Fix post creation and feed refresh
+**Priority:** Critical  
+**Area:** Post creation, home feed, media upload
 
-### 4.1 `controller/notification.controller.js` — `getUserNotifications` queries wrong field 🔧
-Queries `sender_id: userId` instead of `receiver_id: userId`. Users see notifications they sent, not received.
-**Fix:** Change `{ sender_id: userId }` → `{ receiver_id: userId }`.
+Current issue: post creation is still not fully reliable and new posts do not automatically refresh the home feed.
 
-### 4.2 `controller/notification.controller.js` — `markNotificationAsRead` missing `return` 🔧
-After the 400 response, execution continues and crashes on `null.read_status = true`.
-**Fix:** Add `return` before the 400 response.
+**Fix:**
+- In `backend/controller/post.controller.js` → `createPost`:
+  - Do not trust `userId` from request body. Use `req.user._id`.
+  - For S3 uploads, store `file.location || file.path`, not only `file.path`.
+  - Validate empty description/media clearly. Decide whether text-only posts are allowed.
+  - Return the created post populated with `userId`, `likes`, and `comments` so the frontend can update immediately.
+- In `frontend/src/components/Feed/post/Post.js`:
+  - After successful post creation, clear the form and trigger feed refresh.
+  - Either pass an `onPostCreated` callback from `Feed.js` or switch to a shared `refreshFeed` state/event.
+- In `backend/controller/post.controller.js`:
+  - `getCommunityPosts` should guard missing user and missing community before reading `community._id`.
+  - Return `200` with `posts: []` for empty feeds instead of treating empty data as an error.
+  - Sort posts by latest first using `.sort({ createdAt: -1 })`.
 
-### 4.3 `controller/story.controller.js` — multiple bugs 🔧
-- `getStoryByID`: checks `if (!storyId)` instead of `if (!story)`.
-- `viewStory`: uses `req.params.id` for both `storyId` AND `userId`.
-- `CommentStory`: pushes `userId, text` as two separate values instead of `{ userId, text }`.
-- `uploadStory`: uses `req.file.filename` (Cloudinary public_id) instead of `req.file.path` (Cloudinary URL).
-- `getUserStories`: function body is completely empty — every call hangs forever.
-
-### 4.4 `model/badge.model.js` — missing `userId` field 🔧
-All badge queries and creates reference `userId` which is not in the schema. All badge data is silently lost.
-**Fix:** Add `userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }` to `badgeSchema`.
-
-### 4.5 `model/user.model.js` — missing `otpExpiresAt` field 🔧
-Google OAuth sets `user.otpExpiresAt` on save, silently dropped. OTP expiry is never enforced.
-**Fix:** Add `otpExpiresAt: { type: Date }` to `userSchema`.
-
-### 4.6 `app.js` — duplicate `mentalCoachRouter` mount 🔧 *(fixed in this session)*
-Same router at both `/mentalCoach` and `/mental-coach`.
-**Fix:** Remove one of the two `app.use()` lines.
-
-### 4.7 `app.js` — routes registered inside DB connection callback 🔧
-If DB connection is slow or fails, zero routes are registered with no error feedback.
-**Fix:** Register routes unconditionally; handle DB failure with a startup check that exits the process.
-
-### 4.8 `controller/post.controller.js` — crashes when user has no community 🔧
-`Community.findOne(...)` returns `null` for users without a personality type. `community._id` crashes immediately.
-**Fix:** Add `if (!community) return res.status(400).json({ error: 'Take the personality quiz first' })`.
-
-### 4.9 Wrong HTTP status codes 🔧
-`getPostDetails` and `deletePost` both return 201 instead of 200 (201 = Created).
-**Fix:** Change to `res.status(200)`.
+**Acceptance check:** user creates a post, returns to home/feed, and the new post appears without manual browser refresh.
 
 ---
 
-## Phase 5 — Frontend bugs
+### Step 3 — Fix like, unlike, comment, and share end-to-end
+**Priority:** Critical  
+**Area:** Feed interactions
 
-### 5.1 `Story.js` — broken template literal 🔧
-```js
-// Wrong — double quotes, not backticks:
-await axios.post("${BASE_URL}/story/stories", ...)
-// Fix:
-await axios.post(`${BASE_URL}/story/stories`, ...)
-```
+Current issue: like/comment/share UI does not consistently update backend + frontend + notifications.
 
-### 5.2 `ProfileSetting.js` — wrong Redux selector 🔧
-`state.UserSlice?.user` → should be `state.user?.user`.
+**Fix:**
+- In post like/unlike backend:
+  - Use `req.user._id`, not `req.body.userId`.
+  - Return updated `likes` array and `likeCount`.
+- In `FeedHome.js`:
+  - Remove `localStorage` as the source of truth for likes.
+  - Use optimistic UI only with rollback if the API fails.
+  - Compare IDs safely because backend may return ObjectIds or populated user objects.
+- Fix comment submit flow:
+  - Current comment notification uses `postId.userId`, but `postId` is only a string.
+  - Find the current post object first, then use `post.userId._id || post.userId` as receiver.
+  - After comment success, append the returned comment or refetch that post.
+  - Render comments inside the modal; currently the modal opens but comment list area is empty.
+- Fix notification payload:
+  - Backend expects `receiver_id`, `notification_type`, and `sender_id`.
+  - Frontend currently sends `userId` in some places. Replace with `receiver_id`.
+- Implement share button in `FeedHome.js`:
+  - Add `onClick={() => handleShare(post)}`.
+  - Call `POST /posts/:id/share`.
+  - Update `shares` count in local state after success.
+  - Render shared post reference clearly if `shared_post_id` exists.
+- In `backend/controller/comment.controller.js`:
+  - `getCommentDetails` should populate `userId`, not `user_id`.
+  - `deleteComment` currently decrements `post.comment_count`, but `postSchema` has no `comment_count`. Remove this or add the schema field intentionally.
 
-### 5.3 `Profile.js` — `updateProfile` prop never passed from `Feed.js` 🔧
-`handleFollowToggle` calls `updateProfile(user)` but `Feed.js` only passes `updateProfilePicture`. Crashes on every follow/unfollow.
-**Fix:** Either pass `updateProfile` from `Feed.js` or remove the call from `Profile.js`.
-
-### 5.4 `Profile.js` — profile picture upload has no `Authorization` header 🔧
-`handleProfilePicUpload` omits the JWT header on the PUT request.
-**Fix:** Add `headers: { Authorization: 'Bearer ${token}', 'Content-Type': 'multipart/form-data' }`.
-
-### 5.5 `Profile.js` — `togglePosts` mutates state to boolean 🔧
-`setPosts((prev) => !prev)` converts the array to `true`/`false`, breaking any subsequent `.map()`.
-**Fix:** Manage post visibility with a separate boolean state (`const [showPosts, setShowPosts] = useState(false)`).
-
-### 5.6 `Profile.js` — `"/default_profile.jpg"` 404 in Vite 🔧
-File is in `assets/`, not `public/`. Use the imported `defaultUser` variable instead of the raw string path.
-
-### 5.7 `Story.js` — `"./default_profile.jpg"` 404 in Vite 🔧
-Same issue. Import from `@assets/default_profile.jpg` or use `/user.png` from `public/`.
-
-### 5.8 `App.js` — `/profile` and `/notifications` routes unprotected 🔧
-Both routes access Redux user state directly. Unauthenticated access crashes immediately.
-**Fix:** Wrap both with `<Auth>`.
-
-### 5.9 `Signin.js` — link to `/Signup` (capital S) 🔧
-React Router v6 is case-sensitive. Route is defined as `/signup`.
-**Fix:** Change to `/signup`.
-
-### 5.10 `communityAdmin.js` — `useEffect` missing dependency array (infinite loop) 🔧
-No `[]` means the effect runs after every render, triggering infinite fetches.
-**Fix:** Add `[]` as the second argument.
-
-### 5.11 `Group.js` and `FindFriend.js` — debounce recreated every render 🔧
-`debouncedSearch` is defined inside the component without `useCallback`, so a new debounce instance is created every render, making debouncing non-functional.
-**Fix:** Wrap with `useCallback(debounce(...), [])` or move debounce outside the component.
-
-### 5.12 `Groups.js` (Admin) — form field name mismatch 🔧
-Input binds `value={formData.group_name}` but state key is `name`. Input always renders blank.
-**Fix:** Change to `value={formData.name}`.
-
-### 5.13 `FeedHome.js` — `newComment` shared across all posts 🔧
-A single string controls every post's comment box. Text typed in one post submits for another.
-**Fix:** Use per-post comment state (e.g., `const [comments, setComments] = useState({})` keyed by post ID).
-
-### 5.14 `AdminLogin.js` — hardcoded `username: "admin"` 🔧
-Admin login always sends `"admin"` regardless of what was typed.
-**Fix:** Add a username input field and bind it to state.
-
-### 5.15 `ProfileSetting.js` — `toast.success(message)` shows empty string 🔧
-`setMessage(...)` is async but `toast.success(message)` fires before state update.
-**Fix:** Pass the string directly: `toast.success("Profile picture updated successfully!")`.
+**Acceptance check:** like count, unlike state, comment count, comment list, share count, and notification records update correctly on the same screen without stale data.
 
 ---
 
-## Phase 6 — Dead code / cleanup
+### Step 4 — Fix stories end-to-end
+**Priority:** High  
+**Area:** Stories upload/view/like/comment/view count
 
-| File | Issue |
-|---|---|
-| `middleware/socket.js` | Orphaned file — references `io` from nowhere, never imported. Delete it. |
-| `model/mentalCoach.model.js` | Defined but never imported or used by the controller. |
-| `controller/community.controller.js` | `getAllCommunities` and `getCommunities` are identical. Remove one. |
-| `UserSlice.js` | `likedPosts: {}` initial state never read or written. Remove it. |
-| `FeedHome.js` | `emojiPickerVisible` state never read in JSX. Remove it. |
-| `Profile.js` | `handleFileChange` and `handleProfilePicUpload` defined but no UI calls them. |
-| `Profile.js` | `console.log(filteredUsers)` left in render. Remove it. |
-| `Home.js` | `InfoIcon` imported but unused. |
-| `Home.js` | `handleAboutToggle` and About Modal unreachable — no trigger button. |
-| `UserSlice.js` | `console.log(action.payload)` in `setUser` reducer leaks auth token. Remove it. |
-| `FeedHome.js` | Multiple `console.log` debug statements. Remove them. |
-| `MentalCoach.js` | Local `isLoggedIn` state always true — `state.user` is never null. Remove the local state and effect. |
+Current issue: story fetch is using the wrong endpoint, story media rendering is incorrect for S3 URLs/arrays, and the UI only handles a very limited current-user story flow.
 
----
+**Fix:**
+- In `Story.js`:
+  - Fetch current user's stories from `/story/stories/user/:userId`.
+  - For the story strip, also fetch all stories from `/story/stories` if stories from other users should be visible.
+  - Display `story.media?.[0]` or the direct media URL. Do not prefix S3 URLs with `BASE_URL`.
+  - After upload, update state immediately or refetch stories.
+- In `backend/controller/story.controller.js`:
+  - Use `req.user._id` instead of trusting `userId` from body.
+  - Validate that a media file exists before saving.
+  - Keep `media` shape consistent: either always array or always string.
+  - Populate `userId` with `username profile_picture`, not `name email`.
+  - Add 24-hour story filtering if this is intended to behave like social-media stories.
+- Add frontend actions if required:
+  - like story
+  - comment on story
+  - record story view
 
-## Phase 7 — tsconfig `@assets` alias (TypeScript path)
-
-The Vite alias `@assets` resolves correctly at build time, but `tsc -b` will fail because `tsconfig.app.json` has no matching `paths` entry.
-**Fix:** Add to `tsconfig.app.json` compilerOptions:
-```json
-"paths": {
-  "@/*": ["./src/*"],
-  "@assets/*": ["../assets/*"]
-}
-```
+**Acceptance check:** upload story → story ring updates → story opens and shows correct image → view count/like/comment update if those actions are exposed.
 
 ---
 
-## Done ✅ (fixed in previous sessions)
+### Step 5 — Fix profile, profile settings, and global user data refresh
+**Priority:** High  
+**Area:** Profile screen, settings screen, Redux user state
 
-- All frontend backend URLs moved to `VITE_API_URL` env var
-- CRA → Vite migration (vite.config.ts, tsconfig, index.html, main.tsx)
-- All CSS files removed, converted to TypeScript `React.CSSProperties` style objects
-- `assets/` alias added to vite.config.ts
-- `backgroundImage` strings converted to Vite-processed asset imports
-- Backend `.env` and `.env.example` created with all required variables
-- Backend `app.js` Socket.IO CORS moved to `process.env.FRONTEND_URL`
-- Google OAuth callback URL moved to `process.env.GOOGLE_CALLBACK_URL`
-- Backend `.gitignore` created
-- README.md rewritten for GitHub
+Current issue: profile updates are saved in backend but not consistently reflected across `Feed`, profile screen, right-side profile image, settings screen, followers/following, and chat lists.
+
+**Fix:**
+- Use one user source of truth:
+  - After every profile update, dispatch `updateUserProfile(response.data.user)`.
+  - Also update `Feed.js` `profileData` or refetch it after setting changes.
+- In `ProfileSetting.js`:
+  - After updating contact, DOB, gender, bio, or profile picture, update Redux user state.
+  - Clear/reset the specific form input after success if needed.
+- In `Profile.js`:
+  - Posts count currently reads `user.posts`, but `User` model has no `posts` field.
+  - Fetch posts from `GET /posts/getUserPosts/:userId` and show count from that response.
+  - `showPosts` toggles state but does not render posts. Add rendering or remove the toggle.
+  - Profile photo upload handlers exist but no visible UI calls them. Either add upload UI or remove dead handlers.
+- In `App.js`:
+  - `/profile` currently renders `ProfileSetting`, not the actual profile view. Rename route to `/settings` or render the correct profile component.
+- In delete account flow:
+  - Only delete if the user typed the required confirmation value, e.g. `yes`.
+  - After delete, sign out and navigate to `/signin`.
+
+**Acceptance check:** update profile picture/bio/contact → header profile image, profile page, settings page, feed cards, and chat user card should show updated data without manual refresh.
+
+---
+
+### Step 6 — Fix friends, followers, following, DM list, and chat refresh
+**Priority:** High  
+**Area:** Find friends, direct chat, group chat
+
+Current issue: follow/unfollow updates only the local list where the action happened. Other screens like profile counts and DM list can stay stale.
+
+**Fix:**
+- After follow/unfollow:
+  - Refetch following/followers where needed.
+  - Refresh DM list because DM list depends on followers/following.
+  - Refresh profile counts.
+- In direct chat:
+  - Backend `getMessages` should return `200` with `messages: []` for empty conversations instead of `404`.
+  - Keep one stable socket connection per logged-in user and clean up listeners with `socket.off(...)`.
+- In group chat backend:
+  - Protect `POST /groups/create` with `auth`; currently route is public while controller expects `req.user` for `createdBy`.
+  - Compare ObjectIds using `.some(id => id.toString() === req.user._id.toString())` instead of relying on `.includes()`.
+  - `getGroupMessages` must check that the current user is a group member before returning messages.
+  - Sort group messages oldest to newest using `.sort({ createdAt: 1 })`.
+- In group chat frontend:
+  - Refetch joined groups after join/leave.
+  - Ensure newly sent group messages appear in correct chronological order.
+
+**Acceptance check:** follow a user → they appear in chat list; unfollow → list/counts update; join group → group appears in group chat; group messages load and send in correct order.
+
+---
+
+### Step 7 — Fix notifications read state and sender display
+**Priority:** Medium  
+**Area:** Notification screen
+
+Current issue: notifications can be fetched but cannot be marked as read from the route/UI, and sender is shown as a raw ID.
+
+**Fix:**
+- In `backend/routes/notification.route.js`:
+  - Add route for `markNotificationAsRead`, e.g. `PATCH /:id/read`.
+  - Import `markNotificationAsRead` from controller.
+- In `backend/controller/notification.controller.js`:
+  - Populate `sender_id` with `username profile_picture` in `getUserNotifications`.
+  - Sort newest first.
+- In `Notification.js`:
+  - Show sender username/profile picture instead of raw sender ID.
+  - Add click/action to mark as read.
+  - Update local state after read success.
+
+**Acceptance check:** like/comment creates notification → receiver sees readable notification → click marks it read and UI style changes immediately.
+
+---
+
+### Step 8 — Fix signup, OTP, quiz, and auth refresh state
+**Priority:** Medium  
+**Area:** Authentication and onboarding
+
+Current issue: signup validation routes are missing, regular OTP expiry is not enforced, and after quiz submission the Redux user can remain stale.
+
+**Fix:**
+- Register `/users/email` and `/users/username` as mentioned in Step 1.
+- In regular signup:
+  - Save `otpExpiresAt` when OTP is generated.
+  - In `verifyOtp`, check expiry and clear `otpExpiresAt` after success.
+- In quiz flow:
+  - Backend already returns `personality_type`; frontend should update Redux user with this value or refetch `/users/:id` after submit.
+  - Navigate to feed only after local user state has the updated personality type.
+- Add auth persistence if required:
+  - Store token/user in `localStorage` or handle refresh cleanly by redirecting to sign-in.
+
+**Acceptance check:** signup → email/username validation works → OTP expires correctly → quiz updates user personality → feed does not redirect back to quiz after refresh/state changes.
+
+---
+
+### Step 9 — Convert React component files to `.jsx` where JSX is used
+**Priority:** Medium  
+**Area:** Frontend file structure
+
+Current issue: most React component files contain JSX but still use `.js`. Vite supports this, but `.jsx` is cleaner and easier to identify.
+
+**Fix:**
+- Rename component files that return JSX from `.js` to `.jsx`.
+- Keep non-JSX utility/store/API files as `.js` or `.ts` as appropriate.
+- Update all imports after renaming.
+- Suggested examples:
+  - `App.js` → `App.jsx`
+  - `Feed.js` → `Feed.jsx`
+  - `FeedHome.js` → `FeedHome.jsx`
+  - `Story.js` → `Story.jsx`
+  - `Post.js` → `Post.jsx`
+  - `ChatList.js` → `ChatList.jsx`
+  - `GroupChat.js` → `GroupChat.jsx`
+  - Auth, Quiz, Profile, Admin components → `.jsx`
+- Keep `main.tsx` as-is unless the project wants a pure JS setup.
+
+**Acceptance check:** frontend builds after rename and all imports resolve correctly.
+
+---
+
+### Step 10 — Move styling inline / colocated inside component files
+**Priority:** Medium  
+**Area:** Frontend styling standard
+
+Current issue: styling is split into many `*.styles.ts` files. Requested standard is no additional styling files and inline/component-local styling.
+
+**Fix:**
+- For every component importing `* as styles from "./X.styles"`:
+  - Move the style objects into the same `.jsx` component file.
+  - Remove the external `*.styles.ts` file after migration.
+- Keep styling in one of these formats only:
+  - Direct inline JSX style: `style={{ padding: 16, borderRadius: 12 }}`
+  - Component-local object in the same file:
+    ```jsx
+    const styles = {
+      card: {
+        padding: 16,
+        borderRadius: 12,
+      },
+    };
+    ```
+- Do not create new CSS or style files.
+- Remove custom Bootstrap dependency usage where the same styling is already handled inline.
+- Keep third-party library CSS only if the library requires it and replacement is not practical, e.g. toast styles.
+- Review `frontend/src/utils/styleUtils.ts`; if global injected styles are not required, remove it and keep styles inside components.
+
+**Acceptance check:** no component depends on `*.styles.ts`; UI still looks the same after migration; no new CSS/styling files are added.
+
+---
+
+### Step 11 — Add screen-level data refresh rules
+**Priority:** Medium  
+**Area:** Updated data across every screen
+
+Current issue: many operations update backend but only partially update frontend state.
+
+**Fix rules:**
+- After create post → refresh feed and profile post count.
+- After like/unlike → update that post on current feed and profile post list.
+- After comment → update comment count and comment list.
+- After share → update share count and show shared post.
+- After story upload/delete/like/comment/view → refresh story strip and viewer state.
+- After profile setting update → refresh Redux user, feed header, profile page, post cards, and chat user display.
+- After follow/unfollow → refresh find friends, profile counts, and DM list.
+- After group join/leave → refresh group list and group chat list.
+- After notification read → update notification list immediately.
+
+**Acceptance check:** user should not need browser refresh after any create/update/delete action.
+
+---
+
+### Step 12 — Execute final E2E verification checklist
+**Priority:** Final QA gate  
+**Area:** Full app regression
+
+Run this checklist after Steps 1–11:
+
+1. Signup → verify OTP → sign in.
+2. Submit quiz → user gets personality → feed opens.
+3. Create post with image → feed updates.
+4. Create text-only post if supported → feed updates, or validation message appears if not supported.
+5. Like/unlike post → count and icon update.
+6. Add comment → count and modal list update.
+7. Share post → share count updates and shared post is visible.
+8. Upload story → story ring updates → story opens with correct image.
+9. Like/comment/view story if UI exposes these actions.
+10. Open profile → followers/following/post counts are correct.
+11. Update profile picture/bio/contact/DOB/gender → every screen shows fresh data.
+12. Follow user → profile count and DM list update.
+13. Send direct message → receiver gets real-time message.
+14. Join group → group appears in group chat.
+15. Send group message → members receive it in real time.
+16. Like/comment notification appears for receiver.
+17. Mark notification as read → read style updates.
+18. Delete account → user signs out and cannot access protected screens.
+19. Refresh browser on protected screens → app handles auth state cleanly.
+20. Run frontend build and backend start smoke test.
+
+---
+
+## Done ✅ — Previous Plan Items Moved Here
+
+The following work was already listed in the previous `plan.md` and is now treated as done/superseded:
+
+- Backend critical route ordering fixes for user/story routes.
+- Backend double-prefix cleanup for post and notification routes.
+- Backend controller crash fixes around comments, notifications, communities, groups, admin login, and Google OAuth.
+- Socket.IO chat event alignment and private room join flow.
+- Group chat URL and response-shape fixes.
+- JWT expiry and JWT payload standardization.
+- Sensitive fields removed from sign-in response.
+- Follow/unfollow security updated to use authenticated user.
+- CORS moved to environment-based frontend origin.
+- Admin signup, mental coach, and badge route protection work.
+- Forgot/reset password backend security fixes.
+- Notification query/read logic fixes from earlier plan.
+- Story controller fixes from earlier plan.
+- Badge/user schema fixes from earlier plan.
+- Duplicate mental coach route cleanup.
+- Backend route registration/startup cleanup from earlier plan.
+- Post no-community guard and status-code cleanup.
+- Frontend route protection and earlier story/profile/feed bug fixes.
+- Debounce fixes in group/friend search.
+- Per-post comment state fix in feed.
+- Admin and profile toast cleanup from earlier plan.
+- Dead code/debug cleanup from earlier plan.
+- Vite migration, environment config, asset alias, README update, and previous CSS-to-style-object migration.
+
+---
+
+## Notes From Current Inspection
+
+- This plan is based on static inspection of the uploaded codebase. Runtime testing was not executed because dependencies/environment variables/database/S3 credentials are not available inside the uploaded ZIP.
+- Highest risk areas are API route mismatches, post/story media URL handling, stale frontend state after mutations, and notification payload mismatch.
+- Do Step 1 first. Many downstream screens cannot be tested properly until route contracts are aligned.
