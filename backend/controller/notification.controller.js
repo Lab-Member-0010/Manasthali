@@ -3,7 +3,7 @@ import Notification from '../model/notification.model.js';
 // send notification
 export const sendNotification = async (req, res, next) => {
   try {
-    const { userId, notification_type, sender_id } = req.body;
+    const { receiver_id, notification_type, sender_id } = req.body;
     const notification = new Notification({
       receiver_id, notification_type, sender_id,
     });
@@ -21,7 +21,7 @@ export const getUserNotifications = async (req, res) => {
     if (!userId) {
       return res.status(400).json({ message: "User ID is required" });
     }
-    const notifications = await Notification.find({ sender_id: userId });
+    const notifications = await Notification.find({ receiver_id: userId });
     res.status(200).json(notifications);
   } catch (error) {
     res.status(500).send("Error fetching notifications");
@@ -34,7 +34,7 @@ export const markNotificationAsRead = async (req, res) => {
     const { id } = req.params;
     const notification = await Notification.findById(id);
     if (!notification) {
-      res.status(400).json({ message: "notification not found" })
+      return res.status(400).json({ message: "notification not found" });
     }
     notification.read_status = true;
     await notification.save();

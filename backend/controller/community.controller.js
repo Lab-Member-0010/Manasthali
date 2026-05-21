@@ -1,4 +1,5 @@
 import Community from '../model/community.model.js';
+import { Group } from '../model/group.model.js';
 
 // Get all communities
 export const getAllCommunities = async (req, res) => {
@@ -67,13 +68,3 @@ export const createCommunity = async (req, res) => {
     }
 };
 
-// Get all communities
-export const getCommunities = async (req, res) => {
-    try {
-        const communities = await Community.find();
-        return res.status(200).json({ success: true, data: communities });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ success: false, message: "Failed to fetch communities" });
-    }
-};

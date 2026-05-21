@@ -169,7 +169,7 @@ const SignIn = () => {
           <h5>
             Don't have an account?
             <span>
-              <Link to="/Signup" style={{ textDecoration: "none" }}> Please Register</Link>
+              <Link to="/signup" style={{ textDecoration: "none" }}> Please Register</Link>
             </span>
           </h5>
         </div>

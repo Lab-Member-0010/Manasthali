@@ -89,7 +89,7 @@ const Groups = () => {
           <input
             type="text"
             name="name"
-            value={formData.group_name}
+            value={formData.name}
             onChange={handleChange}
             className="form-control mb-3"
             required

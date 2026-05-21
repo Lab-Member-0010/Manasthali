@@ -7,12 +7,14 @@ import { uploadStory, getUserStories, deleteStory, getAllStories,
 const router = express.Router();
 // router.post('/stories',auth, uploadStory);
 router.post("/stories", auth, upload.single("media"), uploadStory);
-router.get("/stories",auth,getAllStories )
-router.get('/:id',auth, getStoryByID);
-router.get('/stories/user/:userId',auth, getUserStories);
-router.delete('/stories/:id',auth, deleteStory);
-router.post("/stories/like/:id",auth,StoryLike);
-router.post("/stories/comment/:id",auth,CommentStory);
-router.post("/stories/:id/views",auth,viewStory);
+router.get("/stories", auth, getAllStories);
+router.get('/stories/user/:userId', auth, getUserStories);
+router.delete('/stories/:id', auth, deleteStory);
+router.post("/stories/like/:id", auth, StoryLike);
+router.post("/stories/comment/:id", auth, CommentStory);
+router.post("/stories/:id/views", auth, viewStory);
+
+// Wildcard /:id route MUST come last so it doesn't shadow /stories/* routes
+router.get('/:id', auth, getStoryByID);
 
 export default router;

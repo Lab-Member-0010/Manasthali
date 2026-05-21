@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import * as styles from './Group.styles';
 import { useSelector } from 'react-redux';
@@ -48,23 +48,25 @@ const Group = () => {
     fetchGroups();
   }, [userId, token, personalityType]); // Make sure personalityType is part of the dependency array
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    debouncedSearch(e.target.value);
-  };
-
-  const debouncedSearch = debounce((searchTerm) => {
-    filterGroups(searchTerm);
-  }, 500);
-
-  const filterGroups = (searchTerm) => {
-    if (searchTerm.trim() === '') {
+  const filterGroups = (term) => {
+    if (term.trim() === '') {
       setFilteredGroups(groups);
     } else {
       setFilteredGroups(groups.filter(group =>
-        group.name.toLowerCase().includes(searchTerm.toLowerCase())
+        group.name.toLowerCase().includes(term.toLowerCase())
       ));
     }
+  };
+
+  // Wrap debounce in useCallback so a single debounced instance is reused across renders
+  const debouncedSearch = useCallback(
+    debounce((term) => filterGroups(term), 500),
+    [groups]
+  );
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    debouncedSearch(e.target.value);
   };
 
   const handleJoinLeaveToggle = async (groupId, isCurrentlyJoined) => {

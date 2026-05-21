@@ -54,10 +54,10 @@ const App = () => {
         <Route path="/feed" element={<Auth><Feed /></Auth>} />
 
         {/* Profile */}
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/profile" element={<Auth><Profile /></Auth>} />
 
         {/* Notification */}
-        <Route path="/notifications" element={< Notification/>}/>
+        <Route path="/notifications" element={<Auth><Notification /></Auth>} />
 
         {/* Personality Page */}
         <Route path="/personality" element={<Auth><Personality/></Auth>}/>

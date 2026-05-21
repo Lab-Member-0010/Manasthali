@@ -10,7 +10,7 @@ const BASE_URL = import.meta.env.VITE_API_URL;
 
 
 const ProfileSetting= () => {
-  const user = useSelector((state) => state.UserSlice?.user);
+  const user = useSelector((state) => state.user?.user);
   const userId = useSelector((state) => state.user.user._id);
   const token=useSelector((state) => state.user.token);
   const [profilePicture, setProfilePicture] = useState(null);
@@ -48,7 +48,7 @@ const ProfileSetting= () => {
 
       if (response.status === 200) {
         setMessage("Profile picture updated successfully!");
-        toast.success(message);
+        toast.success("Profile picture updated successfully!");
       } else {
         toast.error("Failed to update profile picture.");
       }

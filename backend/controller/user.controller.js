@@ -91,7 +91,8 @@ export const forgotPassword = async (req, res) => {
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      // Do not reveal whether the email exists — return the same 200 message
+      return res.status(200).json({ message: "If this email exists, a reset link has been sent." });
     }
 
     const token = crypto.randomBytes(32).toString("hex");
@@ -217,7 +218,7 @@ export const forgotPassword = async (req, res) => {
       html: htmlContent,
     });
 
-    res.status(200).json({ message: "Password reset link sent to your email" });
+    res.status(200).json({ message: "If this email exists, a reset link has been sent." });
   } catch (err) {
     console.error("Error in forgotPassword:", err);
     res.status(500).json({ error: "Internal Server Error" });
@@ -227,7 +228,7 @@ export const forgotPassword = async (req, res) => {
 // Reset Password
 export const resetPassword = async (req, res) => {
   try {
-    const { token, password } = req.body;
+    const { token, newPassword: password } = req.body;
     const user = await User.findOne({
       resetToken: token,
       resetTokenExpiry: { $gt: Date.now() },
@@ -264,9 +265,11 @@ export const SignIn = async (request, response, next) => {
 
       const status = bcrypt.compareSync(password, user.password);
       if (status) {
+        // Strip sensitive fields before returning the user
+        const safeUser = await User.findById(user._id).select('-password -otp -resetToken -resetTokenExpiry');
         return response.status(200).json({
           message: "Sign in success.",
-          user,
+          user: safeUser,
           token: generateToken(user._id),
         });
       } else {
@@ -284,7 +287,7 @@ export const SignIn = async (request, response, next) => {
 // generate json webtoken
 const generateToken = (userId) => {
   const secretKey = process.env.JWT_SECRET;
-  let token = jwt.sign({ payload: userId }, secretKey);
+  let token = jwt.sign({ payload: userId }, secretKey, { expiresIn: '7d' });
   return token;
 };
 
@@ -478,7 +481,13 @@ export const getUserFollowing = async (req, res) => {
 // folllow user
 export const followUser = async (req, res) => {
   try {
-    const { userId, userIdToFollow } = req.body;
+    // Take the acting user from the auth middleware, never trust the body
+    const userId = req.user?._id?.toString();
+    const { userIdToFollow } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
 
     if (userId === userIdToFollow) {
       return res.status(400).json({ message: "You cannot follow yourself" });
@@ -513,7 +522,9 @@ export const followUser = async (req, res) => {
 // unfollow user
 export const unfollowUser = async (req, res) => {
   try {
-    const { userId, userIdToUnfollow } = req.body;  // Extract IDs correctly
+    // Take the acting user from the auth middleware, never trust the body
+    const userId = req.user?._id?.toString();
+    const { userIdToUnfollow } = req.body;
 
     if (!userId || !userIdToUnfollow) {
       return res.status(400).json({ error: "Invalid request. Missing user ID." });

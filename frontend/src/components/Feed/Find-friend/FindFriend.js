@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import * as styles from './FindFriend.styles';
 import { useSelector } from 'react-redux';
@@ -44,23 +44,25 @@ const FindFriend = () => {
     fetchUsers();
   }, [userId, token]);
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    debouncedSearch(e.target.value);
-  };
-
-  const debouncedSearch = debounce((searchTerm) => {
-    filterUsers(searchTerm);
-  }, 500);
-
-  const filterUsers = (searchTerm) => {
-    if (searchTerm.trim() === '') {
+  const filterUsers = (term) => {
+    if (term.trim() === '') {
       setFilteredUsers(users);
     } else {
       setFilteredUsers(users.filter(user =>
-        user.username.toLowerCase().includes(searchTerm.toLowerCase())
+        user.username.toLowerCase().includes(term.toLowerCase())
       ));
     }
+  };
+
+  // Wrap debounce in useCallback so a single debounced instance is reused across renders
+  const debouncedSearch = useCallback(
+    debounce((term) => filterUsers(term), 500),
+    [users]
+  );
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    debouncedSearch(e.target.value);
   };
 
   const handleFollowToggle = async (targetUserId, isCurrentlyFollowing) => {

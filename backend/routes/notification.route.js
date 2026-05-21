@@ -9,10 +9,10 @@ import { auth } from '../middleware/auth.js';
 const router = express.Router();
 
 // Route to send a notification
-router.post('/notifications',auth,sendNotification);
+router.post('/', auth, sendNotification);
 
 // Route to fetch all notifications for a specific user
-router.get('/notifications/:userId', auth, getUserNotifications);
+router.get('/:userId', auth, getUserNotifications);
 
 
 // Route to mark a specific notification as read

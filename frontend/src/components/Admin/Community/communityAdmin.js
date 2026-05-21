@@ -54,7 +54,7 @@ const CommunityAdmin = () => {
       }
     };
     fetchPersonalityData();
-  });
+  }, []);
 
   return (
     <div style={styles.container}>

@@ -20,6 +20,7 @@ import quizRouter from "./routes/quiz.route.js";
 import storyRouter from "./routes/story.route.js";
 import userRouter from "./routes/user.route.js";
 import challengesRoute from "./routes/challengesFile.route.js";
+import googleAuthRouter from "./routes/googleauth.routes.js";
 
 dotenv.config();
 
@@ -54,6 +55,7 @@ app.use("/story", storyRouter);
 app.use("/badges", badgeRouter);
 app.use("/users", userRouter);
 app.use("/challenge", challengesRoute);
+app.use("/auth", googleAuthRouter);
 
 // ─── Socket.IO ───────────────────────────────────────────────────────────────
 io.on('connection', (socket) => {

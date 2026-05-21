@@ -16,10 +16,10 @@ Modal.setAppElement('#root');
 
 const FeedHome = () => {
   const [posts, setPosts] = useState([]);
-  const [newComment, setNewComment] = useState("");
+  // Per-post comment state, keyed by post ID — prevents one input controlling every post
+  const [comments, setComments] = useState({});
   const [activeCommentPost, setActiveCommentPost] = useState(null);
   const [activeEmojiPicker, setActiveEmojiPicker] = useState(null);
-  const [emojiPickerVisible, setEmojiPickerVisible] = useState(false); 
 
   const userId = useSelector((state) => state?.user?.user?._id);
   const token = useSelector((state) => state?.user?.token);
@@ -66,7 +66,6 @@ const FeedHome = () => {
           notification_type: "like",
           sender_id: userId,
         };
-        console.log(notificationData);
 
         await axios.post(Api.SEND_NOTIFICATION, notificationData, { headers: { Authorization: `Bearer ${token}` } });
       }
@@ -82,7 +81,6 @@ const FeedHome = () => {
       const response = await axios.get(`${Api.BASIC_POST_ROUTE}/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log(response.data.post)
       return response.data.post;
     } catch (error) {
       toast.error(error.response?.data?.message || "Error fetching comments");
@@ -92,15 +90,19 @@ const FeedHome = () => {
   const handleCommentToggle = async (postId) => {
     try {
       const post = await handleCommentPost(postId);
-      console.log(post);
       setActiveCommentPost(activeCommentPost === postId ? null : post);
     } catch (err) {
       console.log(err);
     }
   };
 
+  const handleCommentChange = (postId, value) => {
+    setComments((prev) => ({ ...prev, [postId]: value }));
+  };
+
   const handleCommentSubmit = async (postId) => {
-    if (newComment.trim()) {
+    const newComment = (comments[postId] || "").trim();
+    if (newComment) {
       try {
         await axios.post(
           `${Api.ADD_COMMENT}/${postId}`,
@@ -110,13 +112,13 @@ const FeedHome = () => {
         const notificationData = {
           userId: postId.userId,
           notification_type: "comment",
-          sender_id: userId,  
+          sender_id: userId,
         };
 
         await axios.post(Api.SEND_NOTIFICATION, notificationData, { headers: { Authorization: `Bearer ${token}` } });
 
         toast.success("Comment added successfully");
-        setNewComment("");
+        setComments((prev) => ({ ...prev, [postId]: "" }));
         setActiveCommentPost(null);
 
         setPosts((prevPosts) =>
@@ -131,8 +133,12 @@ const FeedHome = () => {
   };
 
   const handleEmojiClick = (emojiData) => {
-    setNewComment((newComment) => newComment + emojiData.emoji);
-    setEmojiPickerVisible(false);
+    if (activeEmojiPicker) {
+      setComments((prev) => ({
+        ...prev,
+        [activeEmojiPicker]: (prev[activeEmojiPicker] || "") + emojiData.emoji,
+      }));
+    }
   };
 
   const toggleEmojiPicker = (postId) => {
@@ -180,11 +186,11 @@ const FeedHome = () => {
                   <input
                     type="text"
                     style={styles.commentTextField}
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
+                    value={comments[post._id] || ""}
+                    onChange={(e) => handleCommentChange(post._id, e.target.value)}
                     placeholder="Add a comment..."
                   />
-                  <span><button style={styles.commentPostButton} onClick={() => handleCommentSubmit(post._id)} disabled={!newComment}>Post</button></span>
+                  <span><button style={styles.commentPostButton} onClick={() => handleCommentSubmit(post._id)} disabled={!(comments[post._id] || "").trim()}>Post</button></span>
                 </div>
               </div>
             </div>

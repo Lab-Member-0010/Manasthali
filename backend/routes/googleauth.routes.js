@@ -29,13 +29,13 @@ const router = express.Router();
 
 // Initiate Google OAuth
 router.get(
-  "/auth/google",
+  "/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
 // Google OAuth Callback
 router.get(
-  "/auth/google/callback",
+  "/google/callback",
   passport.authenticate("google", { session: false }),
   async (req, res) => {
     const { token, user } = req.user;
@@ -46,7 +46,7 @@ router.get(
 );
 
 // OTP Verification Endpoint
-router.post("/auth/verify-otp", async (req, res) => {
+router.post("/verify-otp", async (req, res) => {
   const { email, otp } = req.body;
 
   try {

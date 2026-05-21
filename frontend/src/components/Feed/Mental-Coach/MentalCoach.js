@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import * as styles from "./MentalCoach.styles";
@@ -8,14 +8,7 @@ const BASE_URL = import.meta.env.VITE_API_URL;
 const MentalCoach = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const user = useSelector((state) => state.user);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    if (user) {
-      setIsLoggedIn(true);
-    }
-  }, []);
+  const token = useSelector((state) => state.user?.token);
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -25,9 +18,11 @@ const MentalCoach = () => {
     setInput("");
 
     try {
-      const response = await axios.post(`${BASE_URL}/mental-coach/ask`, {
-        question: input,
-      });
+      const response = await axios.post(
+        `${BASE_URL}/mental-coach/ask`,
+        { question: input },
+        token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
+      );
 
       const aiResponse = response.data.answer || "I don't know.";
       setMessages([...newMessages, { text: aiResponse, sender: "bot" }]);
@@ -51,8 +46,6 @@ const MentalCoach = () => {
         ))}
       </div>
 
-      {!isLoggedIn && <p style={{ color: "red" }}>Please log in to chat!</p>}
-
       <div style={styles.inputBox}>
         <input
           type="text"
@@ -60,12 +53,10 @@ const MentalCoach = () => {
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask me anything..."
           style={styles.inputFields}
-          disabled={!isLoggedIn}
         />
         <button
           onClick={sendMessage}
-          style={{ ...styles.buttonSend, opacity: isLoggedIn ? 1 : 0.5 }}
-          disabled={!isLoggedIn}
+          style={styles.buttonSend}
         >
           Ask
         </button>

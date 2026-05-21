@@ -22,6 +22,9 @@ export const AdminLogin= async (request, response, next)=>{
     try{
         const { username,token } = request.body;
         const admin = await Admin.findOne({ username });
+        if (!admin) {
+            return response.status(404).json({ error: "Admin not found" });
+        }
         if(admin.token==token){
             return response.status(200).json({message: "Admin Login success."});
         }else{

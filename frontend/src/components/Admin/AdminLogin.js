@@ -7,10 +7,10 @@ import "react-toastify/dist/ReactToastify.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import * as styles from "./AdminLogin.styles";
 
-const AdminLogin=()=>{
+const AdminLogin = () => {
+  const [username, setUsername] = useState("");
   const [token, setToken] = useState("");
   const navigate = useNavigate();
-  const username = "admin";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,16 +38,28 @@ const AdminLogin=()=>{
         <h2 className="text-center mb-4">Verify Token</h2>
         <form onSubmit={handleSubmit}>
           <div className="form-group" style={styles.adminLoginInputContainer}>
-          <label style={styles.adminLoginLabelField}>Token:</label>
+            <label style={styles.adminLoginLabelField}>Username:</label>
             <input
-            type="text"
-            value={token}
-            onChange={(e) => setToken(e.target.value)}
-            className="form-control"
-            style={styles.adminLoginInputField}
-            placeholder="Enter Token"
-            required
-          />
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="form-control"
+              style={styles.adminLoginInputField}
+              placeholder="Enter Username"
+              required
+            />
+          </div>
+          <div className="form-group" style={styles.adminLoginInputContainer}>
+            <label style={styles.adminLoginLabelField}>Token:</label>
+            <input
+              type="text"
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
+              className="form-control"
+              style={styles.adminLoginInputField}
+              placeholder="Enter Token"
+              required
+            />
           </div>
           <button type="submit" className="btn custom-btn" style={styles.verifyAdminLoginBtn}>
             Verify Token

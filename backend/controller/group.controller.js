@@ -16,6 +16,7 @@ export const createGroup = async (req, res) => {
       name: name,
       description: description,
       communityId: community._id,
+      createdBy: req.user?._id,
     });
     console.log(newGroup)
     await newGroup.save();
@@ -53,9 +54,12 @@ export const updateGroup = async (req, res) => {
 
   try {
     const group = await Group.findById(id);
+    if (!group) {
+      return res.status(404).json({ message: 'Group not found' });
+    }
 
     // Authorization check: Make sure the user is the creator or admin
-    if (group.createdBy.toString() !== req.user._id.toString()) {
+    if (!group.createdBy || group.createdBy.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: "Unauthorized: You are not the creator of this group" });
     }
 
@@ -76,9 +80,12 @@ export const deleteGroup = async (req, res) => {
 
   try {
     const group = await Group.findById(id);
+    if (!group) {
+      return res.status(404).json({ message: 'Group not found' });
+    }
 
     // Authorization check: Make sure the user is the creator or admin
-    if (group.createdBy.toString() !== req.user._id.toString()) {
+    if (!group.createdBy || group.createdBy.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: "Unauthorized: You are not the creator of this group" });
     }
 

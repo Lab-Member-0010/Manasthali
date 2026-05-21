@@ -7,9 +7,15 @@ export const createPost = async (request, response, next) => {
   try {
     let { userId, description } = request.body;
     const user = await User.findById({ _id: userId });
+    if (!user) {
+      return response.status(404).json({ error: "User not found" });
+    }
     const community = await Community.findOne({ personality_type: user.personality_type });
+    if (!community) {
+      return response.status(400).json({ error: "Take the personality quiz first" });
+    }
     const communityId = community._id;
-    const media = request.files.map((file) => file.path);
+    const media = request.files ? request.files.map((file) => file.path) : [];
     let newpost = new Post({ userId, description, media, communityId });
     let savepost = await newpost.save();
     return response.status(201).json({ message: "post created successfully", savepost });
@@ -27,7 +33,7 @@ export const getPostDetails = async (request, response, next) => {
     if (!post) {
       return response.status(404).json({ error: "post not found" });
     }
-    return response.status(201).json({ message: "post detail successfully fetched", post });
+    return response.status(200).json({ message: "post detail successfully fetched", post });
   }
   catch (error) {
     return response.status(500).json({ error: "internal server error" });
@@ -64,7 +70,7 @@ export const deletePost = async (request, response, next) => {
       return response.status(404).json({ error: "Post not found for delete" })
     }
     await Post.deleteOne({ _id: id });
-    return response.status(201).json({ message: "Post deleted successfully" });
+    return response.status(200).json({ message: "Post deleted successfully" });
 
   }
   catch (error) {

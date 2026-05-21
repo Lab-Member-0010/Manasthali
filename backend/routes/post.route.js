@@ -6,16 +6,16 @@ import { createPost, getPostDetails, updatePost, deletePost, likePost, unlikePos
 
 const router = express.Router();
 
-router.post('/posts', auth, upload.array('media', 5), createPost);
-router.get('/posts/:id', auth, getPostDetails);
-router.put('/posts/:id', auth, updatePost);
-router.delete('/posts/:id', auth, deletePost);
-router.post('/posts/:id/like', auth, likePost);
-router.post('/posts/:id/unlike', auth, unlikePost);
-router.get('/posts/:id/comments', auth, getPostComments);
-router.post('/posts/:id/share', auth, sharePost);
+router.post('/', auth, upload.array('media', 5), createPost);
 router.get('/all-posts/:id', auth, getAllPosts);
 router.get('/getCommunityPosts/:id', auth, getCommunityPosts);
 router.get('/getUserPosts/:id', auth, getUserPosts);
+router.get('/:id', auth, getPostDetails);
+router.put('/:id', auth, updatePost);
+router.delete('/:id', auth, deletePost);
+router.post('/:id/like', auth, likePost);
+router.post('/:id/unlike', auth, unlikePost);
+router.get('/:id/comments', auth, getPostComments);
+router.post('/:id/share', auth, sharePost);
 
 export default router;

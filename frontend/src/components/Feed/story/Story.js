@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import * as styles from "./Story.styles";
+import defaultProfile from "@assets/default_profile.jpg";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -50,7 +51,7 @@ const Story = () => {
     formData.append("userId", user._id);
 
     try {
-      const response = await axios.post("${BASE_URL}/story/stories", formData, {
+      const response = await axios.post(`${BASE_URL}/story/stories`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -73,7 +74,7 @@ const Story = () => {
         onClick={handleProfileClick}
       >
         <img
-          src={user?.profile_picture ? user.profile_picture : "./default_profile.jpg"}
+          src={user?.profile_picture ? user.profile_picture : defaultProfile}
           alt="Profile"
           style={styles.profileImage}
         />

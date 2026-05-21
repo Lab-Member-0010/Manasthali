@@ -14,7 +14,10 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: false,
+    },
+    googleId: {
+      type: String,
     },
     contact: {
       type: String,
@@ -69,6 +72,7 @@ const userSchema = new mongoose.Schema(
     },
     verified: { type: Boolean, default: false },
     otp: { type: String },
+    otpExpiresAt: { type: Date },
     resetToken: { type: String },
     resetTokenExpiry: { type: Date }
   },

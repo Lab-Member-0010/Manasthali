@@ -7,11 +7,9 @@ const slice = createSlice({
     token: null,
     message: "",
     isLoggedIn: false, // Added this field
-    likedPosts: {}
   },
   reducers: {
     setUser: (state, action) => {
-      console.log(action.payload); // Debug log
       state.message = action.payload.message;
       state.token = action.payload.token;
       state.user = action.payload.user;

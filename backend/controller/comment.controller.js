@@ -1,4 +1,3 @@
-import { request, response } from "express";
 import Comment from "../model/comment.model.js";
 import Post from "../model/post.model.js";
 import { User } from "../model/user.model.js";
@@ -41,28 +40,28 @@ export const getCommentDetails = async (req, res) => {
     res.status(200).json({ message: "comment fetch successfully", comment });
   } catch (error) {
     console.log(error);
-    response.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
 // Update a comment
 export const updateComment = async (req, res) => {
   try {
-    const { id } = request.params;
-    let updateData = request.body;
+    const { id } = req.params;
+    let updateData = req.body;
 
     const commentById = await Comment.findOne({ _id: id });
     if (!commentById) {
-      return response.status(404).json({ error: "comment not found" });
+      return res.status(404).json({ error: "comment not found" });
     }
 
     const result = await Comment.updateOne({ _id: id }, { $set: updateData });
-    return response
+    return res
       .status(200)
       .json({ message: "comment updated successfully", result });
   } catch (error) {
     console.log(error);
-    return response.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 

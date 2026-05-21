@@ -33,7 +33,7 @@ passport.use(
         user.otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
         await user.save();
 
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        const token = jwt.sign({ payload: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
         done(null, { user, token });
       } catch (err) {

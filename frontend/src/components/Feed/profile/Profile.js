@@ -16,10 +16,9 @@ const Profile = ({ user, loading, updateProfilePicture, updateProfile }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [updating, setUpdating] = useState(false);
-  const [posts, setPosts] = useState([]);
+  const [showPosts, setShowPosts] = useState(false);
   const token = useSelector((state) => state.user.token);
   const loggedInUserId = useSelector((state) => state.user?.user?._id);
-  console.log(filteredUsers)
 
   useEffect(() => {
     if (showPopup && token) {
@@ -91,7 +90,10 @@ const Profile = ({ user, loading, updateProfilePicture, updateProfile }) => {
       } else {
         user.following.push(targetUserId);
       }
-      updateProfile(user);  // Make sure to send updated profile to parent component
+      // updateProfile may not be passed from the parent — call it only when provided
+      if (typeof updateProfile === "function") {
+        updateProfile(user);
+      }
       closePopup();
     } catch (err) {
       console.log(err);
@@ -139,6 +141,7 @@ const Profile = ({ user, loading, updateProfilePicture, updateProfile }) => {
         formData,
         {
           headers: {
+            Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         }
@@ -156,7 +159,7 @@ const Profile = ({ user, loading, updateProfilePicture, updateProfile }) => {
   if (!user) return <div>User not found</div>;
 
   const togglePosts = () => {
-    setPosts((prev) => !prev);
+    setShowPosts((prev) => !prev);
   };
   return (
     <div style={styles.profileContainer}>
@@ -169,7 +172,7 @@ const Profile = ({ user, loading, updateProfilePicture, updateProfile }) => {
                 src={
                   selectedUser.profile_picture
                     ? selectedUser.profile_picture
-                    : "/default_profile.jpg"
+                    : defaultUser
                 }
                 alt={selectedUser.username}
               />
