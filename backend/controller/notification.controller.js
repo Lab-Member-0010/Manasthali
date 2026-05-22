@@ -21,7 +21,9 @@ export const getUserNotifications = async (req, res) => {
     if (!userId) {
       return res.status(400).json({ message: "User ID is required" });
     }
-    const notifications = await Notification.find({ receiver_id: userId });
+    const notifications = await Notification.find({ receiver_id: userId })
+      .populate('sender_id', 'username profile_picture')
+      .sort({ createdAt: -1 });
     res.status(200).json(notifications);
   } catch (error) {
     res.status(500).send("Error fetching notifications");

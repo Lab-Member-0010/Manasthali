@@ -40,7 +40,7 @@ export const getMessages = async (req, res) => {
     }).sort({ createdAt: 1 }); // Sort by createdAt field for proper order
 
     if (messages.length === 0) {
-      return res.status(404).json({ message: 'No messages found' });
+      return res.status(200).json({ messages: [] });
     }
 
     res.status(200).json({ messages });

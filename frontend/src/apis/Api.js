@@ -17,8 +17,8 @@ const Api = {
     GET_COMMUNITY_POST: `${BASE_URL}/posts/getCommunityPosts`,
     GET_USER_POST: `${BASE_URL}/posts/getUserPosts`,
     GET_DAILY_CHALLENGE: `${BASE_URL}/challenge/daily-challenge`,
-    SEND_NOTIFICATION: `${BASE_URL}/notifications/notifications`,
-    BASIC_POST_ROUTE: `${BASE_URL}/posts/posts`,
+    SEND_NOTIFICATION: `${BASE_URL}/notifications`,
+    BASIC_POST_ROUTE: `${BASE_URL}/posts`,
     ADD_COMMENT: `${BASE_URL}/comments/addComment`,
     GET_COMMUNITY_USERS: `${BASE_URL}/users/get-community-users`,
 };

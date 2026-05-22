@@ -43,6 +43,12 @@ const Feed = () => {
   const [activeComponent, setActiveComponent] = useState("home");
   const [profileData, setProfileData] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
+  const [feedRefreshKey, setFeedRefreshKey] = useState(0);
+
+  const handlePostCreated = () => {
+    setFeedRefreshKey((k) => k + 1);
+    setActiveComponent("home");
+  };
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
@@ -72,7 +78,7 @@ const Feed = () => {
   const renderActiveComponent = () => {
     switch (activeComponent) {
       case "home":
-        return <FeedHome />;
+        return <FeedHome refreshKey={feedRefreshKey} />;
       case "groups":
         return <Group />;
       case "chat":
@@ -90,7 +96,7 @@ const Feed = () => {
       case "challenge":
         return <Challenge />;
       case "post":
-        return <Post />;
+        return <Post onPostCreated={handlePostCreated} />;
       case "setting":
         return <ProfileSetting />;
       case "community":

@@ -17,20 +17,21 @@ const Story = () => {
   useEffect(() => {
     const fetchStory = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/story/${user._id}`, {
+        const response = await axios.get(`${BASE_URL}/story/stories/user/${user._id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
              
-      console.log("Fetched Story:", response.data);
-        if (response.data) {
-          setStory(response.data);
+        if (response.data && response.data.length > 0) {
+          setStory(response.data[0]);
         }
       } catch (error) {
         console.error("Error fetching story", error);
       }
     };
-    fetchStory();
-  }, [user._id, token]);
+    if (user?._id && token) {
+      fetchStory();
+    }
+  }, [user?._id, token]);
 
    
   const handleProfileClick = () => {
@@ -66,6 +67,15 @@ const Story = () => {
     }
   };
 
+  // Determine the correct media URL — S3/Cloudinary URLs are absolute, local paths need BASE_URL prefix
+  const getMediaUrl = (media) => {
+    if (!media) return "";
+    const mediaStr = Array.isArray(media) ? media[0] : media;
+    if (!mediaStr) return "";
+    if (mediaStr.startsWith("http")) return mediaStr;
+    return `${BASE_URL}/${mediaStr}`;
+  };
+
   return (
     <div>
      
@@ -92,7 +102,7 @@ const Story = () => {
      
       {showStory && story && (
         <div style={styles.storyViewer} onClick={() => setShowStory(false)}>
-          <img src={`${BASE_URL}/${story.media}`} alt="" />
+          <img src={getMediaUrl(story.media)} alt="Story" />
         </div>
       )}
     </div>

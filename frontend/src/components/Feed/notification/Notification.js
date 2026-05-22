@@ -13,13 +13,11 @@ const NotificationComponent = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        console.log("Fetching notifications for User ID:", userId);
         const response = await axios.get(
           `${BASE_URL}/notifications/${userId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        console.log("Fetched Notifications:", response.data);
         setNotifications(response.data);
       } catch (error) {
         console.error("Error fetching notifications:", error);
@@ -31,6 +29,38 @@ const NotificationComponent = () => {
     }
   }, [userId, token]);
 
+  const handleMarkAsRead = async (notificationId) => {
+    try {
+      await axios.patch(
+        `${BASE_URL}/notifications/${notificationId}/read`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      // Update local state immediately
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n._id === notificationId ? { ...n, read_status: true } : n
+        )
+      );
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+  };
+
+  const getSenderDisplay = (notification) => {
+    if (notification.sender_id && typeof notification.sender_id === "object") {
+      return notification.sender_id.username || "Unknown";
+    }
+    return notification.sender_id || "Unknown";
+  };
+
+  const getSenderPicture = (notification) => {
+    if (notification.sender_id && typeof notification.sender_id === "object") {
+      return notification.sender_id.profile_picture || null;
+    }
+    return null;
+  };
+
   return (
     <div style={styles.notificationContainer}>
       {notifications.length === 0 ? (
@@ -40,16 +70,32 @@ const NotificationComponent = () => {
           <div
             key={notification._id}
             style={notification.read_status ? styles.notificationItem : {...styles.notificationItem, ...styles.unread}}
+            onClick={() => !notification.read_status && handleMarkAsRead(notification._id)}
           >
-            <div style={styles.notificationIcon}>🔔</div>
+            <div style={styles.notificationIcon}>
+              {getSenderPicture(notification) ? (
+                <img
+                  src={getSenderPicture(notification)}
+                  alt="Sender"
+                  style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }}
+                />
+              ) : (
+                "🔔"
+              )}
+            </div>
             <div style={styles.notificationText}>
               <p>
                 <strong>{notification.notification_type}</strong> from{" "}
-                {notification.sender_id}
+                {getSenderDisplay(notification)}
               </p>
               <span style={styles.notificationTime}>
                 {new Date(notification.createdAt).toLocaleString()}
               </span>
+              {!notification.read_status && (
+                <span style={{ marginLeft: 8, color: '#6a1b9a', fontSize: 12, cursor: 'pointer' }}>
+                  Mark as read
+                </span>
+              )}
             </div>
           </div>
         ))

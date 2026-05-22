@@ -3,10 +3,9 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import * as styles from "./Post.styles";
+import Api from "../../../apis/Api";
 
-const BASE_URL = import.meta.env.VITE_API_URL;
-
-const Post = () => {
+const Post = ({ onPostCreated }) => {
   const [description, setDescription] = useState("");
   const [media, setMedia] = useState([]);
   const userId = useSelector((state) => state.user.user._id);
@@ -17,12 +16,11 @@ const Post = () => {
     const formData = new FormData();
     formData.append("description", description);
     formData.append("userId", userId);
-    console.log(formData)
     Array.from(media).forEach((file) => formData.append("media", file));
 
     try {
       const response = await axios.post(
-        `${BASE_URL}/posts/posts`,
+        Api.BASIC_POST_ROUTE,
         formData,
         {
           headers: {
@@ -35,6 +33,7 @@ const Post = () => {
         toast.success("Post created successfully");
         setDescription("");
         setMedia([]);
+        if (onPostCreated) onPostCreated();
       } else {
         toast.error("Error creating post");
       }

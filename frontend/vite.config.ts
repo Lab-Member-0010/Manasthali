@@ -10,6 +10,17 @@ export default defineConfig({
       '@assets': path.resolve(__dirname, './assets'),
     },
   },
+  esbuild: {
+    jsx: 'automatic',
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      loader: {
+        '.js': 'jsx',
+        '.ts': 'tsx',
+      },
+    },
+  },
   server: {
     port: 3000,
     open: true,
@@ -17,5 +28,8 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    rollupOptions: {
+      // Allow Rollup to parse .js files containing JSX
+    },
   },
 })

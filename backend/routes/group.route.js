@@ -3,7 +3,7 @@ import { createGroup, getGroups, getGroupDetails, updateGroup, deleteGroup, join
 import {auth} from "../middleware/auth.js"
 const router = express.Router();
 
-router.post('/create', createGroup);
+router.post('/create', auth, createGroup);
 router.get("/get-groups/:personality_type", getGroups);
 router.get('/groups/:id',auth, getGroupDetails);
 router.put('/groups/:id',auth, updateGroup);

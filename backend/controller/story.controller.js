@@ -2,18 +2,27 @@ import Story from '../model/story.model.js';
 
 export const uploadStory = async (req, res) => {
   try {
-    const { userId, caption } = req.body;
+    const userId = req.user._id;
+    const { caption } = req.body;
 
     // Check if a file was uploaded
     // multer-s3 stores the public S3 URL in req.file.location;
     // multer-cloudinary stores it in req.file.path
     const media = req.file ? (req.file.location || req.file.path) : null;
 
+    if (!media) {
+      return res.status(400).json({ error: "Media file is required" });
+    }
+
     // Create and save the story
     const story = new Story({ userId, media, caption });
     const newStory = await story.save();
 
-    res.status(200).json(newStory);
+    // Return populated story
+    const populatedStory = await Story.findById(newStory._id)
+      .populate('userId', 'username profile_picture');
+
+    res.status(200).json(populatedStory);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
@@ -21,7 +30,7 @@ export const uploadStory = async (req, res) => {
 };
 export const getAllStories = async (req, res) => {
   try {
-    const stories = await Story.find().populate("userId", "name email").exec();  
+    const stories = await Story.find().populate("userId", "username profile_picture").exec();  
     res.status(200).json(stories);
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -32,9 +32,19 @@ export const getGroupMessages = async (req, res) => {
   const { groupId } = req.params;
 
   try {
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
+    }
+
+    // Check that the current user is a group member
+    if (!group.members.some(id => id.toString() === req.user._id.toString())) {
+      return res.status(403).json({ message: "You are not a member of this group" });
+    }
+
     const messages = await GroupMessage.find({ group: groupId })
-      .populate('sender') // populate sender details
-      .sort({ createdAt: -1 }); // sort messages by creation date in descending order
+      .populate('sender', 'username profile_picture')
+      .sort({ createdAt: 1 }); // sort oldest first for correct chronological display
 
     res.status(200).json({ data: messages });
   } catch (error) {

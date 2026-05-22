@@ -14,7 +14,7 @@ import Api from "../../../apis/Api";
 
 Modal.setAppElement('#root');
 
-const FeedHome = () => {
+const FeedHome = ({ refreshKey }) => {
   const [posts, setPosts] = useState([]);
   // Per-post comment state, keyed by post ID — prevents one input controlling every post
   const [comments, setComments] = useState({});
@@ -24,7 +24,7 @@ const FeedHome = () => {
   const userId = useSelector((state) => state?.user?.user?._id);
   const token = useSelector((state) => state?.user?.token);
 
-  useEffect(() => {
+  const fetchPosts = () => {
     if (userId && token) {
       axios
         .get(`${Api.GET_COMMUNITY_POST}/${userId}`, {
@@ -32,53 +32,71 @@ const FeedHome = () => {
         })
         .then((response) => {
           const fetchedPosts = response.data.posts || [];
-          const likedPosts = JSON.parse(localStorage.getItem("likedPosts")) || [];
-          const updatedPosts = fetchedPosts.map((post) => {
-            const likedPost = likedPosts.find((lp) => lp.id === post._id);
-            return likedPost ? { ...post, likes: likedPost.likes } : post;
-          });
-          setPosts(updatedPosts);
+          setPosts(fetchedPosts);
         })
         .catch((error) => toast.error(error.response?.data?.message || "Error fetching posts"));
     }
-  }, [userId, token]);
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, [userId, token, refreshKey]);
+
+  // Safe check whether userId is in the likes array (handles ObjectIds and populated user objects)
+  const isLikedByUser = (likes) => {
+    if (!likes || !userId) return false;
+    return likes.some((like) => {
+      const likeId = typeof like === "object" ? (like._id || like) : like;
+      return likeId.toString() === userId.toString();
+    });
+  };
 
   const handleLike = async (post) => {
     try {
-      const likeAction = post.likes.includes(userId) ? "unlike" : "like";
+      const liked = isLikedByUser(post.likes);
+      const likeAction = liked ? "unlike" : "like";
+
+      // Optimistic UI update
       const updatedPosts = posts.map((p) =>
         p._id === post._id
           ? {
             ...p,
-            likes: likeAction === "like" ? [...p.likes, userId] : p.likes.filter((id) => id !== userId),
+            likes: likeAction === "like"
+              ? [...p.likes, userId]
+              : p.likes.filter((like) => {
+                  const likeId = typeof like === "object" ? (like._id || like) : like;
+                  return likeId.toString() !== userId.toString();
+                }),
           }
           : p
       );
       setPosts(updatedPosts);
 
-      localStorage.setItem("likedPosts", JSON.stringify(updatedPosts.map((p) => ({ id: p._id, likes: p.likes }))));
-
-      await axios.post(`${Api.BASIC_POST_ROUTE}/${post._id}/${likeAction}`, { userId }, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.post(`${Api.BASIC_POST_ROUTE}/${post._id}/${likeAction}`, {}, { headers: { Authorization: `Bearer ${token}` } });
 
       if (likeAction === "like") {
-        const notificationData = {
-          userId: post.userId,
-          notification_type: "like",
-          sender_id: userId,
-        };
-
-        await axios.post(Api.SEND_NOTIFICATION, notificationData, { headers: { Authorization: `Bearer ${token}` } });
+        // Get the post owner's ID from the post's userId (could be populated object or string)
+        const postOwnerId = typeof post.userId === "object" ? post.userId._id : post.userId;
+        if (postOwnerId && postOwnerId.toString() !== userId.toString()) {
+          const notificationData = {
+            receiver_id: postOwnerId,
+            notification_type: "like",
+            sender_id: userId,
+          };
+          await axios.post(Api.SEND_NOTIFICATION, notificationData, { headers: { Authorization: `Bearer ${token}` } });
+        }
       }
 
     } catch (error) {
+      // Rollback on failure
+      fetchPosts();
       toast.error("Error updating like status");
     }
   };
 
   const handleCommentPost = async (postId) => {
-    const id = postId;
     try {
-      const response = await axios.get(`${Api.BASIC_POST_ROUTE}/${id}`, {
+      const response = await axios.get(`${Api.BASIC_POST_ROUTE}/${postId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data.post;
@@ -90,7 +108,7 @@ const FeedHome = () => {
   const handleCommentToggle = async (postId) => {
     try {
       const post = await handleCommentPost(postId);
-      setActiveCommentPost(activeCommentPost === postId ? null : post);
+      setActiveCommentPost(activeCommentPost?._id === postId ? null : post);
     } catch (err) {
       console.log(err);
     }
@@ -104,31 +122,65 @@ const FeedHome = () => {
     const newComment = (comments[postId] || "").trim();
     if (newComment) {
       try {
-        await axios.post(
+        const response = await axios.post(
           `${Api.ADD_COMMENT}/${postId}`,
           { comment: newComment, userId },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        const notificationData = {
-          userId: postId.userId,
-          notification_type: "comment",
-          sender_id: userId,
-        };
 
-        await axios.post(Api.SEND_NOTIFICATION, notificationData, { headers: { Authorization: `Bearer ${token}` } });
+        // Find the post to get the owner's ID for notification
+        const currentPost = posts.find(p => p._id === postId);
+        if (currentPost) {
+          const postOwnerId = typeof currentPost.userId === "object" ? currentPost.userId._id : currentPost.userId;
+          if (postOwnerId && postOwnerId.toString() !== userId.toString()) {
+            const notificationData = {
+              receiver_id: postOwnerId,
+              notification_type: "comment",
+              sender_id: userId,
+            };
+            await axios.post(Api.SEND_NOTIFICATION, notificationData, { headers: { Authorization: `Bearer ${token}` } });
+          }
+        }
 
         toast.success("Comment added successfully");
         setComments((prev) => ({ ...prev, [postId]: "" }));
-        setActiveCommentPost(null);
 
+        // Refresh the comment modal if open
+        if (activeCommentPost && activeCommentPost._id === postId) {
+          const updatedPost = await handleCommentPost(postId);
+          setActiveCommentPost(updatedPost);
+        }
+
+        // Update comment count in feed
         setPosts((prevPosts) =>
           prevPosts.map((p) =>
-            p._id === postId ? { ...p, comments: [...p.comments, { user_id: { username: "You" }, comment: newComment }] } : p
+            p._id === postId ? { ...p, comments: [...p.comments, { userId: { username: "You" }, comment: newComment }] } : p
           )
         );
       } catch (error) {
         toast.error("Error adding comment");
       }
+    }
+  };
+
+  const handleShare = async (post) => {
+    try {
+      const response = await axios.post(
+        `${Api.BASIC_POST_ROUTE}/${post._id}/share`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.status === 201) {
+        toast.success("Post shared successfully");
+        // Update share count in local state
+        setPosts((prevPosts) =>
+          prevPosts.map((p) =>
+            p._id === post._id ? { ...p, shares: (p.shares || 0) + 1 } : p
+          )
+        );
+      }
+    } catch (error) {
+      toast.error("Error sharing post");
     }
   };
 
@@ -161,17 +213,17 @@ const FeedHome = () => {
                 {post.media?.[0] && <img src={post.media[0]} alt="Post" style={styles.postImage} />}
                 <div style={styles.likeCommentShareButton}>
                   <button style={styles.likeButton} onClick={() => handleLike(post)}>
-                    {post.likes.includes(userId) ? <AiFillHeart size={24} color="red" /> : <AiOutlineHeart size={24} color="black" />}
+                    {isLikedByUser(post.likes) ? <AiFillHeart size={24} color="red" /> : <AiOutlineHeart size={24} color="black" />}
                   </button>
                   <span style={styles.likeCount}>{post.likes.length} Likes</span>
                   <button style={styles.commentButton} onClick={() => handleCommentToggle(post._id)}>
                     <AiOutlineComment size={26} color="black" />
                   </button>
                   <span style={styles.commentCount}>{post.comments.length} Comments</span>
-                  <button style={styles.shareButton}>
+                  <button style={styles.shareButton} onClick={() => handleShare(post)}>
                     <RiSendPlaneFill size={24} color="black" />
                   </button>
-                  <span style={styles.shareCount}>Share</span>
+                  <span style={styles.shareCount}>{post.shares || 0} Shares</span>
                 </div>
                 <div style={styles.commentTextbox}>
                   <button style={styles.emojiButton} onClick={() => toggleEmojiPicker(post._id)}>
@@ -198,7 +250,7 @@ const FeedHome = () => {
         ))}
       </div>
 
-      {/* Modal for Commenting */}
+      {/* Modal for Commenting — now renders comments list */}
 
       <Modal
         isOpen={activeCommentPost !== null}
@@ -216,7 +268,16 @@ const FeedHome = () => {
             <button style={styles.closeModalButton} onClick={() => setActiveCommentPost(null)}>X</button>
           </div>
           <div style={styles.postCommentsInnerDiv}>
-
+            {activeCommentPost?.comments && activeCommentPost.comments.length > 0 ? (
+              activeCommentPost.comments.map((comment, index) => (
+                <div key={comment._id || index} style={{ padding: '8px 0', borderBottom: '1px solid #eee' }}>
+                  <strong>{comment?.userId?.username || "User"}</strong>
+                  <p style={{ margin: '4px 0 0 0' }}>{comment.comment}</p>
+                </div>
+              ))
+            ) : (
+              <p style={{ color: '#999' }}>No comments yet. Be the first to comment!</p>
+            )}
           </div>
         </div>
       </Modal>
@@ -225,4 +286,3 @@ const FeedHome = () => {
 };
 
 export default FeedHome;
-

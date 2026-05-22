@@ -31,7 +31,7 @@ export const addComment = async (request, response, next) => {
 export const getCommentDetails = async (req, res) => {
   try {
     const { id } = req.params;
-    const comment = await Comment.findOne({ _id: id }).populate("user_id");
+    const comment = await Comment.findOne({ _id: id }).populate("userId");
 
     if (!comment) {
       return res.status(404).json({ message: "Comment not found" });
@@ -79,8 +79,10 @@ export const deleteComment = async (req, res) => {
     }
 
     const post = await Post.findById(comment.post_id);
-    post.comment_count -= 1;
-    await post.save();
+    if (post) {
+      post.comments = post.comments.filter(cId => cId.toString() !== id);
+      await post.save();
+    }
 
     await Comment.deleteOne({ _id: id });
 

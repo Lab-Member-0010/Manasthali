@@ -112,7 +112,7 @@ export const joinGroup = async (req, res) => {
     }
 
     // Add the user to the group members list if not already a member
-    if (group.members.includes(userId)) {
+    if (group.members.some(id => id.toString() === userId.toString())) {
       return res.status(400).json({ message: 'You are already a member of this group' });
     }
 
@@ -137,7 +137,7 @@ export const leaveGroup = async (req, res) => {
     }
 
     // Check if the user is already a member before attempting to leave
-    if (!group.members.includes(userId)) {
+    if (!group.members.some(id => id.toString() === userId.toString())) {
       return res.status(400).json({ message: 'You are not a member of this group' });
     }
 

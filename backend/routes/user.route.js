@@ -18,7 +18,9 @@ import {
   resetPassword,
   getAllUsersExceptOne,
   getDMList,
-  getCommunityUsers
+  getCommunityUsers,
+  checkEmail,
+  checkUsername
 } from "../controller/user.controller.js";
 import { body } from "express-validator";
 import { auth } from "../middleware/auth.js";
@@ -71,6 +73,8 @@ router.get("/dmlist/:id", auth, getDMList);
 
 router.post("/follow", auth, followUser);
 router.post("/unfollow", auth, unfollowUser);
+router.post("/email", checkEmail);
+router.post("/username", checkUsername);
 
 // ── Wildcard /:id routes (MUST come after all specific named routes) ──────────
 

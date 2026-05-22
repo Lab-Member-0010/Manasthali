@@ -49,6 +49,7 @@ export const SignUp = async (request, response, next) => {
       gender,
       password: encryptedPassword,
       otp,
+      otpExpiresAt: new Date(Date.now() + 10 * 60 * 1000), // OTP expires in 10 minutes
       verified: false,
     });
 
@@ -74,8 +75,15 @@ export const verifyOtp = async (req, res) => {
     if (!user) {
       return res.status(400).json({ error: "Invalid OTP" });
     }
+
+    // Check if OTP has expired
+    if (user.otpExpiresAt && user.otpExpiresAt < new Date()) {
+      return res.status(400).json({ error: "OTP has expired. Please request a new one." });
+    }
+
     user.verified = true;
     user.otp = null;
+    user.otpExpiresAt = null;
     await user.save();
     res.status(200).json({ message: "OTP verified successfully. Your account is now active." });
   } catch (err) {

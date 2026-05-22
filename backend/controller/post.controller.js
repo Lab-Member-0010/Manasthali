@@ -5,8 +5,9 @@ import { User } from "../model/user.model.js";
 //Create a new post
 export const createPost = async (request, response, next) => {
   try {
-    let { userId, description } = request.body;
-    const user = await User.findById({ _id: userId });
+    let { description } = request.body;
+    const userId = request.user._id;
+    const user = await User.findById(userId);
     if (!user) {
       return response.status(404).json({ error: "User not found" });
     }
@@ -15,13 +16,23 @@ export const createPost = async (request, response, next) => {
       return response.status(400).json({ error: "Take the personality quiz first" });
     }
     const communityId = community._id;
-    const media = request.files ? request.files.map((file) => file.path) : [];
+    const media = request.files ? request.files.map((file) => file.location || file.path) : [];
     let newpost = new Post({ userId, description, media, communityId });
     let savepost = await newpost.save();
-    return response.status(201).json({ message: "post created successfully", savepost });
+
+    // Return populated post so frontend can display it immediately
+    const populatedPost = await Post.findById(savepost._id)
+      .populate('userId', 'username profile_picture')
+      .populate('likes', 'username profile_picture')
+      .populate({
+        path: 'comments',
+        populate: { path: 'userId', select: 'username profile_picture' }
+      });
+
+    return response.status(201).json({ message: "post created successfully", post: populatedPost });
   } catch (error) {
     console.log(error);
-    return response.status(500).json({ error: "Inatenal srver error" });
+    return response.status(500).json({ error: "Internal server error" });
   }
 }
 
@@ -83,7 +94,7 @@ export const deletePost = async (request, response, next) => {
 export const likePost = async (request, response) => {
   try {
     const { id } = request.params;
-    const { userId } = request.body;
+    const userId = request.user._id;
     const post = await Post.findById(id);
 
     if (!post) {
@@ -91,37 +102,37 @@ export const likePost = async (request, response) => {
     }
 
     // Check if the user has already liked the post
-    if (post.likes.includes(userId)) {
+    if (post.likes.some(likeId => likeId.toString() === userId.toString())) {
       return response.status(400).json({ message: "Already liked" });
     }
 
     post.likes.push(userId);
     await post.save();
-    return response.status(200).json({ message: "Post liked", likeCount: post.likes.length });
+    return response.status(200).json({ message: "Post liked", likes: post.likes, likeCount: post.likes.length });
   } catch (error) {
     console.error(error);
     return response.status(500).json({ error: "Internal server error" });
   }
 };
 
-// like post
+// Unlike post
 export const unlikePost = async (request, response) => {
   try {
     const { id } = request.params;
-    const { userId } = request.body;
+    const userId = request.user._id;
     const post = await Post.findById(id);
 
     if (!post) {
       return response.status(404).json({ error: "Post not found" });
     }
 
-    if (!post.likes.includes(userId)) {
+    if (!post.likes.some(likeId => likeId.toString() === userId.toString())) {
       return response.status(400).json({ message: "You haven't liked this post" });
     }
-    post.likes = post.likes.filter(likeId => !likeId.equals(userId));
+    post.likes = post.likes.filter(likeId => likeId.toString() !== userId.toString());
     await post.save();
 
-    return response.status(200).json({ message: "Post unliked", likeCount: post.likes.length });
+    return response.status(200).json({ message: "Post unliked", likes: post.likes, likeCount: post.likes.length });
   } catch (error) {
     console.error(error);
     return response.status(500).json({ error: "Internal server error" });
@@ -150,7 +161,7 @@ export const sharePost = async (req, res) => {
   // Logic to share a post
 
   try {
-    const { userId } = req.body;
+    const userId = req.user._id;
     const postId = req.params.id;
 
     const post = await Post.findById(postId);
@@ -219,8 +230,14 @@ export const getAllPosts = async (req, res) => {
 export const getCommunityPosts = async (req, res, next) => {
   try {
     const userId = req.params.id;
-    const user = await User.findById({ _id: userId });
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(200).json({ posts: [] });
+    }
     const community = await Community.findOne({ personality_type: user.personality_type });
+    if (!community) {
+      return res.status(200).json({ posts: [] });
+    }
     const posts = await Post.find({ communityId: community._id })
       .populate('userId', 'username profile_picture')
       .populate('likes', 'username profile_picture')
@@ -228,14 +245,15 @@ export const getCommunityPosts = async (req, res, next) => {
         path: 'comments',
         populate: {
           path: 'userId',
-          select: 'username profilePicture',
+          select: 'username profile_picture',
         }
-      });
+      })
+      .sort({ createdAt: -1 });
 
     res.status(200).json({ posts });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ err });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 

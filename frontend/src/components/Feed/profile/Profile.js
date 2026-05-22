@@ -4,6 +4,7 @@ import axios from "axios";
 import * as styles from "./Profile.styles";
 import { debounce } from "lodash";
 import defaultUser from "@assets/default_profile.jpg";
+import Api from "../../../apis/Api";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -17,6 +18,8 @@ const Profile = ({ user, loading, updateProfilePicture, updateProfile }) => {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [updating, setUpdating] = useState(false);
   const [showPosts, setShowPosts] = useState(false);
+  const [userPosts, setUserPosts] = useState([]);
+  const [postsCount, setPostsCount] = useState(0);
   const token = useSelector((state) => state.user.token);
   const loggedInUserId = useSelector((state) => state.user?.user?._id);
 
@@ -37,6 +40,19 @@ const Profile = ({ user, loading, updateProfilePicture, updateProfile }) => {
       );
     }
   }, [searchTerm, popupUsers]);
+
+  // Fetch user posts count on mount
+  useEffect(() => {
+    if (user?._id && token) {
+      axios.get(`${Api.GET_USER_POST}/${user._id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }).then(res => {
+        const posts = res.data.posts || [];
+        setPostsCount(posts.length);
+        setUserPosts(posts);
+      }).catch(err => console.error("Error fetching posts:", err));
+    }
+  }, [user?._id, token]);
 
   const fetchUsersData = async (type) => {
     try {
@@ -218,7 +234,7 @@ const Profile = ({ user, loading, updateProfilePicture, updateProfile }) => {
                   {user.following?.length || 0} Following
                 </span>
                 <span onClick={togglePosts}>
-                  {user.posts ? user.posts.length : 0} Posts
+                  {postsCount} Posts
                 </span>
               </div>
             </div>
@@ -276,6 +292,28 @@ const Profile = ({ user, loading, updateProfilePicture, updateProfile }) => {
 
                 <button onClick={closePopup}>Close</button>
               </div>
+            </div>
+          )}
+
+          {/* Display Posts */}
+          {showPosts && (
+            <div style={{ marginTop: 20 }}>
+              <h3>Posts</h3>
+              {userPosts.length === 0 ? (
+                <p>No posts yet.</p>
+              ) : (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+                  {userPosts.map((post) => (
+                    <div key={post._id} style={{ border: '1px solid #eee', borderRadius: 8, padding: 12, width: 280 }}>
+                      {post.media?.[0] && (
+                        <img src={post.media[0]} alt="Post" style={{ width: '100%', borderRadius: 6, marginBottom: 8 }} />
+                      )}
+                      <p>{post.description}</p>
+                      <small>{post.likes?.length || 0} likes · {post.comments?.length || 0} comments</small>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 

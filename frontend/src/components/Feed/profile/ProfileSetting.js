@@ -4,7 +4,7 @@ import { useDispatch,useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import * as styles from "./ProfileSetting.styles";
-import { signOut } from "../../../redux-config/UserSlice";
+import { signOut, updateUserProfile } from "../../../redux-config/UserSlice";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -49,6 +49,9 @@ const ProfileSetting= () => {
       if (response.status === 200) {
         setMessage("Profile picture updated successfully!");
         toast.success("Profile picture updated successfully!");
+        if (response.data.user) {
+          dispatch(updateUserProfile(response.data.user));
+        }
       } else {
         toast.error("Failed to update profile picture.");
       }
@@ -73,6 +76,9 @@ const ProfileSetting= () => {
       if (response.data.success) {
         toast.success("Contact updated successfully!");
         setMessage("Contact updated successfully!");
+        if (response.data.user) {
+          dispatch(updateUserProfile(response.data.user));
+        }
       } else {
         toast.error("Failed to update Contact.");
         setMessage("Failed to update contact. Please try again.");
@@ -99,6 +105,9 @@ const ProfileSetting= () => {
       if (response.data.success) {
         toast.success("DOB updated successfully!");
         setMessage("Date of Birth updated successfully!");
+        if (response.data.user) {
+          dispatch(updateUserProfile(response.data.user));
+        }
       } else {
         toast.error("Failed to update DOB.");
         setMessage("Failed to update DOB. Please try again.");
@@ -126,6 +135,9 @@ const ProfileSetting= () => {
       if (response.data.success) {
         toast.success("Gender updated successfully!");
         setMessage("Gender updated successfully!");
+        if (response.data.user) {
+          dispatch(updateUserProfile(response.data.user));
+        }
       } else {
         toast.error("Failed to update Gender.");
         setMessage("Failed to update gender. Please try again.");
@@ -151,6 +163,9 @@ const ProfileSetting= () => {
       if (response.data.success) {
         toast.success("Bio updated successfully!");
         setMessage("Bio updated successfully!");
+        if (response.data.user) {
+          dispatch(updateUserProfile(response.data.user));
+        }
       } else {
         toast.error("Failed to update Bio.");
         setMessage("Failed to update Bio. Please try again.");
@@ -163,6 +178,10 @@ const ProfileSetting= () => {
 
   const handleUserDelete = async (e)=>{
     e.preventDefault();
+    if (Delete.toLowerCase() !== "yes") {
+      toast.error("Please type 'yes' to confirm account deletion.");
+      return;
+    }
     try {
       const response = await axios.delete(
         `${BASE_URL}/users/${userId}/delete`,
@@ -176,7 +195,7 @@ const ProfileSetting= () => {
         setMessage("User Deleted successfully!");
         dispatch(signOut());
     }catch(err){
-      toast.error("Failed to Delete User.2");
+      toast.error("Failed to Delete User.");
       setMessage("Failed to Delete User. Please try again.");
     }
   };
