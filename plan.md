@@ -1,387 +1,217 @@
-# Manasthali — Updated Fix Plan
+# Manasthali — TSX + Tailwind Migration Plan
 
-> Previous plan items have been moved to **Done** because they are considered completed/superseded.  
-> New work starts again from **Step 1** and is focused on end-to-end working functionality, fresh data updates, JSX cleanup, and inline styling.
-
----
-
-## Status — All Steps Complete
-
-> **Steps 1–11 have been completed.** Step 12 is a manual E2E checklist that requires a running environment (backend + database + S3).
-
-### What was done
-
-| Step | Status | Summary |
-|------|--------|---------|
-| 1 | ✅ Done | API contract alignment (routes, payloads, imports) |
-| 2 | ✅ Done | Post creation feed refresh, S3 upload, community post guards |
-| 3 | ✅ Done | FeedHome.jsx corrupted code fixed, comment handlers added, shared post rendering |
-| 4 | ✅ Done | Story fetch URL, media validation, 24h filtering |
-| 5 | ✅ Done | ProfileSetting import naming, profile post count |
-| 6 | ✅ Done | Group/auth routes, message empty responses, membership checks |
-| 7 | ✅ Done | Notification mark-as-read route, sender population |
-| 8 | ✅ Done | OTP expiry, quiz personality update |
-| 9 | ✅ Done | 29 component files renamed `.js` → `.jsx` |
-| 10 | ✅ Done | 27 `.styles.ts` files inlined into components, deleted |
-| 11 | ✅ Done | Feed refresh key, story delete, follow/unfollow Redux sync, group join/leave, notification read |
-| 12 | ⏳ Manual | See checklist below — needs running app to verify |
+> The previous bug-fix plan (Steps 1–11) is complete. Step 12 of that plan was a manual E2E run that requires a live backend/database/S3.
+>
+> This new plan converts the frontend from `.jsx` files with inline `style={{}}` / `const styles = {…}` objects to `.tsx` files that style themselves with Tailwind utility classes via `className`, matching this reference style:
+>
+> ```tsx
+> import { useState, type ReactElement } from "react";
+> import { Outlet } from "react-router-dom";
+>
+> export default function AppShell(): ReactElement {
+>   const [sidebarOpen, setSidebarOpen] = useState(false);
+>   return (
+>     <div className="h-screen overflow-hidden bg-slate-950 text-slate-100">
+>       …
+>     </div>
+>   );
+> }
+> ```
+>
+> **End state:** no `style={{}}` props, no `const styles` objects, no `*.styles.*` files, no Bootstrap CSS imports, no `styleUtils.ts`. All styling lives in Tailwind `className` strings inside `.tsx` files. The only stylesheet is `src/index.css` containing the three `@tailwind` directives plus any unavoidable global keyframes via Tailwind's `@layer`.
 
 ---
 
-## New Steps To Do
+## Current state (baseline)
 
-### Step 1 — Fix broken frontend/backend API contracts first
-**Priority:** Critical  
-**Area:** App-wide API calls
+- `frontend/src/` contains **29 `.jsx`** component files, **1 `.tsx`** entry (`main.tsx`), 4 plain `.js` (api/redux/utils), plus `utils/styleUtils.ts`.
+- **27 components** use `const styles = { … }` + `style={styles.X}` for layout/colors.
+- **10 components** still embed raw inline `style={{ … }}` props.
+- **7 components** import `bootstrap/dist/css/bootstrap.min.css` and use class names like `btn`, `form-control`, `container`.
+- Global CSS (reset + keyframes `animate`, `fallIn`) is injected at runtime from `src/utils/styleUtils.ts` via `injectGlobalStyles(...)`.
+- TypeScript is already configured (`tsconfig.app.json`, `@types/react`, `@types/react-dom`, `@types/node`, `typescript@5.7`). `allowJs: true` and `jsx: "react-jsx"` are already set, so `.tsx` files compile out of the box.
+- Tailwind is **not** installed. No `tailwind.config.*`, no `postcss.config.*`.
 
-Current issue: several frontend calls still target old or missing routes, so core screens can fail even if backend logic exists.
+---
+
+## Step 1 — Install and configure Tailwind CSS
+
+**Priority:** Critical (gate for every later step)
+**Area:** Build tooling
 
 **Fix:**
-- Update `frontend/src/apis/Api.js`:
-  - `BASIC_POST_ROUTE` must be `${BASE_URL}/posts`, not `${BASE_URL}/posts/posts`.
-  - `SEND_NOTIFICATION` must be `${BASE_URL}/notifications`, not `${BASE_URL}/notifications/notifications`.
-  - Keep post list constants as base routes only and append `/${userId}` at call sites.
-- Update `frontend/src/components/Feed/post/Post.js`:
-  - Create post should call `POST /posts`, not `POST /posts/posts`.
-- Update `frontend/src/components/Feed/home/FeedHome.js`:
-  - Like/unlike/comment/detail/share calls should use `/posts/:id/...`, not `/posts/posts/:id/...`.
-- Add missing backend routes in `backend/routes/user.route.js`:
-  - `POST /email` → `checkEmail`
-  - `POST /username` → `checkUsername`
-- Import `checkEmail` and `checkUsername` from `user.controller.js` in `user.route.js`.
-- Update `frontend/src/components/Authentication/ResetPassword.js`:
-  - Send `{ token, newPassword: password }` because backend reads `newPassword`, not `password`.
-- Update story fetch call in `frontend/src/components/Feed/story/Story.js`:
-  - Current code calls `GET /story/${user._id}`, but backend treats this as story ID.
-  - Use `GET /story/stories/user/${user._id}` for current user's stories.
-- Normalize comment detail/update/delete routes later if possible:
-  - Current backend creates routes like `/comments/comments/:id` because router is mounted at `/comments` and inner routes also start with `/comments`.
+- Add deps: `tailwindcss`, `postcss`, `autoprefixer` as dev dependencies in `frontend/package.json`.
+- Create `frontend/tailwind.config.js` with:
+  - `content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx}"]`
+  - `theme.extend.keyframes` for `animate` (rotateY 0→360deg) and `fallIn` (translateY -200px → 0), mirroring the keyframes currently in `styleUtils.ts`.
+  - `theme.extend.animation`: `{ "rotate-logo": "animate 5s infinite ease-in-out", "fall-in": "fallIn 1.5s ease-in-out" }`.
+- Create `frontend/postcss.config.js` exporting `{ plugins: { tailwindcss: {}, autoprefixer: {} } }`.
+- Create exactly **one** stylesheet `frontend/src/index.css` containing:
+  ```css
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;
+  ```
+  This is the only allowed CSS file in the repo.
+- Import `./index.css` once at the top of `src/main.tsx`.
+- Remove `injectGlobalStyles(...)` call from `main.tsx`; remove the `@keyframes` blob — those animations now live in `tailwind.config.js`.
 
-**Acceptance check:** signup email/username validation, reset password, create post, like/unlike, comment, notification creation, and story fetch should no longer hit 404 because of wrong URLs.
+**Acceptance:** `npx vite build` succeeds; a basic Tailwind class like `bg-slate-950` renders correctly in the running app.
 
 ---
 
-### Step 2 — Fix post creation and feed refresh
-**Priority:** Critical  
-**Area:** Post creation, home feed, media upload
+## Step 2 — Tighten TypeScript config for `.tsx` migration
 
-Current issue: post creation is still not fully reliable and new posts do not automatically refresh the home feed.
+**Priority:** High
+**Area:** `tsconfig.app.json`
 
 **Fix:**
-- In `backend/controller/post.controller.js` → `createPost`:
-  - Do not trust `userId` from request body. Use `req.user._id`.
-  - For S3 uploads, store `file.location || file.path`, not only `file.path`.
-  - Validate empty description/media clearly. Decide whether text-only posts are allowed.
-  - Return the created post populated with `userId`, `likes`, and `comments` so the frontend can update immediately.
-- In `frontend/src/components/Feed/post/Post.js`:
-  - After successful post creation, clear the form and trigger feed refresh.
-  - Either pass an `onPostCreated` callback from `Feed.js` or switch to a shared `refreshFeed` state/event.
-- In `backend/controller/post.controller.js`:
-  - `getCommunityPosts` should guard missing user and missing community before reading `community._id`.
-  - Return `200` with `posts: []` for empty feeds instead of treating empty data as an error.
-  - Sort posts by latest first using `.sort({ createdAt: -1 })`.
+- Keep `allowJs: true` during migration so `.js` Redux/API files keep working.
+- Add `"strict": false` (already set) but enable `"noImplicitAny": true` and `"strictNullChecks": true` so converted components surface obvious type issues without forcing every legacy file to be perfect.
+- Ensure `"jsx": "react-jsx"` (already set) — no `import React from "react"` needed in new `.tsx` files; import `type ReactElement` directly when annotating return types.
 
-**Acceptance check:** user creates a post, returns to home/feed, and the new post appears without manual browser refresh.
+**Acceptance:** `npx tsc -b` runs without new errors against the current code.
 
 ---
 
-### Step 3 — Fix like, unlike, comment, and share end-to-end
-**Priority:** Critical  
-**Area:** Feed interactions
+## Step 3 — Rename every component file `.jsx` → `.tsx`
 
-Current issue: like/comment/share UI does not consistently update backend + frontend + notifications.
+**Priority:** Critical
+**Area:** All component files under `frontend/src/components/**` and `frontend/src/App.jsx`
+
+**Fix — file list (29 renames):**
+- `src/App.jsx` → `src/App.tsx`
+- `components/Authentication/Signin.jsx`, `Signup.jsx`, `ForgetPassword.jsx`, `ResetPassword.jsx`, `Verifyotp.jsx` → `.tsx`
+- `components/Authorization/Auth.jsx` → `.tsx`
+- `components/Home/Home.jsx` → `.tsx`
+- `components/Admin/Admin.jsx`, `AdminLogin.jsx`, `Community/communityAdmin.jsx`, `Groups/Groups.jsx` → `.tsx`
+- `components/Quiz/Quiz.jsx`, `QuizGetStarted.jsx`, `personality.jsx` → `.tsx`
+- `components/Feed/Feed.jsx`, `Find-friend/FindFriend.jsx`, `Mental-Coach/MentalCoach.jsx`, `challenge/Challenege.jsx`, `chat/ChatList.jsx`, `community/community.jsx`, `group-chat/GroupChat.jsx`, `group/Group.jsx`, `home/FeedHome.jsx`, `notification/Notification.jsx`, `post/Post.jsx`, `profile/Profile.jsx`, `profile/ProfileSetting.jsx`, `story/Story.jsx` → `.tsx`
+
+**Per-file edits during rename:**
+- Replace the default-function/arrow signature with the reference pattern, e.g.
+  ```tsx
+  import { useState, type ReactElement } from "react";
+  export default function Signin(): ReactElement { … }
+  ```
+- For child components that receive props, define a local `type Props = { … }` immediately above the component.
+- Annotate `useState<T>(...)` generics where the inferred type would be `never[]` or `null`.
+- Annotate event handlers: `(e: React.ChangeEvent<HTMLInputElement>) => …`, `(e: React.FormEvent<HTMLFormElement>) => …`.
+- Type Redux selectors as `useSelector((state: RootState) => …)` — export `RootState` from `redux-config/store.js` (convert it to `store.ts` in this step to expose `RootState` / `AppDispatch`).
+- Drop unused `import React from "react"` since `jsx: react-jsx` is in effect.
+
+**Acceptance:** `find src -name "*.jsx"` returns nothing; `npx tsc -b` reports zero new errors.
+
+---
+
+## Step 4 — Replace `const styles = {}` and `style={{}}` with Tailwind `className`
+
+**Priority:** Critical
+**Area:** Every converted `.tsx` file
+
+**Conversion rules:**
+- Delete every `const styles = { … }` block at the top of a component.
+- Remove every `style={styles.foo}` and every inline `style={{ … }}` prop.
+- Reconstruct the same visual output using Tailwind utility classes inside `className="…"`:
+  - Layout: `flex`, `grid`, `gap-*`, `items-*`, `justify-*`, `flex-col`, `flex-1`, `min-h-0`.
+  - Spacing: `p-*`, `px-*`, `py-*`, `m-*`, `gap-*`.
+  - Sizing: `w-*`, `h-*`, `max-w-*`, `min-h-screen`.
+  - Color: `bg-slate-950`, `text-slate-100`, `text-white`, `bg-blue-600`, `border-slate-700`, etc.
+  - Typography: `text-sm`, `text-lg`, `font-medium`, `font-bold`, `tracking-tight`.
+  - Effects: `rounded-md`, `rounded-full`, `shadow`, `backdrop-blur`, `ring-2`, `ring-sky-400/60`.
+  - Responsive: `md:p-6`, `lg:flex-row`.
+  - State variants: `hover:bg-blue-700`, `focus:outline-none`, `focus:ring-2`, `disabled:opacity-50`.
+- For background images that previously used `url(${sporeGif})` in a style object, keep the `import sporeGif from "@assets/spore.gif"` and apply via a tiny inline style only when no Tailwind equivalent exists, e.g. `style={{ backgroundImage: \`url(${sporeGif})\` }}` together with Tailwind classes for `bg-cover bg-center bg-fixed`. (This is the **single allowed exception** for inline `style` — dynamic asset URLs that cannot be expressed in a class.)
+- For the rotating admin logo, replace `className="rotating-logo-admin"` with `className="animate-rotate-logo"` (mapped in `tailwind.config.js`).
+- For the falling logo, replace `className="site-logo-admin"` with `className="animate-fall-in"`.
+- Replace Bootstrap utility classes used inline (`btn btn-primary`, `form-control`, `container py-4`, `row`, `col-md-6`, `text-center`, `mb-4`) with Tailwind equivalents (`rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700`, `w-full rounded border border-slate-300 px-3 py-2`, `mx-auto max-w-4xl py-4`, `flex flex-wrap -mx-2`, `w-full md:w-1/2 px-2`, `text-center`, `mb-4`).
+- Use the same Tailwind class for the same visual role across files so the design stays consistent (extract repeating patterns into a small local constant inside the file if the same string repeats more than three times — keep it inside the `.tsx`, not in an external module).
+
+**Acceptance:** `grep -rn "const styles = {" src` and `grep -rn "style={{ " src` together return **at most** the dynamic-background-image exceptions documented above, and nothing else.
+
+---
+
+## Step 5 — Drop Bootstrap and `styleUtils.ts`
+
+**Priority:** High
+**Area:** Dependencies and globals
 
 **Fix:**
-- In post like/unlike backend:
-  - Use `req.user._id`, not `req.body.userId`.
-  - Return updated `likes` array and `likeCount`.
-- In `FeedHome.js`:
-  - Remove `localStorage` as the source of truth for likes.
-  - Use optimistic UI only with rollback if the API fails.
-  - Compare IDs safely because backend may return ObjectIds or populated user objects.
-- Fix comment submit flow:
-  - Current comment notification uses `postId.userId`, but `postId` is only a string.
-  - Find the current post object first, then use `post.userId._id || post.userId` as receiver.
-  - After comment success, append the returned comment or refetch that post.
-  - Render comments inside the modal; currently the modal opens but comment list area is empty.
-- Fix notification payload:
-  - Backend expects `receiver_id`, `notification_type`, and `sender_id`.
-  - Frontend currently sends `userId` in some places. Replace with `receiver_id`.
-- Implement share button in `FeedHome.js`:
-  - Add `onClick={() => handleShare(post)}`.
-  - Call `POST /posts/:id/share`.
-  - Update `shares` count in local state after success.
-  - Render shared post reference clearly if `shared_post_id` exists.
-- In `backend/controller/comment.controller.js`:
-  - `getCommentDetails` should populate `userId`, not `user_id`.
-  - `deleteComment` currently decrements `post.comment_count`, but `postSchema` has no `comment_count`. Remove this or add the schema field intentionally.
+- Remove every `import "bootstrap/dist/css/bootstrap.min.css"` (currently in `Home.jsx`, `AdminLogin.jsx`, `Signin.jsx`, `Signup.jsx`, `Verifyotp.jsx`, `QuizGetStarted.jsx`, `FeedHome.jsx`).
+- Uninstall `bootstrap`, `bootstrap-icons`, and `react-bootstrap` from `frontend/package.json` (`react-bootstrap` is listed but unused; confirm no remaining imports before removing).
+- Delete `src/utils/styleUtils.ts`. Its only consumer is `main.tsx` and that import is removed in Step 1.
+- If a Bootstrap-only icon was relied on, swap to `@mui/icons-material` (already installed) or `react-icons` (already installed).
 
-**Acceptance check:** like count, unlike state, comment count, comment list, share count, and notification records update correctly on the same screen without stale data.
+**Acceptance:** `grep -rn "bootstrap" src` returns zero hits; `frontend/src/utils/styleUtils.ts` no longer exists; `npm install && npx vite build` succeeds.
 
 ---
 
-### Step 4 — Fix stories end-to-end
-**Priority:** High  
-**Area:** Stories upload/view/like/comment/view count
+## Step 6 — Convert remaining plain `.js` source files where they touch types
 
-Current issue: story fetch is using the wrong endpoint, story media rendering is incorrect for S3 URLs/arrays, and the UI only handles a very limited current-user story flow.
+**Priority:** Medium
+**Area:** `redux-config/`, `apis/`
 
 **Fix:**
-- In `Story.js`:
-  - Fetch current user's stories from `/story/stories/user/:userId`.
-  - For the story strip, also fetch all stories from `/story/stories` if stories from other users should be visible.
-  - Display `story.media?.[0]` or the direct media URL. Do not prefix S3 URLs with `BASE_URL`.
-  - After upload, update state immediately or refetch stories.
-- In `backend/controller/story.controller.js`:
-  - Use `req.user._id` instead of trusting `userId` from body.
-  - Validate that a media file exists before saving.
-  - Keep `media` shape consistent: either always array or always string.
-  - Populate `userId` with `username profile_picture`, not `name email`.
-  - Add 24-hour story filtering if this is intended to behave like social-media stories.
-- Add frontend actions if required:
-  - like story
-  - comment on story
-  - record story view
+- Rename `redux-config/store.js` → `store.ts` and export `export type RootState = ReturnType<typeof store.getState>` and `export type AppDispatch = typeof store.dispatch`.
+- Rename `redux-config/UserSlice.js` → `UserSlice.ts` and define a `UserState` interface (`user: User | Record<string, never>`, `token: string | null`, `message: string`, `isLoggedIn: boolean`).
+- Optionally rename `apis/Api.js` → `Api.ts` and type the exported route constants as `const … = { … } as const`.
+- Update every importer to match the new file names (no extension change usually needed with Vite, but update IDE-resolvable imports if any include `.js`).
 
-**Acceptance check:** upload story → story ring updates → story opens and shows correct image → view count/like/comment update if those actions are exposed.
+**Acceptance:** `npx tsc -b` passes; Redux selectors in components now infer their state type from `RootState` instead of `any`.
 
 ---
 
-### Step 5 — Fix profile, profile settings, and global user data refresh
-**Priority:** High  
-**Area:** Profile screen, settings screen, Redux user state
+## Step 7 — Lint pass and dead-code cleanup
 
-Current issue: profile updates are saved in backend but not consistently reflected across `Feed`, profile screen, right-side profile image, settings screen, followers/following, and chat lists.
+**Priority:** Medium
+**Area:** Project-wide hygiene
 
 **Fix:**
-- Use one user source of truth:
-  - After every profile update, dispatch `updateUserProfile(response.data.user)`.
-  - Also update `Feed.js` `profileData` or refetch it after setting changes.
-- In `ProfileSetting.js`:
-  - After updating contact, DOB, gender, bio, or profile picture, update Redux user state.
-  - Clear/reset the specific form input after success if needed.
-- In `Profile.js`:
-  - Posts count currently reads `user.posts`, but `User` model has no `posts` field.
-  - Fetch posts from `GET /posts/getUserPosts/:userId` and show count from that response.
-  - `showPosts` toggles state but does not render posts. Add rendering or remove the toggle.
-  - Profile photo upload handlers exist but no visible UI calls them. Either add upload UI or remove dead handlers.
-- In `App.js`:
-  - `/profile` currently renders `ProfileSetting`, not the actual profile view. Rename route to `/settings` or render the correct profile component.
-- In delete account flow:
-  - Only delete if the user typed the required confirmation value, e.g. `yes`.
-  - After delete, sign out and navigate to `/signin`.
+- Remove unused imports surfaced by TypeScript after Steps 3–6 (e.g. `useDispatch` left over where only `useSelector` is needed).
+- Ensure every `useEffect` dependency list is honest; TypeScript's `react-hooks` rule (if ESLint is added) catches most.
+- Delete any `// @ts-ignore` comments that are no longer required.
+- Remove leftover commented-out style code from the pre-migration `*.styles.ts` era.
 
-**Acceptance check:** update profile picture/bio/contact → header profile image, profile page, settings page, feed cards, and chat user card should show updated data without manual refresh.
+**Acceptance:** No unused-import warnings during `vite build`; no dead style blocks.
 
 ---
 
-### Step 6 — Fix friends, followers, following, DM list, and chat refresh
-**Priority:** High  
-**Area:** Find friends, direct chat, group chat
+## Step 8 — Final build + visual smoke test
 
-Current issue: follow/unfollow updates only the local list where the action happened. Other screens like profile counts and DM list can stay stale.
+**Priority:** Final gate
+**Area:** Whole frontend
 
-**Fix:**
-- After follow/unfollow:
-  - Refetch following/followers where needed.
-  - Refresh DM list because DM list depends on followers/following.
-  - Refresh profile counts.
-- In direct chat:
-  - Backend `getMessages` should return `200` with `messages: []` for empty conversations instead of `404`.
-  - Keep one stable socket connection per logged-in user and clean up listeners with `socket.off(...)`.
-- In group chat backend:
-  - Protect `POST /groups/create` with `auth`; currently route is public while controller expects `req.user` for `createdBy`.
-  - Compare ObjectIds using `.some(id => id.toString() === req.user._id.toString())` instead of relying on `.includes()`.
-  - `getGroupMessages` must check that the current user is a group member before returning messages.
-  - Sort group messages oldest to newest using `.sort({ createdAt: 1 })`.
-- In group chat frontend:
-  - Refetch joined groups after join/leave.
-  - Ensure newly sent group messages appear in correct chronological order.
+**Checklist:**
+- `npm install` (after Tailwind/PostCSS added, Bootstrap removed).
+- `npx tsc -b` — zero errors.
+- `npx vite build` — production bundle succeeds.
+- `npm run dev` — load each top-level route and confirm:
+  1. `/` Home — background, copy, admin-login button visible.
+  2. `/signin` and `/signup` — form fields, validation styling, password toggle.
+  3. `/verify-otp`, `/forgot-password`, `/reset-password` — same layout as before.
+  4. `/quiz`, `/personality` — quiz container, progress, result screen.
+  5. `/feed` shell — sidebar, topbar, post composer, feed cards, story strip.
+  6. Profile, profile settings (incl. delete-account confirmation).
+  7. Find Friends list, follow/unfollow buttons, hover states.
+  8. Direct chat list + chat window — message bubbles styled.
+  9. Group chat list + window — same as above.
+  10. Notifications list — sender chip, read/unread styling.
+  11. Admin login + admin dashboard.
+- Confirm in DevTools that **no stylesheet other than the Tailwind output is loaded** (no `bootstrap.min.css`, no inline `<style id="manasthali-global-styles">`).
 
-**Acceptance check:** follow a user → they appear in chat list; unfollow → list/counts update; join group → group appears in group chat; group messages load and send in correct order.
-
----
-
-### Step 7 — Fix notifications read state and sender display
-**Priority:** Medium  
-**Area:** Notification screen
-
-Current issue: notifications can be fetched but cannot be marked as read from the route/UI, and sender is shown as a raw ID.
-
-**Fix:**
-- In `backend/routes/notification.route.js`:
-  - Add route for `markNotificationAsRead`, e.g. `PATCH /:id/read`.
-  - Import `markNotificationAsRead` from controller.
-- In `backend/controller/notification.controller.js`:
-  - Populate `sender_id` with `username profile_picture` in `getUserNotifications`.
-  - Sort newest first.
-- In `Notification.js`:
-  - Show sender username/profile picture instead of raw sender ID.
-  - Add click/action to mark as read.
-  - Update local state after read success.
-
-**Acceptance check:** like/comment creates notification → receiver sees readable notification → click marks it read and UI style changes immediately.
+**Acceptance:** All screens render with Tailwind only; build artifacts contain a single CSS bundle.
 
 ---
 
-### Step 8 — Fix signup, OTP, quiz, and auth refresh state
-**Priority:** Medium  
-**Area:** Authentication and onboarding
+## Constraints / Rules during migration
 
-Current issue: signup validation routes are missing, regular OTP expiry is not enforced, and after quiz submission the Redux user can remain stale.
-
-**Fix:**
-- Register `/users/email` and `/users/username` as mentioned in Step 1.
-- In regular signup:
-  - Save `otpExpiresAt` when OTP is generated.
-  - In `verifyOtp`, check expiry and clear `otpExpiresAt` after success.
-- In quiz flow:
-  - Backend already returns `personality_type`; frontend should update Redux user with this value or refetch `/users/:id` after submit.
-  - Navigate to feed only after local user state has the updated personality type.
-- Add auth persistence if required:
-  - Store token/user in `localStorage` or handle refresh cleanly by redirecting to sign-in.
-
-**Acceptance check:** signup → email/username validation works → OTP expires correctly → quiz updates user personality → feed does not redirect back to quiz after refresh/state changes.
+- **Allowed style sources:** Tailwind `className` strings in `.tsx`, the single `src/index.css` containing only `@tailwind` directives, and the keyframe definitions inside `tailwind.config.js`.
+- **Disallowed:** any new `.css`, `.scss`, `.styles.ts`, `.module.css`, CSS-in-JS object, or `style={{}}` prop except the documented dynamic-background-image exception.
+- **Naming:** keep current PascalCase component names; the only file change is the extension.
+- **Imports:** prefer named imports for hooks/types (`import { useState, type ReactElement } from "react"`); avoid `import React from "react"` unless `React.X` is referenced.
 
 ---
 
-### Step 9 — Convert React component files to `.jsx` where JSX is used
-**Priority:** Medium  
-**Area:** Frontend file structure
+## Done ✅ — Previous Plan Items (archived)
 
-Current issue: most React component files contain JSX but still use `.js`. Vite supports this, but `.jsx` is cleaner and easier to identify.
-
-**Fix:**
-- Rename component files that return JSX from `.js` to `.jsx`.
-- Keep non-JSX utility/store/API files as `.js` or `.ts` as appropriate.
-- Update all imports after renaming.
-- Suggested examples:
-  - `App.js` → `App.jsx`
-  - `Feed.js` → `Feed.jsx`
-  - `FeedHome.js` → `FeedHome.jsx`
-  - `Story.js` → `Story.jsx`
-  - `Post.js` → `Post.jsx`
-  - `ChatList.js` → `ChatList.jsx`
-  - `GroupChat.js` → `GroupChat.jsx`
-  - Auth, Quiz, Profile, Admin components → `.jsx`
-- Keep `main.tsx` as-is unless the project wants a pure JS setup.
-
-**Acceptance check:** frontend builds after rename and all imports resolve correctly.
-
----
-
-### Step 10 — Move styling inline / colocated inside component files
-**Priority:** Medium  
-**Area:** Frontend styling standard
-
-Current issue: styling is split into many `*.styles.ts` files. Requested standard is no additional styling files and inline/component-local styling.
-
-**Fix:**
-- For every component importing `* as styles from "./X.styles"`:
-  - Move the style objects into the same `.jsx` component file.
-  - Remove the external `*.styles.ts` file after migration.
-- Keep styling in one of these formats only:
-  - Direct inline JSX style: `style={{ padding: 16, borderRadius: 12 }}`
-  - Component-local object in the same file:
-    ```jsx
-    const styles = {
-      card: {
-        padding: 16,
-        borderRadius: 12,
-      },
-    };
-    ```
-- Do not create new CSS or style files.
-- Remove custom Bootstrap dependency usage where the same styling is already handled inline.
-- Keep third-party library CSS only if the library requires it and replacement is not practical, e.g. toast styles.
-- Review `frontend/src/utils/styleUtils.ts`; if global injected styles are not required, remove it and keep styles inside components.
-
-**Acceptance check:** no component depends on `*.styles.ts`; UI still looks the same after migration; no new CSS/styling files are added.
-
----
-
-### Step 11 — Add screen-level data refresh rules
-**Priority:** Medium  
-**Area:** Updated data across every screen
-
-Current issue: many operations update backend but only partially update frontend state.
-
-**Fix rules:**
-- After create post → refresh feed and profile post count.
-- After like/unlike → update that post on current feed and profile post list.
-- After comment → update comment count and comment list.
-- After share → update share count and show shared post.
-- After story upload/delete/like/comment/view → refresh story strip and viewer state.
-- After profile setting update → refresh Redux user, feed header, profile page, post cards, and chat user display.
-- After follow/unfollow → refresh find friends, profile counts, and DM list.
-- After group join/leave → refresh group list and group chat list.
-- After notification read → update notification list immediately.
-
-**Acceptance check:** user should not need browser refresh after any create/update/delete action.
-
----
-
-### Step 12 — Execute final E2E verification checklist
-**Priority:** Final QA gate  
-**Area:** Full app regression
-
-Run this checklist after Steps 1–11:
-
-1. Signup → verify OTP → sign in.
-2. Submit quiz → user gets personality → feed opens.
-3. Create post with image → feed updates.
-4. Create text-only post if supported → feed updates, or validation message appears if not supported.
-5. Like/unlike post → count and icon update.
-6. Add comment → count and modal list update.
-7. Share post → share count updates and shared post is visible.
-8. Upload story → story ring updates → story opens with correct image.
-9. Like/comment/view story if UI exposes these actions.
-10. Open profile → followers/following/post counts are correct.
-11. Update profile picture/bio/contact/DOB/gender → every screen shows fresh data.
-12. Follow user → profile count and DM list update.
-13. Send direct message → receiver gets real-time message.
-14. Join group → group appears in group chat.
-15. Send group message → members receive it in real time.
-16. Like/comment notification appears for receiver.
-17. Mark notification as read → read style updates.
-18. Delete account → user signs out and cannot access protected screens.
-19. Refresh browser on protected screens → app handles auth state cleanly.
-20. Run frontend build and backend start smoke test.
-
----
-
-## Done ✅ — Previous Plan Items Moved Here
-
-The following work was already listed in the previous `plan.md` and is now treated as done/superseded:
-
-- Backend critical route ordering fixes for user/story routes.
-- Backend double-prefix cleanup for post and notification routes.
-- Backend controller crash fixes around comments, notifications, communities, groups, admin login, and Google OAuth.
-- Socket.IO chat event alignment and private room join flow.
-- Group chat URL and response-shape fixes.
-- JWT expiry and JWT payload standardization.
-- Sensitive fields removed from sign-in response.
-- Follow/unfollow security updated to use authenticated user.
-- CORS moved to environment-based frontend origin.
-- Admin signup, mental coach, and badge route protection work.
-- Forgot/reset password backend security fixes.
-- Notification query/read logic fixes from earlier plan.
-- Story controller fixes from earlier plan.
-- Badge/user schema fixes from earlier plan.
-- Duplicate mental coach route cleanup.
-- Backend route registration/startup cleanup from earlier plan.
-- Post no-community guard and status-code cleanup.
-- Frontend route protection and earlier story/profile/feed bug fixes.
-- Debounce fixes in group/friend search.
-- Per-post comment state fix in feed.
-- Admin and profile toast cleanup from earlier plan.
-- Dead code/debug cleanup from earlier plan.
-- Vite migration, environment config, asset alias, README update, and previous CSS-to-style-object migration.
-
----
-
-## Notes From Current Inspection
-
-- This plan is based on static inspection of the uploaded codebase. Runtime testing was not executed because dependencies/environment variables/database/S3 credentials are not available inside the uploaded ZIP.
-- Highest risk areas are API route mismatches, post/story media URL handling, stale frontend state after mutations, and notification payload mismatch.
-- Do Step 1 first. Many downstream screens cannot be tested properly until route contracts are aligned.
+The full bug-fix plan (former Steps 1–11 — API contracts, post/comment/share/story/notification flows, OTP/quiz, `.js` → `.jsx` renames, inlining of `*.styles.ts` files, screen-level refresh rules) has been completed and verified in code. Step 12 of that plan was a manual E2E run requiring a live backend/database/S3 and is independent of this migration.
