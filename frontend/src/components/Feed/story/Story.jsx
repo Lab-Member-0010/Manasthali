@@ -75,6 +75,7 @@ const Story = () => {
   };
 
  
+    
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -90,11 +91,24 @@ const Story = () => {
         },
       });
 
-      if (response.status === 200) {
-        setStory(response.data);
+      if (response.status === 200 || response.status === 201) {
+        setStory(response.data.story || response.data);
       }
     } catch (error) {
       console.error("Error uploading story");
+    }
+  };
+
+  const handleDeleteStory = async () => {
+    if (!story?._id) return;
+    try {
+      await axios.delete(`${BASE_URL}/story/stories/${story._id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setStory(null);
+      setShowStory(false);
+    } catch (error) {
+      console.error("Error deleting story");
     }
   };
 
@@ -132,8 +146,19 @@ const Story = () => {
 
      
       {showStory && story && (
-        <div style={styles.storyViewer} onClick={() => setShowStory(false)}>
-          <img src={getMediaUrl(story.media)} alt="Story" />
+        <div style={styles.storyViewer}>
+          <img src={getMediaUrl(story.media)} alt="Story" style={{ maxWidth: '90%', maxHeight: '90%' }} onClick={() => setShowStory(false)} />
+          <button
+            onClick={handleDeleteStory}
+            style={{
+              position: 'fixed', top: 20, right: 80,
+              background: 'rgba(255,0,0,0.8)', color: 'white',
+              border: 'none', borderRadius: 4, padding: '8px 16px',
+              cursor: 'pointer', zIndex: 1000,
+            }}
+          >
+            Delete
+          </button>
         </div>
       )}
     </div>

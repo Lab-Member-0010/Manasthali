@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 const styles = {
-notificationContainer: {}
-notificationItem: {}
-unread: {}
-notificationIcon: {}
-notificationText: {}
+notificationContainer: {},
+notificationItem: {},
+unread: {},
+notificationIcon: {},
+notificationText: {},
 notificationTime: {}
 };
 

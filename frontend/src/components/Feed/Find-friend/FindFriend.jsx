@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { debounce } from 'lodash';
+import { updateUserProfile } from '../../../redux-config/UserSlice';
 import Api from "../../../apis/Api";
 const styles = {
 findFriendContainer: {
@@ -57,8 +58,9 @@ findFriendContainer: {
   borderRadius: '25px',
   cursor: 'pointer',
   transition: 'background-color 0.3s ease, transform 0.2s ease',
-  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-}
+   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+},
+  },
 };
 
 const BASE_URL = import.meta.env.VITE_API_URL;
@@ -69,7 +71,9 @@ const FindFriend = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const userId = useSelector((state) => state.user?.user?._id);
+  const dispatch = useDispatch();
+  const currentUser = useSelector((state) => state.user?.user);
+  const userId = currentUser?._id;
   const token = useSelector((state) => state.user?.token);
 
   useEffect(() => {
@@ -140,6 +144,12 @@ const FindFriend = () => {
                 user._id === targetUserId ? { ...user, isFollowing: !isCurrentlyFollowing } : user
             )
         );
+
+        // Update Redux user's following list so profile counts refresh immediately
+        const updatedFollowing = isCurrentlyFollowing
+          ? (currentUser.following || []).filter(id => id.toString() !== targetUserId.toString())
+          : [...(currentUser.following || []), targetUserId];
+        dispatch(updateUserProfile({ ...currentUser, following: updatedFollowing }));
     } catch (err) {
         alert(err.response?.data?.message || 'Action failed. Please try again.');
     }
@@ -156,7 +166,7 @@ const FindFriend = () => {
           type="text"
           placeholder="Search by username"
           value={searchTerm}
-          onChange={handleSearchChange}
+           onChange={handleSearchChange}
           style={styles.searchInput}
         />
       </div>

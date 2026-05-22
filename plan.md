@@ -5,6 +5,29 @@
 
 ---
 
+## Status — All Steps Complete
+
+> **Steps 1–11 have been completed.** Step 12 is a manual E2E checklist that requires a running environment (backend + database + S3).
+
+### What was done
+
+| Step | Status | Summary |
+|------|--------|---------|
+| 1 | ✅ Done | API contract alignment (routes, payloads, imports) |
+| 2 | ✅ Done | Post creation feed refresh, S3 upload, community post guards |
+| 3 | ✅ Done | FeedHome.jsx corrupted code fixed, comment handlers added, shared post rendering |
+| 4 | ✅ Done | Story fetch URL, media validation, 24h filtering |
+| 5 | ✅ Done | ProfileSetting import naming, profile post count |
+| 6 | ✅ Done | Group/auth routes, message empty responses, membership checks |
+| 7 | ✅ Done | Notification mark-as-read route, sender population |
+| 8 | ✅ Done | OTP expiry, quiz personality update |
+| 9 | ✅ Done | 29 component files renamed `.js` → `.jsx` |
+| 10 | ✅ Done | 27 `.styles.ts` files inlined into components, deleted |
+| 11 | ✅ Done | Feed refresh key, story delete, follow/unfollow Redux sync, group join/leave, notification read |
+| 12 | ⏳ Manual | See checklist below — needs running app to verify |
+
+---
+
 ## New Steps To Do
 
 ### Step 1 — Fix broken frontend/backend API contracts first

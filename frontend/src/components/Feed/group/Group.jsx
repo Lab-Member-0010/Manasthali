@@ -49,8 +49,9 @@ findGroupContainer: {
   borderRadius: '25px',
   cursor: 'pointer',
   transition: 'background-color 0.3s ease, transform 0.2s ease',
-  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-}
+   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+},
+  },
 };
 
 const BASE_URL = import.meta.env.VITE_API_URL;
@@ -94,7 +95,7 @@ const Group = () => {
     };
 
     fetchGroups();
-  }, [userId, token, personalityType]); // Make sure personalityType is part of the dependency array
+  }, [userId, token, personalityType]);
 
   const filterGroups = (term) => {
     if (term.trim() === '') {
@@ -152,8 +153,8 @@ const Group = () => {
           type="text"
           placeholder="Search by group name"
           value={searchTerm}
-          onChange={handleSearchChange}
-          style={styles.searchInput}
+           onChange={handleSearchChange}
+           style={styles.searchInput}
         />
       </div>
       {filteredGroups.length === 0 ? (
