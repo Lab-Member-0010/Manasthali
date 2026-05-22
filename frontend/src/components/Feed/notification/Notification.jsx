@@ -1,15 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
-const styles = {
-notificationContainer: {},
-notificationItem: {},
-unread: {},
-notificationIcon: {},
-notificationText: {},
-notificationTime: {}
-};
-
 
 const BASE_URL = import.meta.env.VITE_API_URL;
  
@@ -70,37 +61,37 @@ const NotificationComponent = () => {
   };
 
   return (
-    <div style={styles.notificationContainer}>
+    <div>
       {notifications.length === 0 ? (
         <p>No notifications yet.</p>
       ) : (
         notifications.map((notification) => (
           <div
             key={notification._id}
-            style={notification.read_status ? styles.notificationItem : {...styles.notificationItem, ...styles.unread}}
+            className={`flex items-center gap-3 p-4 border-b border-gray-100 ${notification.read_status ? 'bg-white' : 'bg-blue-50'}`}
             onClick={() => !notification.read_status && handleMarkAsRead(notification._id)}
           >
-            <div style={styles.notificationIcon}>
+            <div className="flex-shrink-0">
               {getSenderPicture(notification) ? (
                 <img
                   src={getSenderPicture(notification)}
                   alt="Sender"
-                  style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }}
+                  className="w-8 h-8 rounded-full object-cover"
                 />
               ) : (
                 "🔔"
               )}
             </div>
-            <div style={styles.notificationText}>
+            <div className="flex-1">
               <p>
                 <strong>{notification.notification_type}</strong> from{" "}
                 {getSenderDisplay(notification)}
               </p>
-              <span style={styles.notificationTime}>
+              <span className="text-xs text-gray-500">
                 {new Date(notification.createdAt).toLocaleString()}
               </span>
               {!notification.read_status && (
-                <span style={{ marginLeft: 8, color: '#6a1b9a', fontSize: 12, cursor: 'pointer' }}>
+                <span className="ml-2 text-purple-700 text-xs cursor-pointer">
                   Mark as read
                 </span>
               )}

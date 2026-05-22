@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Api from '../../../apis/Api';
-import { toast } from 'react-toastify';
-import { ToastContainer } from 'react-bootstrap';
+import { toast, ToastContainer } from 'react-toastify';
 
 import INFJ from "@assets/community/infj.png";
 import ISFJ from "@assets/community/isfj.png";
@@ -20,31 +19,6 @@ import ENTP from "@assets/community/entp.png";
 import ESFP from "@assets/community/esfp.png";
 import ESTJ from "@assets/community/estj.png";
 import ESTP from "@assets/community/estp.png";
-const styles = {
-container: {
-  marginBottom: '80px',
-  padding: '20px',
-},
-  cardsContainer: {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(4, 1fr)',
-  gap: '20px',
-  padding: '20px',
-  margin: '0px auto',
-  maxWidth: '1200px',
-},
-  card: {
-  backgroundColor: '#f9f9f9',
-  border: '1px solid #e0e0e0',
-  borderRadius: '8px',
-  padding: '20px',
-  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-},
-  personalityImage: {
-  height: '100px',
-  width: '120px',
-}
-};
 
 const CommunityAdmin = () => {
   const [personalityData, setPersonalityData] = useState([]);
@@ -81,18 +55,17 @@ const CommunityAdmin = () => {
   }, []);
 
   return (
-    <div style={styles.container}>
+    <div className="mb-20 p-5">
       <ToastContainer />
       <h1 className='text-center text-dark'>Communities</h1>
-      <div style={styles.cardsContainer}>
+      <div className="grid grid-cols-4 gap-5 p-5 mx-auto max-w-[1200px]">
         {personalityData.map((personality) => {
           const image = personalityImages[personality.personality_type];
 
           return (
-            <div key={personality._id} style={styles.card}>
-              {/* Render image if it exists */}
+            <div key={personality._id} className="bg-[#f9f9f9] border border-gray-200 rounded-lg p-5 shadow-lg">
               {image ? (
-                <center><img src={image} alt={personality.personality_type} style={styles.personalityImage}/></center>
+                <center><img src={image} alt={personality.personality_type} className="h-[100px] w-[120px]"/></center>
               ) : (
                 <p>No image available</p>
               )}

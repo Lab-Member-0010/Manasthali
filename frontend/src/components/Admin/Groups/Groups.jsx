@@ -2,10 +2,6 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import Api from '../../../apis/Api';
 import { ToastContainer, toast } from "react-toastify";
-const styles = {
-  container: { padding: '20px', maxWidth: '600px', margin: '0 auto' },
-  createGroup: { backgroundColor: '#007bff', color: 'white', border: 'none', padding: '10px', borderRadius: '4px', cursor: 'pointer' },
-};
 
 const personality_types = {
   INFJ: "INFJ",
@@ -46,7 +42,6 @@ const Groups = () => {
     const { personality_type, name, description } = formData;
 
     try {
-      // Call the API to create the group
       const response = await axios.post(Api.CREATE_GROUP, {
         personality_type,
         name,
@@ -54,17 +49,15 @@ const Groups = () => {
       });
 
       if (response.status === 201) {
-        // Toast success message on successful creation
         toast.success('Group created successfully!');
       }
     } catch (error) {
-      // Toast error message on failure
       toast.error('Error creating group. Please try again.');
     }
   };
 
   return (
-    <div className="mt-5 border card" style={styles.container}>
+    <div className="mt-5 border card p-5 max-w-[600px] mx-auto">
         <ToastContainer/>
       <form onSubmit={handleSubmit}>
       <div>
@@ -108,7 +101,7 @@ const Groups = () => {
             required
           />
         </div>
-        <button type="submit" className="form-control mb-3" style={styles.createGroup}>Create Group</button>
+        <button type="submit" className="form-control mb-3 bg-blue-600 text-white border-none p-2.5 rounded cursor-pointer">Create Group</button>
       </form>
     </div>
   );

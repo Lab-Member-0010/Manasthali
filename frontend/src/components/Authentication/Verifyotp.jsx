@@ -3,77 +3,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "bootstrap/dist/css/bootstrap.min.css";
 import Api from "../../apis/Api";
 import sporeGif from "@assets/spore.gif";
 import manasthaliLogo from "@assets/Manasthali.png";
-const styles = {
-otpContainer: {
-  backgroundImage: `url(${sporeGif})`,
-  backgroundSize: 'cover',
-  backgroundPosition: 'center',
-  backgroundAttachment: 'fixed',
-  minHeight: '100vh',
-  display: 'flex',
-  justifyContent: 'flex-end',
-  alignItems: 'center',
-  paddingRight: '50px',
-},
-  otpBox: {
-  backgroundColor: 'transparent',
-  padding: '10px',
-  borderRadius: '20px',
-  boxShadow: '0px 2px 2px rgba(0, 0, 0, 0.3)',
-  backdropFilter: 'blur(10px)',
-  textAlign: 'center',
-  width: '420px',
-  maxWidth: '1000px',
-  position: 'relative',
-  right: '0',
-},
-  otpLogo: {
-  width: '100px',
-  height: '100px',
-  backgroundImage: `url(${manasthaliLogo})`,
-  backgroundRepeat: 'no-repeat',
-  backgroundPosition: 'center',
-  backgroundSize: 'contain',
-  margin: '10px auto 20px auto',
-  display: 'block',
-},
-  inputContainer: {
-  width: '80%',
-  marginTop: '20px',
-  marginBottom: '20px',
-  display: 'flex',
-  flexDirection: 'column',
-  position: 'relative',
-},
-  inputField: {
-  width: '400px',
-  height: 'auto',
-  backgroundColor: 'transparent',
-  borderBottom: '1px solid black',
-  fontSize: '1rem',
-},
-  labelField: {
-  height: '25px',
-  marginLeft: '5px',
-  fontSize: '1.2rem',
-  color: 'black',
-  textAlign: 'left',
-},
-  verifyOtpBtn: {
-  color: 'black',
-  backgroundColor: '#55aafe',
-  fontWeight: 'bold',
-  borderBottom: '1px solid black',
-  width: '200px',
-  height: '40px',
-  margin: '20px',
-  fontSize: '1rem',
-}
-};
 
 const Verifyotp = () => {
   const [otp, setOtp] = useState("");
@@ -100,25 +32,24 @@ const Verifyotp = () => {
   };
 
   return (
-    <div style={styles.otpContainer}>
+    <div className="min-h-screen flex items-center justify-end bg-cover bg-center bg-fixed pr-[50px]" style={{ backgroundImage: `url(${sporeGif})` }}>
       <ToastContainer />
-      <div className="container text-center mt-5" style={styles.otpBox}>
-      <div style={styles.otpLogo}></div>
+      <div className="container text-center bg-transparent p-[10px] rounded-[20px] shadow backdrop-blur-[10px] w-[420px] max-w-[1000px] relative right-0 mx-auto mt-5">
+      <div className="w-[100px] h-[100px] bg-no-repeat bg-center bg-contain mx-auto mt-[10px] mb-[20px] block" style={{ backgroundImage: `url(${manasthaliLogo})` }}></div>
         <h2 className="text-center mb-4">Verify OTP</h2>
         <form onSubmit={handleSubmit}>
-          <div className="form-group" style={styles.inputContainer}>
-          <label style={styles.labelField}>OTP:</label>
+          <div className="form-group w-4/5 mt-5 mb-5 flex flex-col relative mx-auto">
+          <label className="h-[25px] ml-[5px] text-xl text-black text-left">OTP:</label>
             <input
             type="text"
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
-            className="form-control"
-            style={styles.inputField}
+            className="form-control w-[400px] h-auto bg-transparent border-b border-black text-base"
             placeholder="Enter OTP"
             required
           />
           </div>
-          <button type="submit" className="btn custom-btn" style={styles.verifyOtpBtn}>
+          <button type="submit" className="btn custom-btn text-black bg-[#55aafe] font-bold border-b border-black w-[200px] h-10 m-5 text-base">
             Verify OTP
           </button>
         </form>

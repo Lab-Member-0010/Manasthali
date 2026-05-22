@@ -3,21 +3,7 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import Api from "../../../apis/Api";
-const styles = {
-container: {
-  padding: '20px',
-},
-  createPost: {
-  border: 'none',
-  padding: '0.5rem 1.5rem',
-  fontSize: '1.25rem',
-  borderRadius: '10px',
-  backgroundColor: '#c093fc',
-  color: 'white',
-  transition: 'transform 0.3s ease, background-color 0.3s ease',
-  boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.2)',
-}
-};
+
 
 const Post = ({ onPostCreated }) => {
   const [description, setDescription] = useState("");
@@ -56,7 +42,7 @@ const Post = ({ onPostCreated }) => {
   };
 
   return (
-    <div className="mt-5 border card" style={styles.container}>
+    <div className="mt-5 border card p-5">
       <ToastContainer />
       <form onSubmit={handleSubmit}>
         <div>
@@ -79,7 +65,7 @@ const Post = ({ onPostCreated }) => {
           />
         </div>
         <div>
-          <button type="submit" className="form-control mb-3" style={styles.createPost}>Create Post</button>
+          <button type="submit" className="form-control mb-3 border-none py-2 px-6 text-xl rounded-lg bg-[#c093fc] text-white shadow-md transition-transform duration-300 ease-in-out">Create Post</button>
         </div>
       </form>
     </div>

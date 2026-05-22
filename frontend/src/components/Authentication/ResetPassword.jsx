@@ -7,83 +7,6 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Api from "../../apis/Api";
 import sporeGif from "@assets/spore.gif";
 import manasthaliLogo from "@assets/Manasthali.png";
-const styles = {
-resetContainer: {
-  backgroundImage: `url(${sporeGif})`,
-  backgroundSize: 'cover',
-  height: '100vh',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-},
-  resetBox: {
-  width: '400px',
-  height: '400px',
-  maxWidth: '400px',
-  padding: '20px',
-  borderRadius: '10px',
-  backgroundColor: 'transparent',
-  boxShadow: '0px 1px 2px 1px rgba(0, 0, 0, 0.3)',
-  backdropFilter: 'blur(10px)',
-},
-  resetLogo: {
-  width: '100px',
-  height: '100px',
-  backgroundImage: `url(${manasthaliLogo})`,
-  backgroundRepeat: 'no-repeat',
-  backgroundPosition: 'center',
-  backgroundSize: 'contain',
-  margin: '10px auto 20px',
-},
-  inputContainer: {
-  width: '100%',
-  marginTop: '20px',
-  marginBottom: '20px',
-  display: 'flex',
-  flexDirection: 'column',
-  position: 'relative',
-},
-  inputField: {
-  width: '350px',
-  height: 'auto',
-  backgroundColor: 'transparent',
-  borderBottom: '1px solid black',
-  fontSize: '1rem',
-},
-  passwordFieldContainer: {
-  position: 'relative',
-  width: '100%',
-},
-  togglePassword: {
-  position: 'absolute',
-  right: '20px',
-  top: '50%',
-  transform: 'translateY(-50%)',
-  fontSize: '14px',
-  color: 'black',
-  fontWeight: 'bold',
-  cursor: 'pointer',
-},
-  resetButton: {
-  color: 'black',
-  backgroundColor: '#55aafe',
-  fontWeight: 'bold',
-  borderBottom: '1px solid black',
-  width: '310px',
-  height: '40px',
-  margin: '20px',
-  fontSize: '1rem',
-},
-  errorText: {
-  fontSize: '0.65rem',
-  color: 'rgb(254, 73, 73)',
-  textAlign: 'left',
-  paddingLeft: '5px',
-},
-  errorBorder: {
-  border: '1px solid rgb(254, 73, 73)',
-}
-};
 
 const ResetPassword = () => {
   const location = useLocation();
@@ -150,15 +73,15 @@ const ResetPassword = () => {
   };
 
   return (
-    <div style={styles.resetContainer}>
-      <div style={styles.resetBox}>
+    <div className="h-screen flex items-center justify-center bg-cover bg-center" style={{ backgroundImage: `url(${sporeGif})` }}>
+      <div className="w-[400px] h-[400px] max-w-[400px] p-5 rounded-[10px] bg-transparent shadow backdrop-blur-[10px]">
         <ToastContainer />
-        <div style={styles.resetLogo}></div>
+        <div className="w-[100px] h-[100px] bg-no-repeat bg-center bg-contain mx-auto mt-[10px] mb-[20px]" style={{ backgroundImage: `url(${manasthaliLogo})` }}></div>
         <h2 className="text-center mb-4">Reset Password</h2>
         <form onSubmit={handleResetPassword}>
-          <div style={styles.inputContainer}>
+          <div className="w-full mt-5 mb-5 flex flex-col relative">
             <label>New Password:</label>
-              <div style={styles.passwordFieldContainer}>
+              <div className="relative w-full">
                 <input
                   type={passwordVisible ? "text" : "password"}
                   id="password"
@@ -166,20 +89,19 @@ const ResetPassword = () => {
                   value={password}
                   onChange={handleChange}
                   placeholder="Enter password"
-                  className="form-control"
-                  style={errors.password ? {...styles.inputField, ...styles.errorBorder} : styles.inputField}
+                  className={`form-control w-[350px] h-auto bg-transparent text-base ${errors.password ? "border border-red-500" : "border-b border-black"}`}
                   required
                 />
                 <span
-                  style={{...styles.togglePassword, cursor: "pointer"}}
+                  className="absolute right-5 top-1/2 -translate-y-1/2 text-sm text-black font-bold cursor-pointer"
                   onClick={togglePasswordVisibility}
                 >
                   {passwordVisible ? <VisibilityOff /> : <Visibility />}
                 </span>
               </div>
-              {errors.password && <span style={styles.errorText}>{errors.password}</span>}
+              {errors.password && <span className="text-[0.65rem] text-red-500 text-left pl-[5px]">{errors.password}</span>}
             </div>
-          <button type="submit" className="btn" style={styles.resetButton}>
+          <button type="submit" className="btn text-black bg-[#55aafe] font-bold border-b border-black w-[310px] h-10 m-5 text-base">
             Reset Password
           </button>
         </form>

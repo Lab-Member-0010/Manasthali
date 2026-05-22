@@ -1,15 +1,8 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
-import Button from 'react-bootstrap/Button';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-const styles = {
-  challengeContainer: { padding: '20px', textAlign: 'center' },
-  fetchChallengeButton: { marginTop: '20px' },
-  complete: { backgroundColor: '#28a745', color: 'white', border: 'none' },
-  incomplete: { backgroundColor: '#dc3545', color: 'white', border: 'none' },
-};
 import Api from "../../../apis/Api";
 
 const Challenge = () => {
@@ -61,13 +54,13 @@ const Challenge = () => {
     };
 
     return (
-        <div style={styles.challengeContainer}>
+        <div className="p-4 text-center">
             <h2>Daily Challenge</h2>
             {!challenge &&
                 <div>
-                    <Button onClick={handleChallenge} className="form-control w-100" style={styles.fetchChallengeButton}>
+                    <button onClick={handleChallenge} className="w-full mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
                         Get Today's Challenge
-                    </Button>
+                    </button>
                 </div>
             }
             {challenge && (
@@ -76,12 +69,12 @@ const Challenge = () => {
                     <p className="text-dark">{challenge}</p>
 
                     <div className="d-flex justify-content-evenly align-items-center">
-                        <Button onClick={handleComplete} className="btn" style={styles.complete}>
+                        <button onClick={handleComplete} className="bg-green-600 text-white border-none px-4 py-2 rounded">
                             Complete
-                        </Button>
-                        <Button onClick={handleIncomplete} className="btn" style={styles.incomplete}>
+                        </button>
+                        <button onClick={handleIncomplete} className="bg-red-600 text-white border-none px-4 py-2 rounded">
                             Incomplete
-                        </Button>
+                        </button>
                     </div>
 
                     {status && (

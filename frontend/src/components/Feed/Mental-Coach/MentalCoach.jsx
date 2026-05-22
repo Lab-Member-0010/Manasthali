@@ -1,82 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
-const styles = {
-container: {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  height: '100%',
-  background: 'white',
-  color: 'black',
-  fontFamily: 'Arial, sans-serif',
-  overflow: 'hidden',
-},
-  chatBox: {
-  width: '100%',
-  maxWidth: '400px',
-  height: '60vh',
-  overflowY: 'auto',
-  background: 'rgba(255, 255, 255, 0.9)',
-  borderRadius: '10px',
-  padding: '15px',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '10px',
-  boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)',
-  transition: '0.3s',
-  position: 'relative',
-},
-  message: {
-  maxWidth: '80%',
-  padding: '10px',
-  borderRadius: '10px',
-  wordWrap: 'break-word',
-  fontSize: '14px',
-},
-  userMessage: {
-  alignSelf: 'flex-end',
-  backgroundColor: '#c093fc',
-  color: 'black',
-  borderTopRightRadius: 0,
-},
-  botMessage: {
-  alignSelf: 'flex-start',
-  backgroundColor: '#f1f1f1',
-  color: 'black',
-  borderTopLeftRadius: 0,
-},
-  inputBox: {
-  display: 'flex',
-  width: '100%',
-  maxWidth: '400px',
-  marginTop: '10px',
-  gap: '10px',
-  position: 'absolute',
-  bottom: '10px',
-},
-  inputFields: {
-  flex: 1,
-  padding: '10px',
-  border: 'none',
-  borderRadius: '20px',
-  outline: 'none',
-  fontSize: '16px',
-  transition: 'all 0.3s ease',
-  backgroundColor: 'white',
-  color: 'black',
-},
-  buttonSend: {
-  backgroundColor: '#c093fc',
-  color: 'white',
-  border: 'none',
-  padding: '10px 15px',
-  borderRadius: '20px',
-  cursor: 'pointer',
-  transition: '0.3s',
-}
-};
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -108,30 +32,30 @@ const MentalCoach = () => {
   };
 
   return (
-    <div style={styles.container}>
+    <div className="max-w-4xl mx-auto p-6 flex flex-col items-center min-h-screen bg-white text-black">
       <h3>Mental Coach</h3>
-      <div style={styles.chatBox}>
+      <div className="bg-white rounded-lg shadow p-6 min-h-96 w-full max-w-md overflow-y-auto flex flex-col gap-2.5">
         {messages.map((msg, index) => (
           <div
             key={index}
-            style={msg.sender === "user" ? {...styles.message, ...styles.userMessage} : {...styles.message, ...styles.botMessage}}
+            className={msg.sender === "user" ? "p-4 mb-3 rounded-lg max-w-xl ml-auto bg-blue-100" : "p-4 mb-3 rounded-lg max-w-xl bg-gray-100"}
           >
             {msg.text}
           </div>
         ))}
       </div>
 
-      <div style={styles.inputBox}>
+      <div className="flex gap-2 mt-4 w-full max-w-md">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask me anything..."
-          style={styles.inputFields}
+          className="flex-1 border border-gray-300 rounded-lg px-4 py-2"
         />
         <button
           onClick={sendMessage}
-          style={styles.buttonSend}
+          className="bg-purple-400 text-white px-4 py-2 rounded-full cursor-pointer hover:bg-purple-500 transition-colors border-none"
         >
           Ask
         </button>

@@ -4,105 +4,6 @@ import axios from "axios";
 import { debounce } from "lodash";
 import defaultUser from "@assets/default_profile.jpg";
 import Api from "../../../apis/Api";
-const styles = {
-profileContainer: {
-  maxWidth: '900px',
-  margin: '20px auto',
-  padding: '10px',
-  fontFamily: "'Arial', sans-serif",
-  color: '#333',
-},
-  profileHeader: {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '30px',
-  paddingBottom: '20px',
-  borderBottom: '1px solid #ddd',
-},
-  profileImage: {
-  flexShrink: 0,
-  position: 'relative',
-  width: '100px',
-  height: '100px',
-  borderRadius: '50%',
-  border: '1px solid black',
-},
-  toggleButton: {
-  margin: 0,
-},
-  profileImageToggle: {
-  flexShrink: 0,
-  position: 'relative',
-  width: '50px',
-  height: '50px',
-  borderRadius: '50%',
-  border: '1px solid black',
-},
-  profileInfo: {
-  flexGrow: 1,
-},
-  usernameAndPosts: {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  marginBottom: '10px',
-},
-  userName: {
-  fontSize: '28px',
-  fontWeight: 'bold',
-  margin: 0,
-  textAlign: 'left',
-},
-  userBio: {
-  fontSize: '14px',
-  color: '#8e8e8e',
-  margin: '10px 0',
-},
-  followersFollowing: {
-  display: 'flex',
-  gap: '30px',
-  fontSize: '16px',
-  fontWeight: '600',
-},
-  popup: {
-  position: 'fixed',
-  top: 0,
-  left: 0,
-  width: '100%',
-  height: '100%',
-  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-},
-  popupContent: {
-  backgroundColor: 'white',
-  padding: '30px',
-  borderRadius: '10px',
-  maxWidth: '450px',
-  width: '100%',
-  boxShadow: '0 3px 10px rgba(0, 0, 0, 0.1)',
-},
-  profilesDiv: {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  width: '390px',
-},
-  followUnfollow: {
-  backgroundColor: '#c093fc',
-  color: 'white',
-  border: 'none',
-  padding: '10px 20px',
-  width: '100px',
-  fontSize: '1rem',
-  fontWeight: '500',
-  borderRadius: '25px',
-  cursor: 'pointer',
-  transition: 'background-color 0.3s ease, transform 0.2s ease',
-  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-}
-};
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -275,12 +176,12 @@ const Profile = ({ user, loading, updateProfilePicture, updateProfile }) => {
     setShowPosts((prev) => !prev);
   };
   return (
-    <div style={styles.profileContainer}>
+    <div className="max-w-4xl mx-auto mt-8 p-6 bg-white rounded-lg shadow">
       {selectedUser ? (
         // Display selected user details
         <>
-          <div style={styles.profileHeader}>
-            <div style={styles.profileImage}>
+          <div className="flex items-center gap-6 p-6">
+            <div className="w-32 h-32 rounded-full border-4 border-gray-200 flex-shrink-0 relative overflow-hidden">
               <img
                 src={
                   selectedUser.profile_picture
@@ -288,14 +189,15 @@ const Profile = ({ user, loading, updateProfilePicture, updateProfile }) => {
                     : defaultUser
                 }
                 alt={selectedUser.username}
+                className="w-full h-full object-cover"
               />
             </div>
-            <div style={styles.profileInfo}>
-              <div style={styles.usernameAndPosts}>
-                <h2 style={styles.userName}>{selectedUser.username}</h2>
+            <div className="flex-1">
+              <div className="flex items-center justify-between mb-2.5">
+                <h2 className="text-2xl font-bold m-0 text-left">{selectedUser.username}</h2>
               </div>
-              <p style={styles.userBio}>{selectedUser.bio || "No bio available"}</p>
-              <div style={styles.followersFollowing}>
+              <p className="text-gray-600 mt-2">{selectedUser.bio || "No bio available"}</p>
+              <div className="flex gap-4 mt-4 text-gray-600">
                 <p>Followers: {selectedUser.followers?.length || 0}</p>
                 <p>Following: {selectedUser.following?.length || 0}</p>
               </div>
@@ -306,7 +208,7 @@ const Profile = ({ user, loading, updateProfilePicture, updateProfile }) => {
       ) : (
         // Main profile display
         <>
-          <div style={styles.profileHeader}>
+          <div className="flex items-center gap-6 p-6">
             <div>
               <img
                 src={
@@ -315,15 +217,15 @@ const Profile = ({ user, loading, updateProfilePicture, updateProfile }) => {
                     : defaultUser
                 }
                 alt={user.username}
-                style={styles.profileImage}
+                className="w-32 h-32 rounded-full object-cover border-4 border-gray-200"
               />
             </div>
-            <div style={styles.profileInfo}>
-              <div style={styles.usernameAndPosts}>
-                <h2 style={styles.userName}>{user.username}</h2>
+            <div className="flex-1">
+              <div className="flex items-center justify-between mb-2.5">
+                <h2 className="text-2xl font-bold m-0 text-left">{user.username}</h2>
               </div>
-              <p style={styles.userBio}>{user.bio}</p>
-              <div style={styles.followersFollowing}>
+              <p className="text-gray-600 mt-2">{user.bio}</p>
+              <div className="flex gap-4 mt-4 text-gray-600">
                 <span onClick={() => handlePopup("followers")}>
                   {user.followers?.length || 0} Followers
                 </span>
@@ -339,8 +241,8 @@ const Profile = ({ user, loading, updateProfilePicture, updateProfile }) => {
           {/* Display Posts */}
 
           {showPopup && (
-            <div style={styles.popup}>
-              <div style={styles.popupContent}>
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg p-6 w-96 max-h-96 overflow-y-auto">
                 <h3>{popupType === "followers" ? "Followers" : "Following"}</h3>
                 <div>
                   <div>
@@ -357,19 +259,19 @@ const Profile = ({ user, loading, updateProfilePicture, updateProfile }) => {
                     <tbody>
                       {filteredUsers.length > 0 ? (
                         filteredUsers.map((popupUser) => (
-                          <tr key={popupUser._id} style={styles.profilesDiv}>
+                          <tr key={popupUser._id} className="flex items-center justify-between">
                             <td>
                               <img height={50}
                                 src={popupUser.profile_picture ? popupUser.profile_picture : defaultUser}
                                 alt={popupUser.username}
-                                style={styles.profileImageToggle}
+                                className="w-12 h-12 rounded-full object-cover border border-gray-900"
                               />
                             </td>
                             <td>{popupUser.username}</td>
                             <td>
                               {popupUser._id !== loggedInUserId && (
                                 <button
-                                  style={styles.followUnfollow}
+                                  className="px-4 py-2 rounded-full font-medium cursor-pointer bg-purple-400 text-white hover:bg-purple-500"
                                   onClick={() => handleFollowToggle(popupUser._id, popupUser.isFollowing)}
                                 >
                                   {popupUser.isFollowing ? "Unfollow" : "Follow"}
@@ -394,16 +296,16 @@ const Profile = ({ user, loading, updateProfilePicture, updateProfile }) => {
 
           {/* Display Posts */}
           {showPosts && (
-            <div style={{ marginTop: 20 }}>
+            <div className="mt-5">
               <h3>Posts</h3>
               {userPosts.length === 0 ? (
                 <p>No posts yet.</p>
               ) : (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+                <div className="flex flex-wrap gap-3">
                   {userPosts.map((post) => (
-                    <div key={post._id} style={{ border: '1px solid #eee', borderRadius: 8, padding: 12, width: 280 }}>
+                    <div key={post._id} className="w-72 border border-gray-200 rounded-lg p-4">
                       {post.media?.[0] && (
-                        <img src={post.media[0]} alt="Post" style={{ width: '100%', borderRadius: 6, marginBottom: 8 }} />
+                        <img src={post.media[0]} alt="Post" className="w-full rounded mb-2" />
                       )}
                       <p>{post.description}</p>
                       <small>{post.likes?.length || 0} likes · {post.comments?.length || 0} comments</small>

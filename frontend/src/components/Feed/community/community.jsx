@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import Api from '../../../apis/Api';
-import { toast } from 'react-toastify';
-import { ToastContainer } from 'react-bootstrap';
+import { toast, ToastContainer } from 'react-toastify';
 
 // Importing all the personality images
 import INFJ from "@assets/community/infj.png";
@@ -22,32 +21,6 @@ import ENTP from "@assets/community/entp.png";
 import ESFP from "@assets/community/esfp.png";
 import ESTJ from "@assets/community/estj.png";
 import ESTP from "@assets/community/estp.png";
-const styles = {
-container: {
-  marginBottom: '80px',
-  padding: '20px',
-},
-  cardsContainer: {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(4, 1fr)',
-  gap: '20px',
-  padding: '20px',
-  margin: '0px auto',
-  maxWidth: '1200px',
-},
-  card: {
-  backgroundColor: '#f9f9f9',
-  border: '1px solid #e0e0e0',
-  borderRadius: '8px',
-  padding: '20px',
-  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-},
-  personalityImage: {
-  height: '100px',
-  width: '120px',
-}
-};
 
 const Community = () => {
   const [personalityData, setPersonalityData] = useState([]);
@@ -90,19 +63,19 @@ const Community = () => {
   }, [token]);
 
   return (
-    <div style={styles.container}>
+    <div className="max-w-6xl mx-auto p-6">
       <ToastContainer />
       <h1 className='text-center text-dark'>Communities</h1>
-      <div style={styles.cardsContainer}>
+      <div className="grid grid-cols-4 gap-5 p-5 mx-auto max-w-6xl">
         {personalityData.map((personality) => {
           // Dynamically assign the image based on personality_type
           const image = personalityImages[personality.personality_type];
 
           return (
-            <div key={personality._id} style={styles.card}>
+            <div key={personality._id} className="bg-white rounded-lg shadow p-6 mb-4">
               {/* Render image if it exists */}
               {image ? (
-                <center><img src={image} alt={personality.personality_type} style={styles.personalityImage}/></center>
+                <center><img src={image} alt={personality.personality_type} className="w-24 h-24 rounded-full object-cover"/></center>
               ) : (
                 <p>No image available</p>
               )}

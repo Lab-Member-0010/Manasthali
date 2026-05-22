@@ -4,169 +4,6 @@ import { useSelector } from 'react-redux';
 import EmojiPicker from 'emoji-picker-react';
 import io from 'socket.io-client';
 import EmojiEmotionsOutlinedIcon from '@mui/icons-material/EmojiEmotionsOutlined';
-const styles = {
-chatContainer: {
-  display: 'flex',
-  height: '100%',
-  backgroundColor: '#fafafa',
-  flexWrap: 'wrap',
-  border: '1px solid black',
-},
-  sidebar: {
-  width: '20%',
-  padding: '20px',
-  position: 'fixed',
-  borderRight: '1px solid lightgray',
-},
-  sidebarWrapper: {
-  display: 'flex',
-  flexDirection: 'column',
-  height: '100%',
-},
-  sidebarHeader: {
-  backgroundColor: 'white',
-  padding: '10px',
-  position: 'sticky',
-  top: 0,
-  zIndex: 10,
-  fontSize: '1.5em',
-  textAlign: 'center',
-  color: '#5f4b8b',
-},
-  groupList: {
-  maxHeight: '520px',
-  overflowY: 'auto',
-  flex: 1,
-  padding: '10px',
-},
-  groupItem: {
-  display: 'flex',
-  alignItems: 'center',
-  padding: '10px',
-  cursor: 'pointer',
-  border: '1px solid lightgray',
-  minHeight: '60px',
-  borderRadius: '5px',
-  marginBottom: '15px',
-  transition: 'background-color 0.3s ease',
-},
-  groupName: {
-  fontWeight: 'bold',
-  color: '#463961',
-  fontSize: '18px',
-},
-  chatPanel: {
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 1,
-  backgroundColor: '#fff',
-  marginLeft: '28%',
-  height: '100%',
-  position: 'relative',
-  overflow: 'hidden',
-},
-  chatHeader: {
-  display: 'flex',
-  alignItems: 'center',
-  padding: '10px 15px',
-  position: 'sticky',
-  color: 'black',
-  top: 0,
-  zIndex: 10,
-  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-  width: '100%',
-},
-  chatBody: {
-  padding: '15px',
-  height: '460px',
-  flexGrow: 1,
-  overflowY: 'auto',
-  display: 'flex',
-  flexDirection: 'column',
-  maxHeight: 'calc(100% - 120px)',
-},
-  messageList: {
-  display: 'flex',
-  flexDirection: 'column',
-  width: '100%',
-},
-  message: {
-  padding: '10px',
-  borderRadius: '8px',
-  marginBottom: '10px',
-  maxWidth: '80%',
-  position: 'relative',
-  fontSize: '0.95rem',
-},
-  sent: {
-  border: '1px solid lightgray',
-  backgroundColor: '#f4f4f4',
-  width: '40%',
-  height: 'auto',
-  alignSelf: 'flex-end',
-},
-  received: {
-  border: '1px solid gray',
-  backgroundColor: '#e5daf6',
-  color: 'gray',
-  width: '40%',
-  height: 'auto',
-  alignSelf: 'flex-start',
-},
-  noChatSelected: {
-  textAlign: 'center',
-  padding: '20px',
-  color: '#7c6d96',
-},
-  newMessage: {
-  display: 'flex',
-  alignItems: 'center',
-  padding: '10px 20px',
-  backgroundColor: '#f1f1f1',
-  position: 'sticky',
-  bottom: 0,
-  zIndex: 10,
-  border: '1px solid #d4c7e0',
-  width: '100%',
-},
-  textArea: {
-  width: '100%',
-  height: '40px',
-  padding: '10px',
-  borderRadius: '20px',
-  border: '1px solid #d4c7e0',
-  marginRight: '10px',
-  fontSize: '1rem',
-  outline: 'none',
-},
-  sentbutton: {
-  backgroundColor: '#c093fc',
-  color: 'white',
-  border: 'none',
-  borderRadius: '20px',
-  padding: '10px 20px',
-  cursor: 'pointer',
-  fontSize: '1rem',
-},
-  emojiButton: {
-  background: 'none',
-  border: 'none',
-  fontSize: '1.5rem',
-  cursor: 'pointer',
-  marginRight: '10px',
-  color: '#675e70',
-},
-  emojiPickerContainer: {
-  position: 'absolute',
-  bottom: '70px',
-  left: '20px',
-  zIndex: 15,
-  backgroundColor: '#ffffff',
-  border: '1px solid #d4c7e0',
-  borderRadius: '10px',
-  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-}
-};
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -294,31 +131,28 @@ const GroupChat = () => {
     return senderId === userId;
   };
 
-  if (loading) return <div style={{ padding: '20px' }}>Loading groups...</div>;
-  if (error) return <div style={{ padding: '20px', color: 'red' }}>{error}</div>;
+  if (loading) return <div className="p-5">Loading groups...</div>;
+  if (error) return <div className="p-5 text-red-600">{error}</div>;
 
   return (
-    <div style={styles.chatContainer}>
+    <div className="flex h-full bg-gray-50 flex-wrap border border-black">
       {/* ── Sidebar: group list ─────────────────────────────────────────── */}
-      <div style={styles.sidebar}>
-        <div style={styles.sidebarWrapper}>
-          <div style={styles.sidebarHeader}>
+      <div className="w-1/5 p-5 fixed border-r border-gray-300">
+        <div className="flex flex-col h-full">
+          <div className="bg-white p-2.5 sticky top-0 z-10 text-2xl text-center text-purple-800">
             <h2>Groups</h2>
           </div>
-          <div style={styles.groupList}>
+          <div className="max-h-[520px] overflow-y-auto flex-1 p-2.5">
             {groupList.length === 0 ? (
-              <p style={{ padding: '10px', color: '#888' }}>No groups joined yet.</p>
+              <p className="p-2.5 text-gray-500">No groups joined yet.</p>
             ) : (
               groupList.map((group) => (
                 <div
-                  style={{
-                    ...styles.groupItem,
-                    ...(selectedGroup?._id === group._id ? { backgroundColor: '#e6c9f7' } : {}),
-                  }}
+                  className={`flex items-center gap-3 p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer ${selectedGroup?._id === group._id ? 'bg-blue-50' : ''}`}
                   key={group._id}
                   onClick={() => handleSelectGroup(group)}
                 >
-                  <p style={styles.groupName}>{group.name}</p>
+                  <p className="font-bold text-purple-800 text-lg">{group.name}</p>
                 </div>
               ))
             )}
@@ -327,35 +161,32 @@ const GroupChat = () => {
       </div>
 
       {/* ── Main chat panel ─────────────────────────────────────────────── */}
-      <div style={styles.chatPanel}>
+      <div className="flex flex-col flex-1 bg-white ml-[28%] h-full relative overflow-hidden">
         {selectedGroup ? (
-          <div style={styles.chatBox}>
-            <div style={styles.chatHeader}>
+          <div>
+            <div className="flex items-center p-4 border-b border-gray-200 bg-white">
               <h3>{selectedGroup.name}</h3>
             </div>
 
-            <div style={styles.chatBody}>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 flex flex-col">
               {messages.length === 0 ? (
-                <p style={{ padding: '10px', color: '#888' }}>
+                <p className="p-2.5 text-gray-500">
                   No messages yet. Start the conversation!
                 </p>
               ) : (
-                <div style={styles.messageList}>
+                <div className="flex flex-col w-full space-y-3">
                   {messages.map((msg, index) => (
                     <div
                       key={msg._id || index}
-                      style={{
-                        ...styles.message,
-                        ...(isSentByMe(msg) ? styles.sent : styles.received),
-                      }}
+                      className={`${isSentByMe(msg) ? 'ml-auto bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'} rounded-lg px-4 py-2 max-w-md relative text-sm`}
                     >
                       {!isSentByMe(msg) && (
-                        <small style={{ color: '#7c4dab', fontWeight: 'bold', display: 'block', marginBottom: 2 }}>
+                        <small className="text-purple-600 font-bold block mb-0.5">
                           {msg.sender?.username || 'Member'}
                         </small>
                       )}
                       <p>{msg.message}</p>
-                      <span style={{ fontSize: '0.6rem', color: 'gray' }}>
+                      <span className="text-xs text-gray-500">
                         {new Date(msg.createdAt).toLocaleString()}
                       </span>
                     </div>
@@ -364,15 +195,15 @@ const GroupChat = () => {
               )}
             </div>
 
-            <div style={styles.newMessage}>
-              <button style={styles.emojiButton} onClick={toggleEmojiPicker}>
+            <div className="p-4 border-t border-gray-200 bg-white flex gap-2">
+              <button className="bg-transparent border-none text-2xl cursor-pointer mr-2.5 text-gray-600" onClick={toggleEmojiPicker}>
                 <EmojiEmotionsOutlinedIcon />
               </button>
               <textarea
                 value={message}
                 onChange={handleMessageChange}
                 placeholder="Type your message..."
-                style={styles.textArea}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-full outline-none"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -381,15 +212,15 @@ const GroupChat = () => {
                 }}
               />
               {emojiPickerVisible && (
-                <div style={styles.emojiPickerContainer}>
+                <div className="absolute bottom-[70px] left-5 z-10 bg-white border border-purple-200 rounded-lg shadow">
                   <EmojiPicker onEmojiClick={handleEmojiClick} />
                 </div>
               )}
-              <button style={styles.sentbutton} onClick={handleSendMessage}>Send</button>
+              <button className="bg-blue-600 text-white rounded-full p-3 hover:bg-blue-700" onClick={handleSendMessage}>Send</button>
             </div>
           </div>
         ) : (
-          <div style={styles.noChatSelected}>
+          <div className="text-center p-5 text-purple-600">
             <p>Select a group to start chatting.</p>
           </div>
         )}

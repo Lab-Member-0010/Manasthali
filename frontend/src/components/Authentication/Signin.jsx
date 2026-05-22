@@ -5,118 +5,10 @@ import { setUser } from "../../redux-config/UserSlice";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Api from "../../apis/Api";
-import "bootstrap/dist/css/bootstrap.min.css";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import sporeGif from "@assets/spore.gif";
 import manasthaliLogo from "@assets/Manasthali.png";
-const styles = {
-signinContainer: {
-  backgroundImage: `url(${sporeGif})`,
-  backgroundSize: 'cover',
-  backgroundPosition: 'center',
-  backgroundAttachment: 'fixed',
-  minHeight: '100vh',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  paddingRight: '50px',
-},
-  signinBox: {
-  backgroundColor: 'transparent',
-  padding: '10px',
-  borderRadius: '20px',
-  boxShadow: '0px 1px 2px 1px rgba(0, 0, 0, 0.3)',
-  backdropFilter: 'blur(10px)',
-  textAlign: 'center',
-  width: '500px',
-  maxWidth: '1000px',
-  position: 'relative',
-  right: '0',
-},
-  signinLogo: {
-  width: '100px',
-  height: '100px',
-  backgroundImage: `url(${manasthaliLogo})`,
-  backgroundRepeat: 'no-repeat',
-  backgroundPosition: 'center',
-  backgroundSize: 'contain',
-  margin: '10px auto 20px',
-},
-  inputContainer: {
-  width: '100%',
-  marginTop: '20px',
-  marginBottom: '20px',
-  display: 'flex',
-  flexDirection: 'column',
-  position: 'relative',
-},
-  inputField: {
-  width: '445px',
-  height: 'auto',
-  backgroundColor: 'transparent',
-  borderBottom: '1px solid black',
-  fontSize: '1rem',
-},
-  labelField: {
-  height: '25px',
-  marginLeft: '5px',
-  fontSize: '1.2rem',
-  color: 'black',
-  textAlign: 'left',
-},
-  passwordFieldContainer: {
-  position: 'relative',
-  width: '100%',
-},
-  togglePassword: {
-  position: 'absolute',
-  right: '20px',
-  top: '50%',
-  transform: 'translateY(-50%)',
-  fontSize: '14px',
-  color: 'black',
-  fontWeight: 'bold',
-  cursor: 'pointer',
-},
-  inBtn: {
-  color: 'black',
-  backgroundColor: '#55aafe',
-  fontWeight: 'bold',
-  borderBottom: '1px solid black',
-  width: '200px',
-  height: '40px',
-  margin: '20px',
-  fontSize: '1rem',
-},
-  inBtnOutline: {
-  color: 'black',
-  backgroundColor: '#55aafe',
-  fontWeight: 'bold',
-  borderBottom: '1px solid black',
-  width: '200px',
-  height: '40px',
-  margin: '20px',
-  fontSize: '1rem',
-},
-  inAnchor: {
-  fontSize: '17px',
-  textDecoration: 'none',
-  color: 'black',
-  cursor: 'pointer',
-  backgroundColor: 'transparent',
-  border: 'none',
-},
-  errorText: {
-  fontSize: '0.7rem',
-  color: 'rgb(254, 73, 73)',
-  textAlign: 'left',
-  paddingLeft: '5px',
-},
-  errorBorder: {
-  border: '1px solid rgb(254, 73, 73)',
-}
-};
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -216,13 +108,13 @@ const SignIn = () => {
   return (
     <>
       <ToastContainer />
-      <div style={styles.signinContainer}>
-        <div className="shadow-lg p-4" style={styles.signinBox}>
-          <div style={styles.signinLogo}></div>
+      <div className="min-h-screen flex items-center justify-center bg-cover bg-center bg-fixed pr-[50px]" style={{ backgroundImage: `url(${sporeGif})` }}>
+        <div className="bg-transparent p-[10px] rounded-[20px] shadow backdrop-blur-[10px] text-center w-[500px] max-w-[1000px] relative right-0">
+          <div className="w-[100px] h-[100px] bg-no-repeat bg-center bg-contain mx-auto mt-[10px] mb-[20px]" style={{ backgroundImage: `url(${manasthaliLogo})` }}></div>
           <h2 className="text-center mb-4">Sign In</h2>
           <form onSubmit={handleSubmit}>
-            <div style={styles.inputContainer}>
-              <label htmlFor="email" style={styles.labelField}>
+            <div className="w-full mt-5 mb-5 flex flex-col relative">
+              <label htmlFor="email" className="h-[25px] ml-[5px] text-xl text-black text-left">
                 Email
               </label>
               <input
@@ -232,19 +124,18 @@ const SignIn = () => {
                 value={email}
                 onChange={handleChange}
                 placeholder="Enter email"
-                className="form-control"
-                style={errors.email ? {...styles.inputField, ...styles.errorBorder} : styles.inputField}
+                className={`form-control w-[445px] h-auto bg-transparent text-base ${errors.email ? "border border-red-500" : "border-b border-black"}`}
                 autoComplete="off"
                 required
               />
-              {errors.email && <span style={styles.errorText}>{errors.email}</span>}
+              {errors.email && <span className="text-[0.7rem] text-red-500 text-left pl-[5px]">{errors.email}</span>}
             </div>
 
-            <div style={styles.inputContainer}>
-              <label htmlFor="password" style={styles.labelField}>
+            <div className="w-full mt-5 mb-5 flex flex-col relative">
+              <label htmlFor="password" className="h-[25px] ml-[5px] text-xl text-black text-left">
                 Password
               </label>
-              <div style={styles.passwordFieldContainer}>
+              <div className="relative w-full">
                 <input
                   type={passwordVisible ? "text" : "password"}
                   id="password"
@@ -252,32 +143,31 @@ const SignIn = () => {
                   value={password}
                   onChange={handleChange}
                   placeholder="Enter password"
-                  className="form-control"
-                  style={errors.password ? {...styles.inputField, ...styles.errorBorder} : styles.inputField}
+                  className={`form-control w-[445px] h-auto bg-transparent text-base ${errors.password ? "border border-red-500" : "border-b border-black"}`}
                   required
                 />
                 <span
-                  style={{...styles.togglePassword, cursor: "pointer"}}
+                  className="absolute right-5 top-1/2 -translate-y-1/2 text-sm text-black font-bold cursor-pointer"
                   onClick={togglePasswordVisibility}
                 >
                   {passwordVisible ? <VisibilityOff /> : <Visibility />}
                 </span>
               </div>
-              {errors.password && <span style={styles.errorText}>{errors.password}</span>}
+              {errors.password && <span className="text-[0.7rem] text-red-500 text-left pl-[5px]">{errors.password}</span>}
             </div>
 
-            <button type="submit" className="btn form-control" style={styles.inBtn}>
+            <button type="submit" className="btn form-control text-black bg-[#55aafe] font-bold border-b border-black w-[200px] h-10 m-5 text-base">
               Sign In
             </button>
 
-            <a className="form-control" style={styles.inAnchor} href={"/forgot-password/"}>
+            <a className="form-control text-[17px] no-underline text-black cursor-pointer bg-transparent border-none" href={"/forgot-password/"}>
               Forgot Password?
             </a>
           </form>
           <h5>
             Don't have an account?
             <span>
-              <Link to="/signup" style={{ textDecoration: "none" }}> Please Register</Link>
+              <Link to="/signup" className="no-underline"> Please Register</Link>
             </span>
           </h5>
         </div>

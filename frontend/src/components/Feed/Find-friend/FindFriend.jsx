@@ -4,64 +4,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { debounce } from 'lodash';
 import { updateUserProfile } from '../../../redux-config/UserSlice';
 import Api from "../../../apis/Api";
-const styles = {
-findFriendContainer: {
-  maxWidth: '900px',
-  margin: '50px auto',
-  padding: '25px',
-  backgroundColor: '#f9f9f9',
-  borderRadius: '15px',
-  boxShadow: '0 8px 15px rgba(0, 0, 0, 0.2)',
-  textAlign: 'center',
-},
-  searchBarContainer: {
-  marginBottom: '20px',
-},
-  searchInput: {
-  width: '100%',
-  padding: '10px',
-  fontSize: '16px',
-  borderRadius: '5px',
-  border: '1px solid #ccc',
-},
-  table: {
-  width: '100%',
-  borderCollapse: 'collapse',
-  borderSpacing: 0,
-  marginTop: '20px',
-  backgroundColor: 'white',
-  borderRadius: '10px',
-  overflow: 'hidden',
-  boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
-},
-  tHead: {
-  backgroundColor: '#c093fc',
-  color: 'white',
-},
-  tBody: {
-  profilePicture: {
-  width: '60px',
-  height: '60px',
-  borderRadius: '50%',
-  objectFit: 'cover',
-  border: '3px solid #dcdcdc',
-  transition: 'transform 0.3s ease, border-color 0.3s ease',
-},
-  followUnfollow: {
-  backgroundColor: '#c093fc',
-  color: 'white',
-  border: 'none',
-  padding: '10px 20px',
-  width: '100px',
-  fontSize: '1rem',
-  fontWeight: '500',
-  borderRadius: '25px',
-  cursor: 'pointer',
-  transition: 'background-color 0.3s ease, transform 0.2s ease',
-   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-},
-  },
-};
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -159,36 +101,36 @@ const FindFriend = () => {
   if (error) return <div>{error}</div>;
 
   return (
-    <div style={styles.findFriendContainer}>
+    <div className="max-w-4xl mx-auto my-8 p-6 bg-gray-50 rounded-2xl shadow-lg text-center">
       <h2>Find Friends</h2>
-      <div style={styles.searchBarContainer}>
+      <div className="mb-5">
         <input
           type="text"
           placeholder="Search by username"
           value={searchTerm}
            onChange={handleSearchChange}
-          style={styles.searchInput}
+          className="w-full px-4 py-2 text-base border border-gray-300 rounded-md mb-4"
         />
       </div>
       {filteredUsers.length === 0 ? (
         <p>No users found</p>
       ) : (
-        <table style={styles.table}>
-          <thead style={styles.tHead}>
+        <table className="w-full border-collapse mt-4 bg-white rounded-lg overflow-hidden shadow">
+          <thead className="bg-purple-400 text-white">
             <tr>
               <th>Profile Picture</th>
               <th>Username</th>
               <th>Action</th>
             </tr>
           </thead>
-          <tbody style={styles.tBody}>
+          <tbody >
             {filteredUsers.map((user) => (
               <tr key={user._id}>
                 <td>
                   <img
                     src={user.profile_picture ? user.profile_picture : '/user.png'}
                     alt={user.username}
-                    style={styles.profilePicture}
+                    className="w-14 h-14 rounded-full object-cover border-2 border-gray-300"
                     onError={(e) => { e.target.src = '/user.png'; }}
                   />
                 </td>
@@ -196,7 +138,7 @@ const FindFriend = () => {
                 <td>
                   <button
                     onClick={() => handleFollowToggle(user._id, user.isFollowing)}
-                    style={styles.followUnfollow}
+                    className="px-5 py-2 rounded-full bg-purple-400 text-white font-medium hover:bg-purple-500 transition-colors w-24"
                   >
                     {user.isFollowing ? 'Unfollow' : 'Follow'}
                   </button>

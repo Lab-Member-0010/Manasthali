@@ -1,117 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
 import Api from "../../apis/Api";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import sporeGif from "@assets/spore.gif";
 import manasthaliLogo from "@assets/Manasthali.png";
-const styles = {
-signupContainer: {
-  backgroundImage: `url(${sporeGif})`,
-  backgroundSize: 'cover',
-  backgroundPosition: 'center',
-  backgroundAttachment: 'fixed',
-  minHeight: '100vh',
-  display: 'flex',
-  justifyContent: 'flex-end',
-  alignItems: 'center',
-  paddingRight: '50px',
-},
-  signupBox: {
-  backgroundColor: 'transparent',
-  borderRadius: '20px',
-  boxShadow: '0px 2px 2px rgba(0, 0, 0, 0.3)',
-  backdropFilter: 'blur(10px)',
-  textAlign: 'center',
-  width: '470px',
-  height: '570px',
-  maxWidth: '1000px',
-  position: 'relative',
-  right: '0',
-  margin: '40px auto',
-},
-  signupLogo: {
-  width: '80px',
-  height: '80px',
-  backgroundImage: `url(${manasthaliLogo})`,
-  backgroundRepeat: 'no-repeat',
-  backgroundPosition: 'center',
-  backgroundSize: 'contain',
-  margin: '0',
-  display: 'block',
-},
-  inputContainer: {
-  position: 'relative',
-  marginBottom: '1rem',
-  backgroundColor: 'transparent',
-  width: '80%',
-  display: 'flex',
-  flexDirection: 'column',
-},
-  inputField: {
-  width: '440px',
-  height: '40px',
-  backgroundColor: 'transparent',
-  borderBottom: '1px solid black',
-  fontSize: '1rem',
-},
-  labelField: {
-  height: '25px',
-  marginLeft: '5px',
-  fontSize: '1.2rem',
-  color: 'black',
-  textAlign: 'left',
-},
-  passwordFieldContainer: {
-  position: 'relative',
-  width: '100%',
-},
-  togglePassword: {
-  position: 'absolute',
-  right: '-65px',
-  top: '50%',
-  transform: 'translateY(-50%)',
-  fontSize: '14px',
-  color: 'black',
-  fontWeight: 'bold',
-  cursor: 'pointer',
-},
-  upBtn: {
-  color: 'black',
-  backgroundColor: '#55aafe',
-  fontWeight: 'bold',
-  borderBottom: '1px solid black',
-  width: '200px',
-  height: '40px',
-  margin: '20px',
-  fontSize: '1rem',
-},
-  upBtnOutline: {
-  color: 'black',
-  backgroundColor: '#55aafe',
-  fontWeight: 'bold',
-  borderBottom: '1px solid black',
-  width: '200px',
-  height: '40px',
-  margin: '20px',
-  fontSize: '1rem',
-},
-  errorText: {
-  color: 'rgb(254, 73, 73)',
-  fontSize: '0.7rem',
-  textAlign: 'left',
-  width: '410px',
-  paddingLeft: '5px',
-},
-  errorBorder: {
-  borderColor: 'rgb(254, 73, 73)',
-},
-  row: {
-  gap: '0px',
-}
-};
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -230,75 +124,72 @@ const SignUp = () => {
   };
 
   return (
-    <div style={styles.signupContainer}>
-      <div className="container text-center mt-5" style={styles.signupBox}>
+    <div className="min-h-screen flex items-center justify-end bg-cover bg-center bg-fixed pr-[50px]" style={{ backgroundImage: `url(${sporeGif})` }}>
+      <div className="container text-center bg-transparent rounded-[20px] shadow backdrop-blur-[10px] w-[470px] h-[570px] max-w-[1000px] relative right-0 mx-auto mt-10 mb-10">
         <div className="row justify-content-center">
-          <div style={styles.signupLogo}></div>
+          <div className="w-[80px] h-[80px] bg-no-repeat bg-center bg-contain m-0 block" style={{ backgroundImage: `url(${manasthaliLogo})` }}></div>
           <h2 className="text-center mb-4">Sign Up</h2>
           {successMessage && <p className="alert alert-success">{successMessage}</p>}
           {errorMessage && <p className="alert alert-danger">{errorMessage}</p>}
           <form onSubmit={handleSubmit}>
-            <div className="form-group" style={styles.inputContainer}>
-              <label style={styles.labelField}>Email:</label>
+            <div className="form-group relative mb-4 bg-transparent w-4/5 flex flex-col">
+              <label className="h-[25px] ml-[5px] text-xl text-black text-left">Email:</label>
               <input
                 type="email"
                 name="email"
                 value={email}
                 onChange={handleChange}
-                className="form-control"
-                style={errors.email ? {...styles.inputField, ...styles.errorBorder} : styles.inputField}
+                className={`form-control w-[440px] h-[40px] bg-transparent border-b text-base ${errors.email ? "border-red-500" : "border-black"}`}
                 placeholder="Enter your email"
                 autoComplete="off"
                 required
               />
-              {errors.email && <span style={styles.errorText}>{errors.email}</span>}
+              {errors.email && <span className="text-[0.7rem] text-red-500 text-left w-[410px] pl-[5px]">{errors.email}</span>}
             </div>
-            <div className="form-group" style={styles.inputContainer}>
-              <label style={styles.labelField}>Username:</label>
+            <div className="form-group relative mb-4 bg-transparent w-4/5 flex flex-col">
+              <label className="h-[25px] ml-[5px] text-xl text-black text-left">Username:</label>
               <input
                 type="text"
                 name="username"
                 value={username}
                 onChange={handleChange}
-                className="form-control"
-                style={errors.username ? {...styles.inputField, ...styles.errorBorder} : styles.inputField}
+                className={`form-control w-[440px] h-[40px] bg-transparent border-b text-base ${errors.username ? "border-red-500" : "border-black"}`}
                 placeholder="Enter your username"
                 autoComplete="off"
                 required
               />
-              {errors.username && <span style={styles.errorText}>{errors.username}</span>}
+              {errors.username && <span className="text-[0.7rem] text-red-500 text-left w-[410px] pl-[5px]">{errors.username}</span>}
             </div>
-            <div className="form-group" style={styles.inputContainer}>
-              <label style={styles.labelField}>Password:</label>
-              <div style={styles.passwordFieldContainer}>
+            <div className="form-group relative mb-4 bg-transparent w-4/5 flex flex-col">
+              <label className="h-[25px] ml-[5px] text-xl text-black text-left">Password:</label>
+              <div className="relative w-full">
                 <input
                   type={passwordVisible ? "text" : "password"}
                   name="password"
                   value={password}
                   onChange={handleChange}
-                  className="form-control"
-                  style={errors.password ? {...styles.inputField, ...styles.errorBorder} : styles.inputField}
+                  className={`form-control w-[440px] h-[40px] bg-transparent border-b text-base ${errors.password ? "border-red-500" : "border-black"}`}
                   placeholder="Enter your Password"
                   autoComplete="off"
                   required
                 />
                 <span
-                  style={{...styles.togglePassword, cursor: "pointer"}}
+                  className="-right-[65px] top-1/2 -translate-y-1/2 text-sm text-black font-bold cursor-pointer absolute"
                   onClick={togglePasswordVisibility}
                 >
                   {passwordVisible ? <VisibilityOff /> : <Visibility />}
                 </span>
               </div>
-              {errors.password && <span style={styles.errorText}>{errors.password}</span>}
+              {errors.password && <span className="text-[0.7rem] text-red-500 text-left w-[410px] pl-[5px]">{errors.password}</span>}
             </div>
-            <button type="submit" className="btn custom-btn" style={styles.upBtnOutline}>
+            <button type="submit" className="btn custom-btn text-black bg-[#55aafe] font-bold border-b border-black w-[200px] h-10 m-5 text-base">
               Sign Up
             </button>
           </form>
           <h5>
             Already have an account?
 
-            <Link to="/signin" style={{ textDecoration: "none" }}>Sign In</Link>
+            <Link to="/signin" className="no-underline">Sign In</Link>
 
           </h5>
         </div>

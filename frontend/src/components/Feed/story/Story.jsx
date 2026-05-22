@@ -2,39 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import defaultProfile from "@assets/default_profile.jpg";
-const styles = {
-circle: {
-  width: '60px',
-  height: '60px',
-  borderRadius: '50%',
-  backgroundColor: '#3498db',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  overflow: 'hidden',
-},
-  activeStory: {
-  borderColor: 'red',
-},
-  profileImage: {
-  width: '100%',
-  height: '100%',
-  objectFit: 'cover',
-  borderRadius: '50%',
-},
-  storyViewer: {
-  position: 'fixed',
-  top: 0,
-  left: 0,
-  width: '100vw',
-  height: '100vh',
-  background: 'rgba(0, 0, 0, 0.9)',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  zIndex: 999,
-}
-};
+
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -125,13 +93,13 @@ const Story = () => {
     <div>
      
       <div
-        style={story ? {...styles.circle, ...styles.activeStory} : styles.circle}
+        className={`w-[60px] h-[60px] rounded-full bg-[#3498db] flex items-center justify-center overflow-hidden ${story ? "border-2 border-red-500" : ""}`}
         onClick={handleProfileClick}
       >
         <img
           src={user?.profile_picture ? user.profile_picture : defaultProfile}
           alt="Profile"
-          style={styles.profileImage}
+          className="w-full h-full object-cover rounded-full"
         />
       </div>
 
@@ -141,21 +109,16 @@ const Story = () => {
         accept="image/*"
         ref={fileInputRef}
         onChange={handleFileChange}
-        style={{ display: "none" }}
+        className="hidden"
       />
 
      
       {showStory && story && (
-        <div style={styles.storyViewer}>
-          <img src={getMediaUrl(story.media)} alt="Story" style={{ maxWidth: '90%', maxHeight: '90%' }} onClick={() => setShowStory(false)} />
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[999]">
+          <img src={getMediaUrl(story.media)} alt="Story" className="max-w-[90%] max-h-[90%]" onClick={() => setShowStory(false)} />
           <button
             onClick={handleDeleteStory}
-            style={{
-              position: 'fixed', top: 20, right: 80,
-              background: 'rgba(255,0,0,0.8)', color: 'white',
-              border: 'none', borderRadius: 4, padding: '8px 16px',
-              cursor: 'pointer', zIndex: 1000,
-            }}
+            className="fixed top-5 right-20 bg-red-500/80 text-white border-none rounded p-2 cursor-pointer z-50"
           >
             Delete
           </button>

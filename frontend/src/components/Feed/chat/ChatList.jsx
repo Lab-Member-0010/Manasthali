@@ -4,189 +4,6 @@ import { useSelector } from 'react-redux';
 import EmojiPicker from 'emoji-picker-react';
 import io from 'socket.io-client';
 import EmojiEmotionsOutlinedIcon from '@mui/icons-material/EmojiEmotionsOutlined';
-const styles = {
-chatContainer: {
-  display: 'flex',
-  height: '100%',
-  backgroundColor: '#fafafa',
-  flexWrap: 'wrap',
-  border: '1px solid black',
-},
-  sidebar: {
-  width: '20%',
-  padding: '20px',
-  position: 'fixed',
-  borderRight: '1px solid lightgray',
-},
-  sidebarWrapper: {
-  display: 'flex',
-  flexDirection: 'column',
-  height: '100%',
-},
-  sidebarHeader: {
-  backgroundColor: 'white',
-  padding: '10px',
-  position: 'sticky',
-  top: 0,
-  zIndex: 10,
-  fontSize: '1.5em',
-  textAlign: 'center',
-  color: '#5f4b8b',
-},
-  userList: {
-  maxHeight: '520px',
-  overflowY: 'auto',
-  flex: 1,
-  padding: '10px',
-},
-  userItem: {
-  display: 'flex',
-  alignItems: 'center',
-  padding: '10px',
-  cursor: 'pointer',
-  border: '1px solid lightgray',
-  height: '80px',
-  borderRadius: '5px',
-  marginBottom: '15px',
-  transition: 'background-color 0.3s ease',
-},
-  userImg: {
-  width: '60px',
-  height: '60px',
-  border: '1px solid black',
-  borderRadius: '50%',
-  marginRight: '15px',
-},
-  username: {
-  fontWeight: 'bold',
-  color: '#463961',
-  fontSize: '20px',
-},
-  chatPanel: {
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 1,
-  backgroundColor: '#fff',
-  marginLeft: '28%',
-  height: '100%',
-  position: 'relative',
-  overflow: 'hidden',
-},
-  chatHeader: {
-  display: 'flex',
-  alignItems: 'center',
-  padding: '10px 15px',
-  position: 'sticky',
-  color: 'black',
-  top: 0,
-  zIndex: 10,
-  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-  width: '100%',
-},
-  chatUserImg: {
-  width: '50px',
-  height: '50px',
-  border: '1px solid black',
-  borderRadius: '50%',
-  marginRight: '15px',
-},
-  chatBody: {
-  padding: '15px',
-  height: '460px',
-  flexGrow: 1,
-  overflowY: 'auto',
-  display: 'flex',
-  flexDirection: 'column',
-  maxHeight: 'calc(100% - 120px)',
-},
-  messageList: {
-  display: 'flex',
-  flexDirection: 'column',
-  width: '100%',
-},
-  message: {
-  padding: '10px',
-  borderRadius: '8px',
-  marginBottom: '10px',
-  maxWidth: '80%',
-  position: 'relative',
-  fontSize: '0.95rem',
-},
-  sent: {
-  border: '1px solid lightgray',
-  backgroundColor: '#f4f4f4',
-  width: '40%',
-  height: 'auto',
-  alignSelf: 'flex-end',
-},
-  received: {
-  border: '1px solid gray',
-  backgroundColor: '#e5daf6',
-  color: 'gray',
-  width: '40%',
-  height: 'auto',
-  alignSelf: 'flex-start',
-},
-  read: {
-  color: '#4bb543',
-},
-  unread: {
-  color: 'black',
-},
-  noChatSelected: {
-  textAlign: 'center',
-  padding: '20px',
-  color: '#7c6d96',
-},
-  newMessage: {
-  display: 'flex',
-  alignItems: 'center',
-  padding: '10px 20px',
-  backgroundColor: '#f1f1f1',
-  position: 'sticky',
-  bottom: 0,
-  zIndex: 10,
-  border: '1px solid #d4c7e0',
-  width: '100%',
-},
-  textArea: {
-  width: '100%',
-  height: '40px',
-  padding: '10px',
-  borderRadius: '20px',
-  border: '1px solid #d4c7e0',
-  marginRight: '10px',
-  fontSize: '1rem',
-  outline: 'none',
-},
-  sentbutton: {
-  backgroundColor: '#c093fc',
-  color: 'white',
-  border: 'none',
-  borderRadius: '20px',
-  padding: '10px 20px',
-  cursor: 'pointer',
-  fontSize: '1rem',
-},
-  emojiButton: {
-  background: 'none',
-  border: 'none',
-  fontSize: '1.5rem',
-  cursor: 'pointer',
-  marginRight: '10px',
-  color: '#675e70',
-},
-  emojiPickerContainer: {
-  position: 'absolute',
-  bottom: '70px',
-  left: '20px',
-  zIndex: 15,
-  backgroundColor: '#ffffff',
-  border: '1px solid #d4c7e0',
-  borderRadius: '10px',
-  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-}
-};
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -320,38 +137,35 @@ const MessageComponent = () => {
 
   const toggleEmojiPicker = () => setEmojiPickerVisible((prev) => !prev);
 
-  if (loading) return <div style={{ padding: '20px' }}>Loading chats...</div>;
-  if (error) return <div style={{ padding: '20px', color: 'red' }}>{error}</div>;
+  if (loading) return <div className="p-5">Loading chats...</div>;
+  if (error) return <div className="p-5 text-red-600">{error}</div>;
 
   return (
-    <div style={styles.chatContainer}>
+    <div className="flex h-full bg-gray-50 flex-wrap border border-black">
       {/* ── Sidebar: contact list ───────────────────────────────────────── */}
-      <div style={styles.sidebar}>
-        <div style={styles.sidebarWrapper}>
-          <div style={styles.sidebarHeader}>
+      <div className="w-1/5 p-5 fixed border-r border-gray-300">
+        <div className="flex flex-col h-full">
+          <div className="bg-white p-2.5 sticky top-0 z-10 text-2xl text-center text-purple-800">
             <h2>Chats</h2>
           </div>
 
-          <div style={styles.userList}>
+          <div className="max-h-[520px] overflow-y-auto flex-1 p-2.5">
             {dmList.length === 0 ? (
-              <p style={{ padding: '10px', color: '#888' }}>No conversations yet.</p>
+              <p className="p-2.5 text-gray-500">No conversations yet.</p>
             ) : (
               dmList.map((user) => (
                 <div
-                  style={{
-                    ...styles.userItem,
-                    ...(selectedUser?._id === user._id ? { backgroundColor: '#e6c9f7' } : {}),
-                  }}
+                  className={`flex items-center gap-3 p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer ${selectedUser?._id === user._id ? 'bg-blue-50' : ''}`}
                   key={user._id}
                   onClick={() => handleSelectUser(user)}
                 >
                   <img
                     src={user.profile_picture || '/user.png'}
                     alt="user"
-                    style={styles.userImg}
+                    className="w-12 h-12 rounded-full object-cover border border-black"
                   />
                   <div>
-                    <p style={styles.username}>{user.username}</p>
+                    <p className="font-semibold text-gray-800">{user.username}</p>
                   </div>
                 </div>
               ))
@@ -361,39 +175,35 @@ const MessageComponent = () => {
       </div>
 
       {/* ── Main chat panel ─────────────────────────────────────────────── */}
-      <div style={styles.chatPanel}>
+      <div className="flex flex-col flex-1 bg-white ml-[28%] h-full relative overflow-hidden">
         {selectedUser ? (
-          <div style={styles.chatBox}>
-            <div style={styles.chatHeader}>
+          <div>
+            <div className="flex items-center px-4 py-2.5 sticky top-0 z-10 shadow w-full">
               <img
                 src={selectedUser.profile_picture || '/user.png'}
                 alt={selectedUser.username}
-                style={{ ...styles.chatUserImg, width: '70px', height: '70px' }}
+                className="w-16 h-16 rounded-full object-cover border border-black mr-3.5"
               />
               <h3>{selectedUser.username}</h3>
             </div>
 
-            <div style={styles.chatBody}>
+            <div className="p-4 h-[460px] flex-1 overflow-y-auto flex flex-col max-h-[calc(100%-120px)]">
               {messages.length === 0 ? (
-                <p style={{ padding: '10px', color: '#888' }}>
+                <p className="p-2.5 text-gray-500">
                   No messages yet. Say hello!
                 </p>
               ) : (
-                <div style={styles.messageList}>
+                <div className="flex flex-col w-full">
                   {messages.map((msg, index) => {
                     const sentByMe = msg.sender?.toString() === userId;
                     return (
                       <div
                         key={msg._id || index}
-                        style={{
-                          ...styles.message,
-                          ...(sentByMe ? styles.sent : styles.received),
-                          ...(msg.read ? styles.read : styles.unread),
-                        }}
+                        className={`p-2.5 rounded-lg mb-2.5 max-w-[80%] relative text-sm ${sentByMe ? 'self-end bg-gray-100 border border-gray-300 w-2/5' : 'self-start bg-purple-100 border border-gray-500 text-gray-500 w-2/5'} ${msg.read ? 'text-green-500' : 'text-black'}`}
                         onClick={() => !msg.read && !sentByMe && handleMarkAsRead(msg._id)}
                       >
                         <p>{msg.message}</p>
-                        <span style={{ fontSize: '0.6rem', color: 'gray', display: 'block', marginTop: 4 }}>
+                        <span className="text-xs text-gray-500 block mt-1">
                           {new Date(msg.createdAt).toLocaleString()}
                         </span>
                       </div>
@@ -403,15 +213,15 @@ const MessageComponent = () => {
               )}
             </div>
 
-            <div style={styles.newMessage}>
-              <button style={styles.emojiButton} onClick={toggleEmojiPicker}>
+            <div className="flex items-center px-5 py-2.5 bg-gray-100 sticky bottom-0 z-10 border border-purple-200 w-full">
+              <button className="bg-transparent border-none text-2xl cursor-pointer mr-2.5 text-gray-600" onClick={toggleEmojiPicker}>
                 <EmojiEmotionsOutlinedIcon />
               </button>
               <textarea
                 value={message}
                 onChange={handleMessageChange}
                 placeholder="Type your message..."
-                style={styles.textArea}
+                className="flex-1 h-10 p-2.5 rounded-full border border-purple-200 mr-2.5 text-base outline-none"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -420,15 +230,15 @@ const MessageComponent = () => {
                 }}
               />
               {emojiPickerVisible && (
-                <div style={styles.emojiPickerContainer}>
+                <div className="absolute bottom-[70px] left-5 z-10 bg-white border border-purple-200 rounded-lg shadow">
                   <EmojiPicker onEmojiClick={handleEmojiClick} />
                 </div>
               )}
-              <button style={styles.sentbutton} onClick={handleSendMessage}>Send</button>
+              <button className="bg-purple-400 text-white border-none rounded-full px-5 py-2.5 cursor-pointer text-base" onClick={handleSendMessage}>Send</button>
             </div>
           </div>
         ) : (
-          <div style={styles.noChatSelected}>
+          <div className="text-center p-5 text-purple-600">
             <p>Select a contact to start chatting.</p>
           </div>
         )}

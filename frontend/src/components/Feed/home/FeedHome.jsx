@@ -3,182 +3,13 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import { AiOutlineHeart, AiFillHeart, AiOutlineComment } from "react-icons/ai";
-import "bootstrap/dist/css/bootstrap.min.css";
 import "react-toastify/dist/ReactToastify.css";
 import { RiSendPlaneFill } from "react-icons/ri";
 import Modal from "react-modal";
 import EmojiPicker from 'emoji-picker-react';
 import EmojiEmotionsOutlinedIcon from '@mui/icons-material/EmojiEmotionsOutlined';
 import Api from "../../../apis/Api";
-const styles = {
-feedContainer: {
-  display: 'flex',
-  justifyContent: 'center',
-},
-  postCardContainer: {
-  display: 'flex',
-  justifyContent: 'center',
-  marginTop: '10px',
-},
-  cardHeader: {
-  borderBottom: '1px solid lightgray',
-  backgroundColor: 'rgb(248, 248, 248)',
-  margin: 0,
-},
-  userName: {
-  fontSize: '20px',
-  fontWeight: 'bold',
-  marginLeft: '5px',
-},
-  commentTextbox: {
-  borderBottom: '1px solid lightgray',
-},
-  commentTextField: {
-  border: 'none',
-  marginLeft: '2px',
-  width: '80%',
-  fontSize: '15px',
-},
-  emojiButton: {
-  background: 'none',
-  border: 'none',
-  width: '8%',
-  height: '7px',
-  color: '#6e6767',
-},
-  emojiPickerContainer: {
-  position: 'absolute',
-  bottom: '70px',
-  left: '20px',
-  zIndex: 15,
-  backgroundColor: '#ffffff',
-  border: '1px solid #d4c7e0',
-  borderRadius: '10px',
-  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-},
-  commentPostButton: {
-  background: 'none',
-  color: 'blue',
-  fontWeight: 'bold',
-  fontSize: '15px',
-  border: 'none',
-  marginLeft: '2%',
-  width: '8%',
-},
-  postDescription: {
-  margin: 0,
-  fontSize: '20px',
-},
-  postImage: {
-  width: '550px',
-  height: '400px',
-},
-  likeButton: {
-  marginRight: '5px',
-  background: 'none',
-  border: 'none',
-  padding: 0,
-},
-  commentButton: {
-  margin: '0px 5px 0px 15px',
-  background: 'none',
-  border: 'none',
-  padding: 0,
-},
-  shareButton: {
-  margin: '0px 5px 0px 15px',
-  background: 'none',
-  border: 'none',
-  padding: 0,
-},
-  roundedProfile: {
-  height: '35px',
-  width: '35px',
-  border: '1px solid black',
-  borderRadius: '50%',
-  margin: '0px 10px 0px 10px',
-},
-  likeCommentShareButton: {
-  display: 'flex',
-  alignItems: 'center',
-},
-  likeCount: {
-  fontSize: '16px',
-},
-  commentCount: {
-  fontSize: '16px',
-},
-  shareCount: {
-  fontSize: '16px',
-},
-  modalContent: {
-  position: 'fixed',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  backgroundColor: 'rgb(251, 248, 248)',
-  borderRadius: '10px',
-  zIndex: 9999,
-  height: '70%',
-  width: '70%',
-  display: 'flex',
-  flexDirection: 'row',
-  justifyContent: 'flex-start',
-},
-  modalOverlay: {
-  position: 'fixed',
-  top: 0,
-  left: 0,
-  width: '100%',
-  height: '100%',
-  background: 'rgba(0, 0, 0, 0.5)',
-  zIndex: 9998,
-},
-  closeModalButton: {
-  background: 'none',
-  width: '4%',
-  height: '100%',
-  border: '1px solid gray',
-  borderRadius: '50%',
-  fontWeight: 'bold',
-  fontSize: '10px',
-  color: 'lightgray',
-  backgroundColor: 'white',
-},
-  closeButton: {
-  width: '100%',
-  height: '4%',
-  display: 'flex',
-  justifyContent: 'end',
-  paddingRight: '5px',
-},
-  postComments: {
-  width: '50%',
-  height: '100%',
-  textAlign: 'start',
-  display: 'flex',
-  flexDirection: 'column',
-},
-  postMedia: {
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  width: '50%',
-  height: '100%',
-  borderRadius: '10px 0px 0px 10px',
-},
-  modalPostImage: {
-  width: '100%',
-  height: '100%',
-},
-  postCommentsInnerDiv: {
-  height: '96%',
-  width: '100%',
-  maxHeight: '100%',
-  overflowY: 'scroll',
-  scrollbarWidth: 'thin',
-}
-};
+
 
 Modal.setAppElement('#root');
 
@@ -366,57 +197,57 @@ const FeedHome = ({ refreshKey }) => {
   };
 
   return (
-    <div style={styles.feedContainer}>
+    <div className="flex justify-center">
       <ToastContainer />
-      <div className="row">
+      <div className="flex flex-wrap w-full">
         {posts.map((post) => (
-          <div key={post._id} className="col-md-12" style={styles.postCardContainer}>
-            <div className="postCard card">
-              <div style={styles.cardHeader}>
-                <img src={post?.userId?.profile_picture || "default-profile.jpg"} alt="Profile" style={styles.roundedProfile} />
-                <span style={styles.userName}>{post?.userId?.username || "Unknown User"}</span>
+          <div key={post._id} className="flex justify-center mt-2 w-full">
+            <div className="bg-white border border-gray-200 rounded-lg shadow-sm w-full max-w-2xl">
+              <div className="border-b border-gray-200 bg-gray-50 p-3">
+                <img src={post?.userId?.profile_picture || "default-profile.jpg"} alt="Profile" className="w-9 h-9 border border-black rounded-full mx-2 inline" />
+                <span className="text-xl font-bold ml-2">{post?.userId?.username || "Unknown User"}</span>
               </div>
-              <div className="card-body cardBody">
-                <p style={styles.postDescription}>{post.description}</p>
-                {post.media?.[0] && <img src={post.media[0]} alt="Post" style={styles.postImage} />}
+              <div className="p-4">
+                <p className="m-0 text-lg">{post.description}</p>
+                {post.media?.[0] && <img src={post.media[0]} alt="Post" className="w-full max-w-[550px] h-96 object-cover rounded" />}
                 {post.shared_post_id && (
-                  <div style={{ border: '1px solid #ddd', borderRadius: 8, padding: 12, marginTop: 8, background: '#f9f9f9' }}>
+                  <div className="border border-[#ddd] rounded-lg p-3 mt-2 bg-[#f9f9f9]">
                     <small>Shared post</small>
-                    <p style={{ margin: '4px 0' }}>{(typeof post.shared_post_id === 'object' ? post.shared_post_id.description : '') || ''}</p>
+                    <p className="my-1">{(typeof post.shared_post_id === 'object' ? post.shared_post_id.description : '') || ''}</p>
                   </div>
                 )}
-                <div style={styles.likeCommentShareButton}>
-                  <button style={styles.likeButton} onClick={() => handleLike(post)}>
+                <div className="flex items-center gap-2 mt-2">
+                  <button className="bg-transparent border-none p-0 cursor-pointer" onClick={() => handleLike(post)}>
                     {isLikedByUser(post.likes) ? <AiFillHeart size={24} color="red" /> : <AiOutlineHeart size={24} color="black" />}
                   </button>
-                  <span style={styles.likeCount}>{post.likes.length} Likes</span>
-                  <button style={styles.commentButton} onClick={() => handleCommentToggle(post._id)}>
+                  <span className="text-base">{post.likes.length} Likes</span>
+                  <button className="bg-transparent border-none p-0 cursor-pointer" onClick={() => handleCommentToggle(post._id)}>
                     <AiOutlineComment size={26} color="black" />
                   </button>
-                  <span style={styles.commentCount}>{post.comments.length} Comments</span>
-                  <button style={styles.shareButton} onClick={() => handleShare(post)}>
+                  <span className="text-base">{post.comments.length} Comments</span>
+                  <button className="bg-transparent border-none p-0 cursor-pointer" onClick={() => handleShare(post)}>
                     <RiSendPlaneFill size={24} color="black" />
                   </button>
-                  <span style={styles.shareCount}>{post.shares || 0} Shares</span>
+                  <span className="text-base">{post.shares || 0} Shares</span>
                 </div>
-                <div style={styles.commentTextbox}>
-                  <button style={styles.emojiButton} onClick={() => toggleEmojiPicker(post._id)}>
+                <div className="border-b border-gray-300">
+                  <button className="bg-transparent border-none w-8 h-2 cursor-pointer" onClick={() => toggleEmojiPicker(post._id)}>
                     <EmojiEmotionsOutlinedIcon/>
                   </button>
 
                   {activeEmojiPicker === post._id && (
-                    <div style={styles.emojiPickerContainer}>
+                    <div className="absolute bottom-16 left-5 z-10 bg-white border rounded-lg shadow">
                       <EmojiPicker onEmojiClick={handleEmojiClick} />
                     </div>
                   )}
                   <input
                     type="text"
-                    style={styles.commentTextField}
+                    className="border-none ml-1 w-4/5 text-sm outline-none"
                     value={comments[post._id] || ""}
                     onChange={(e) => handleCommentChange(post._id, e.target.value)}
                     placeholder="Add a comment..."
                   />
-                  <span><button style={styles.commentPostButton} onClick={() => handleCommentSubmit(post._id)} disabled={!(comments[post._id] || "").trim()}>Post</button></span>
+                  <span><button className="bg-transparent text-blue-600 font-bold border-none ml-2 w-1/12" onClick={() => handleCommentSubmit(post._id)} disabled={!(comments[post._id] || "").trim()}>Post</button></span>
                 </div>
               </div>
             </div>
@@ -430,27 +261,27 @@ const FeedHome = ({ refreshKey }) => {
         isOpen={activeCommentPost !== null}
         onRequestClose={() => setActiveCommentPost(null)}
         contentLabel="Add Comment"
-        style={{ content: styles.modalContent, overlay: styles.modalOverlay }}
+        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-50 rounded-lg z-50 h-3/4 w-3/4 flex flex-row" overlayClassName="fixed inset-0 bg-black/50 z-40"
       >
-        <div style={styles.postMedia}>
+        <div className="flex justify-center items-center w-1/2 h-full rounded-l-lg">
           {activeCommentPost?.media?.[0] && (
-            <img src={activeCommentPost.media[0]} alt="Post" style={styles.modalPostImage} />
+            <img src={activeCommentPost.media[0]} alt="Post" className="w-full h-full" />
           )}
         </div>
-        <div style={styles.postComments}>
-          <div style={styles.closeButton}>
-            <button style={styles.closeModalButton} onClick={() => setActiveCommentPost(null)}>X</button>
+        <div className="w-1/2 h-full text-left flex flex-col">
+          <div className="w-full h-[4%] flex justify-end pr-[5px]">
+            <button className="bg-white border border-gray-400 rounded-full font-bold text-xs text-gray-300 w-6 h-6" onClick={() => setActiveCommentPost(null)}>X</button>
           </div>
-          <div style={styles.postCommentsInnerDiv}>
+          <div className="h-5/6 w-full overflow-y-auto scrollbar-thin">
             {activeCommentPost?.comments && activeCommentPost.comments.length > 0 ? (
               activeCommentPost.comments.map((comment, index) => (
-                <div key={comment._id || index} style={{ padding: '8px 0', borderBottom: '1px solid #eee' }}>
+                <div key={comment._id || index} className="py-2 border-b border-[#eee]">
                   <strong>{comment?.userId?.username || "User"}</strong>
-                  <p style={{ margin: '4px 0 0 0' }}>{comment.comment}</p>
+                  <p className="mt-1 mb-0">{comment.comment}</p>
                 </div>
               ))
             ) : (
-              <p style={{ color: '#999' }}>No comments yet. Be the first to comment!</p>
+              <p className="text-[#999]">No comments yet. Be the first to comment!</p>
             )}
           </div>
         </div>

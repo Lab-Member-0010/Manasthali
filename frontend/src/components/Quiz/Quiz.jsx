@@ -6,124 +6,10 @@ import Api from "../../apis/Api";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { updateUserProfile } from "../../redux-config/UserSlice";
-const styles = {
-quizWrapper: {
-  backgroundImage: "url('https://i.pinimg.com/originals/cf/85/d9/cf85d966c302f3728a0e8f81805c132a.gif')",
-  backgroundSize: 'cover',
-  backgroundPosition: 'center',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  height: '100vh',
-},
-  quizContainer: {
-  background: 'rgba(255, 255, 255, 0.3)',
-  borderRadius: '15px',
-  padding: '40px',
-  width: '700px',
-  height: '300px',
-  boxShadow: '0px 6px 15px rgba(0, 0, 0, 0.15)',
-  backdropFilter: 'blur(10px)',
-  border: '1px solid rgba(255, 255, 255, 0.2)',
-},
-  questionContainer: {
-  textAlign: 'center',
-},
-  question: {
-  fontSize: '1.5rem',
-  marginBottom: '30px',
-  fontWeight: 'bold',
-  color: '#333',
-},
-  sliderOptions: {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-},
-  label: {
-  fontSize: '1.2rem',
-  width: '15%',
-  textAlign: 'center',
-  color: '#333',
-},
-  circles: {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  width: '70%',
-},
-  circle: {
-  width: '30px',
-  height: '30px',
-  borderRadius: '50%',
-  border: '3px solid yellow',
-  backgroundColor: 'transparent',
-  cursor: 'pointer',
-},
-  circle1: {
-  width: '50px',
-  height: '50px',
-  borderColor: '#66BB6A',
-},
-  circle2: {
-  width: '40px',
-  height: '40px',
-  borderColor: '#9CCC65',
-},
-  circle3: {
-  borderColor: '#90CAF9',
-  width: '30px',
-  height: '30px',
-},
-  circle4: {
-  width: '40px',
-  height: '40px',
-  borderColor: '#FFA726',
-},
-  circle5: {
-  width: '50px',
-  height: '50px',
-  borderColor: '#EF5350',
-},
-  circle1Active: {
-  color: '#66BB6A',
-  backgroundColor: '#66BB6A',
-},
-  circle2Active: {
-  color: '#9CCC65',
-  backgroundColor: '#9CCC65',
-},
-  circle3Active: {
-  color: '#90CAF9',
-  backgroundColor: '#90CAF9',
-},
-  circle4Active: {
-  color: '#FFA726',
-  backgroundColor: '#FFA726',
-},
-  circle5Active: {
-  color: '#EF5350',
-  backgroundColor: '#EF5350',
-},
-  navigationButtons: {
-  marginTop: '30px',
-  display: 'flex',
-  justifyContent: 'space-between',
-},
-  preNextButton: {
-  border: 'none',
-  padding: '0.75rem 1.5rem',
-  fontSize: '1.25rem',
-  borderRadius: '40px',
-  backgroundColor: '#c093fc',
-  color: 'white',
-  boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.2)',
-},
-  preNextButtonDisabled: {
-  backgroundColor: '#cfcfcf',
-  color: 'gray',
-}
-};
+
+const circleSizes = {1: "w-[50px] h-[50px]", 2: "w-[40px] h-[40px]", 3: "w-[30px] h-[30px]", 4: "w-[40px] h-[40px]", 5: "w-[50px] h-[50px]"};
+const circleBorders = {1: "border-[#66BB6A]", 2: "border-[#9CCC65]", 3: "border-[#90CAF9]", 4: "border-[#FFA726]", 5: "border-[#EF5350]"};
+const circleActiveBgs = {1: "bg-[#66BB6A]", 2: "bg-[#9CCC65]", 3: "bg-[#90CAF9]", 4: "bg-[#FFA726]", 5: "bg-[#EF5350]"};
 
 const questions = [
   "I enjoy socializing with new people.",
@@ -161,25 +47,6 @@ const questions = [
   "I feel the need to be in control of situations.",
   "I worry about my performance or success.",
   "I am more comfortable with facts and data than with abstract ideas."
-];
-
-// Active circle style maps keyed by circle index value
-const activeCircleStyles = [
-  null,
-  styles.circle1Active,
-  styles.circle2Active,
-  styles.circle3Active,
-  styles.circle4Active,
-  styles.circle5Active,
-];
-
-const circleBaseStyles = [
-  null,
-  styles.circle1,
-  styles.circle2,
-  styles.circle3,
-  styles.circle4,
-  styles.circle5,
 ];
 
 const Quiz = () => {
@@ -250,7 +117,6 @@ const Quiz = () => {
 
       if (quizResponse.status !== 200) throw new Error("Error submitting quiz.");
 
-      // Keep Redux user state in sync with the personality type the backend just saved
       const personalityType = quizResponse.data?.personality_type || personality;
       dispatch(
         updateUserProfile({
@@ -278,38 +144,34 @@ const Quiz = () => {
   };
 
   return (
-    <div style={styles.quizWrapper}>
-      <div style={styles.quizContainer}>
-        <div style={styles.questionContainer}>
-          <div id="question" style={styles.question}>
+    <div className="flex items-center justify-center h-screen bg-cover bg-center" style={{backgroundImage: "url('https://i.pinimg.com/originals/cf/85/d9/cf85d966c302f3728a0e8f81805c132a.gif')"}}>
+      <div className="bg-white/30 rounded-[15px] p-10 w-[700px] h-[300px] shadow-lg backdrop-blur-md border border-white/20">
+        <div className="text-center">
+          <div id="question" className="text-2xl mb-8 font-bold text-[#333]">
             {`${currentQuestionIndex * 1 + 1}. ${questions[currentQuestionIndex]}`}
           </div>
-          <div style={styles.sliderOptions}>
-            <span style={styles.label}>Agree</span>
-            <div style={styles.circles}>
+          <div className="flex items-center justify-between">
+            <span className="text-xl w-[15%] text-center text-[#333]">Agree</span>
+            <div className="flex justify-between items-center w-[70%]">
               {[1, 2, 3, 4, 5].map((value) => {
                 const isActive = answers[currentQuestionIndex] === value;
-                const circleStyle = {
-                  ...styles.circle,
-                  ...circleBaseStyles[value],
-                  ...(isActive ? activeCircleStyles[value] : {}),
-                };
+                const circleClassName = "rounded-full border-[3px] bg-transparent cursor-pointer " + circleSizes[value] + " " + circleBorders[value] + (isActive ? " " + circleActiveBgs[value] : "");
                 return (
                   <div
                     key={value}
-                    style={circleStyle}
+                    className={circleClassName}
                     onClick={() => handleOptionSelect(currentQuestionIndex, value)}
                   ></div>
                 );
               })}
             </div>
-            <span style={styles.label}>Disagree</span>
+            <span className="text-xl w-[15%] text-center text-[#333]">Disagree</span>
           </div>
         </div>
-        <div style={styles.navigationButtons}>
+        <div className="mt-8 flex justify-between">
           <button
             onClick={goToPrevious}
-            style={currentQuestionIndex === 0 ? {...styles.preNextButton, ...styles.preNextButtonDisabled} : styles.preNextButton}
+            className={currentQuestionIndex === 0 ? "border-none px-6 py-3 text-xl rounded-[40px] bg-[#cfcfcf] text-gray-500 shadow-md" : "border-none px-6 py-3 text-xl rounded-[40px] bg-[#c093fc] text-white shadow-md"}
             disabled={currentQuestionIndex === 0}
           >
             Previous
@@ -317,13 +179,13 @@ const Quiz = () => {
           {currentQuestionIndex === questions.length - 1 ? (
             <button
               onClick={handleSubmit}
-              style={isLoading ? {...styles.preNextButton, ...styles.preNextButtonDisabled} : styles.preNextButton}
+              className={isLoading ? "border-none px-6 py-3 text-xl rounded-[40px] bg-[#cfcfcf] text-gray-500 shadow-md" : "border-none px-6 py-3 text-xl rounded-[40px] bg-[#c093fc] text-white shadow-md"}
               disabled={isLoading}
             >
               Submit Quiz
             </button>
           ) : (
-            <button onClick={goToNext} style={styles.preNextButton}>Next</button>
+            <button onClick={goToNext} className="border-none px-6 py-3 text-xl rounded-[40px] bg-[#c093fc] text-white shadow-md">Next</button>
           )}
         </div>
       </div>
