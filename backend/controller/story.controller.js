@@ -30,7 +30,12 @@ export const uploadStory = async (req, res) => {
 };
 export const getAllStories = async (req, res) => {
   try {
-    const stories = await Story.find().populate("userId", "username profile_picture").exec();  
+    // Only return stories created within the last 24 hours
+    const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const stories = await Story.find({ createdAt: { $gte: cutoff } })
+      .populate("userId", "username profile_picture")
+      .sort({ createdAt: -1 })
+      .exec();
     res.status(200).json(stories);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -57,7 +62,9 @@ export const getStoryByID = async (req, res) => {
 export const getUserStories = async (req, res) => {
   try {
     const { userId } = req.params;
-    const stories = await Story.find({ userId })
+    // Only return stories from the last 24 hours
+    const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const stories = await Story.find({ userId, createdAt: { $gte: cutoff } })
       .populate('userId', 'username profile_picture')
       .sort({ createdAt: -1 });
     return res.status(200).json(stories);

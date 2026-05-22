@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Api from "../../apis/Api";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { updateUserProfile } from "../../redux-config/UserSlice";
 const styles = {
 quizWrapper: {
   backgroundImage: "url('https://i.pinimg.com/originals/cf/85/d9/cf85d966c302f3728a0e8f81805c132a.gif')",
@@ -186,7 +187,8 @@ const Quiz = () => {
   const [answers, setAnswers] = useState(Array(questions.length).fill(null));
   const [isLoading, setIsLoading] = useState(false);
 
-  const { token, isLoggedIn } = useSelector((state) => state.user);
+  const { token, isLoggedIn, user: currentUser } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const calculateScores = (answers) => {
@@ -248,9 +250,18 @@ const Quiz = () => {
 
       if (quizResponse.status !== 200) throw new Error("Error submitting quiz.");
 
+      // Keep Redux user state in sync with the personality type the backend just saved
+      const personalityType = quizResponse.data?.personality_type || personality;
+      dispatch(
+        updateUserProfile({
+          ...(currentUser || {}),
+          personality_type: personalityType,
+        })
+      );
+
       toast.success("Quiz submitted successfully!");
       setIsLoading(false);
-      navigate("/personality", { state: { personality } });
+      navigate("/personality", { state: { personality: personalityType } });
     } catch (error) {
       console.error("Error submitting quiz:", error);
       toast.error("There was an error submitting the quiz. Please try again.");

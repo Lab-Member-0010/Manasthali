@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import SecurityIcon from '@mui/icons-material/Security';
+import sporeGif from "@assets/spore.gif";
 const styles = {
 backgroundContainer: {
   backgroundImage: `url(${sporeGif})`,

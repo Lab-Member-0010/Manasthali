@@ -5,6 +5,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Api from "../../apis/Api";
+import sporeGif from "@assets/spore.gif";
+import manasthaliLogo from "@assets/Manasthali.png";
 const styles = {
 resetContainer: {
   backgroundImage: `url(${sporeGif})`,

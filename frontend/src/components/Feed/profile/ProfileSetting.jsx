@@ -3,6 +3,7 @@ import axios from "axios";
 import { useDispatch,useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 import { signOut, updateUserProfile } from "../../../redux-config/UserSlice";
 const styles = {
 divSize: {
@@ -38,6 +39,7 @@ const ProfileSetting= () => {
   const [message, setMessage] = useState("");
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleProfilePictureUpdate = async (e) => {
     e.preventDefault();
@@ -210,6 +212,7 @@ const ProfileSetting= () => {
         toast.success("User Deleted successfully!");
         setMessage("User Deleted successfully!");
         dispatch(signOut());
+        navigate("/signin");
     }catch(err){
       toast.error("Failed to Delete User.");
       setMessage("Failed to Delete User. Please try again.");

@@ -5,6 +5,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Api from "../../apis/Api";
+import sporeGif from "@assets/spore.gif";
+import manasthaliLogo from "@assets/Manasthali.png";
 const styles = {
 otpContainer: {
   backgroundImage: `url(${sporeGif})`,

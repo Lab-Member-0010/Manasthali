@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import Api from "../../apis/Api";
 import { toast, ToastContainer } from "react-toastify";
+import sporeGif from "@assets/spore.gif";
+import manasthaliLogo from "@assets/Manasthali.png";
 const styles = {
 forgetContainer: {
   backgroundImage: `url(${sporeGif})`,

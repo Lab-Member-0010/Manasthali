@@ -11,7 +11,7 @@ export const sendGroupMessage = async (req, res) => {
       return res.status(404).json({ message: "Group not found" });
     }
 
-    if (!group.members.includes(req.user._id)) {
+    if (!group.members.some(id => id.toString() === req.user._id.toString())) {
       return res.status(403).json({ message: "You are not a member of this group" });
     }
 
@@ -63,7 +63,7 @@ export const markGroupMessageAsRead = async (req, res) => {
     }
 
     // Check if the user has already marked this message as read
-    if (message.readBy.includes(req.user._id)) {
+    if (message.readBy.some(id => id.toString() === req.user._id.toString())) {
       return res.status(400).json({ message: "You have already marked this message as read." });
     }
 

@@ -5,6 +5,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Api from "../../apis/Api";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Link } from "react-router-dom";
+import sporeGif from "@assets/spore.gif";
+import manasthaliLogo from "@assets/Manasthali.png";
 const styles = {
 signupContainer: {
   backgroundImage: `url(${sporeGif})`,
