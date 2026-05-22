@@ -49,7 +49,6 @@ const Story = () => {
 
     const formData = new FormData();
     formData.append("media", file);
-    formData.append("userId", user._id);
 
     try {
       const response = await axios.post(`${BASE_URL}/story/stories`, formData, {

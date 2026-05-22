@@ -40,10 +40,18 @@ export const createPost = async (request, response, next) => {
 export const getPostDetails = async (request, response, next) => {
   try {
     let { id } = request.params;
-    let post = await Post.findOne({ _id: id });
+    let post = await Post.findById(id)
+      .populate('userId', 'username profile_picture')
+      .populate('likes', 'username profile_picture')
+      .populate({
+        path: 'comments',
+        populate: { path: 'userId', select: 'username profile_picture' }
+      });
+
     if (!post) {
       return response.status(404).json({ error: "post not found" });
     }
+
     return response.status(200).json({ message: "post detail successfully fetched", post });
   }
   catch (error) {
@@ -209,8 +217,8 @@ export const getAllPosts = async (req, res) => {
       .sort({ createdAt: -1 });
 
     if (!posts || posts.length === 0) {
-      return res.status(404).json({
-        message: "No posts found",
+      return res.status(200).json({
+        posts: [],
       });
     }
 

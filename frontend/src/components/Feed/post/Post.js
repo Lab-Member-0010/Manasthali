@@ -15,7 +15,6 @@ const Post = ({ onPostCreated }) => {
     e.preventDefault();
     const formData = new FormData();
     formData.append("description", description);
-    formData.append("userId", userId);
     Array.from(media).forEach((file) => formData.append("media", file));
 
     try {

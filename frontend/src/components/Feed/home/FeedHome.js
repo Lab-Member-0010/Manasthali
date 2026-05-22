@@ -92,39 +92,52 @@ const FeedHome = ({ refreshKey }) => {
       fetchPosts();
       toast.error("Error updating like status");
     }
-  };
+      const previousPosts = posts;
 
-  const handleCommentPost = async (postId) => {
-    try {
-      const response = await axios.get(`${Api.BASIC_POST_ROUTE}/${postId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return response.data.post;
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Error fetching comments");
-    }
-  };
+      const updatedPosts = posts.map((p) =>
+        p._id === post._id
+          ? {
+              ...p,
+              likes:
+                likeAction === "like"
+                  ? [...(p.likes || []), userId]
+                  : (p.likes || []).filter((like) => {
+                      const likeId = typeof like === "object" ? (like._id || like) : like;
+                      return likeId.toString() !== userId.toString();
+                    }),
+            }
+          : p
+      );
 
-  const handleCommentToggle = async (postId) => {
-    try {
-      const post = await handleCommentPost(postId);
-      setActiveCommentPost(activeCommentPost?._id === postId ? null : post);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+      setPosts(updatedPosts);
 
-  const handleCommentChange = (postId, value) => {
-    setComments((prev) => ({ ...prev, [postId]: value }));
-  };
+      const response = await axios.post(`${Api.BASIC_POST_ROUTE}/${post._id}/${likeAction}`, {}, { headers: { Authorization: `Bearer ${token}` } });
 
-  const handleCommentSubmit = async (postId) => {
-    const newComment = (comments[postId] || "").trim();
-    if (newComment) {
+      // Sync with server response likes when available
+      const serverLikes = response.data?.likes;
+      if (serverLikes) {
+        setPosts((prev) => prev.map((p) => (p._id === post._id ? { ...p, likes: serverLikes } : p)));
+      }
+
+      if (likeAction === "like") {
+        // Get the post owner's ID from the post's userId (could be populated object or string)
+        const postOwnerId = typeof post.userId === "object" ? post.userId._id : post.userId;
+        if (postOwnerId && postOwnerId.toString() !== userId.toString()) {
+          const notificationData = {
+            receiver_id: postOwnerId,
+            notification_type: "like",
+            sender_id: userId,
+          };
+          await axios.post(Api.SEND_NOTIFICATION, notificationData, { headers: { Authorization: `Bearer ${token}` } });
+        }
+      }
       try {
-        const response = await axios.post(
-          `${Api.ADD_COMMENT}/${postId}`,
-          { comment: newComment, userId },
+      // Rollback on failure to previous optimistic state
+      setPosts((prev) => prev.map((p) => {
+        const original = previousPosts.find(op => op._id === p._id) || p;
+        return original;
+      }));
+      toast.error("Error updating like status");
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
@@ -142,6 +155,7 @@ const FeedHome = ({ refreshKey }) => {
           }
         }
 
+        const createdComment = response.data?.comment || response.data?.newComment;
         toast.success("Comment added successfully");
         setComments((prev) => ({ ...prev, [postId]: "" }));
 
@@ -151,10 +165,12 @@ const FeedHome = ({ refreshKey }) => {
           setActiveCommentPost(updatedPost);
         }
 
-        // Update comment count in feed
+        // Update comment list in feed using server-returned comment when possible
         setPosts((prevPosts) =>
           prevPosts.map((p) =>
-            p._id === postId ? { ...p, comments: [...p.comments, { userId: { username: "You" }, comment: newComment }] } : p
+            p._id === postId
+              ? { ...p, comments: [...(p.comments || []), createdComment || { userId: { username: "You" }, comment: newComment }] }
+              : p
           )
         );
       } catch (error) {

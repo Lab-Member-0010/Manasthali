@@ -5,8 +5,9 @@ import { User } from "../model/user.model.js";
 // Add a new comment to a post
 export const addComment = async (request, response, next) => {
   try {
-    const { userId, comment, parent_comment_id } = request.body;
-    const post_id=request.params.postId;
+    const { comment, parent_comment_id } = request.body;
+    const post_id = request.params.postId;
+    const userId = request.user._id;
     const newComment = new Comment({
       post_id,
       userId,
@@ -16,11 +17,14 @@ export const addComment = async (request, response, next) => {
     await newComment.save();
 
     const post = await Post.findById(post_id);
-    post.comments.push(newComment._id);
-    console.log(post);
-    await post.save();
+    if (post) {
+      post.comments.push(newComment._id);
+      await post.save();
+    }
 
-    response.status(201).json({ message: "Comment added successfully", newComment });
+    const populated = await Comment.findById(newComment._id).populate('userId', 'username profile_picture');
+
+    response.status(201).json({ message: "Comment added successfully", comment: populated });
   } catch (error) {
     console.log(error);
     response.status(500).json({ message: "Server error", error });
@@ -99,12 +103,10 @@ export const likeComment = async (req, res) => {
 
   try {
     const { id } = req.params;
-    const { user_id } = req.body;
-
+    const user_id = req.user._id;
 
     const comment = await Comment.findOne({ _id: id });
     const user = await User.findOne({ _id: user_id });
-    console.log(user);
 
     if (!comment) {
       return res.status(404).json({ message: "Comment not found" });
@@ -114,7 +116,7 @@ export const likeComment = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    if (!comment.comment_likes.includes(user_id)) {
+    if (!comment.comment_likes.some(l => l.toString() === user_id.toString())) {
       comment.comment_likes.push(user_id);
       await comment.save();
     } else {

@@ -87,14 +87,14 @@ export const deleteStory = async (req, res) => {
 export const StoryLike = async (req, res, next) => {
   try {
     const StoryId = req.params.id;
-    const userId = req.body.userId;  
+    const userId = req.user._id;
     console.log("StoryId: ", StoryId);  
     const story = await Story.findById(StoryId);
     if (!story) {
       return res.status(404).json({ message: "Story not found" });
     }
     console.log("Story: ", story);   
-    if (!story.likes.includes(userId)) {
+    if (!story.likes.some(l => l.toString() === userId.toString())) {
       story.likes.push(userId);
       await story.save();
       return res.status(200).json({ message: "Story liked successfully", story });
@@ -111,7 +111,8 @@ export const StoryLike = async (req, res, next) => {
 export const CommentStory = async (req, res, next) => {
   try {
     const StoryId = req.params.id;
-    const { userId, text } = req.body;
+    const { text } = req.body;
+    const userId = req.user._id;
     const story = await Story.findById(StoryId);
     if (!story) {
       return res.status(404).json({ message: "story not found" });
