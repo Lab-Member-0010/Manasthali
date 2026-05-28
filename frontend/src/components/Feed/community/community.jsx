@@ -65,7 +65,7 @@ const Community = () => {
   return (
     <div className="max-w-6xl mx-auto p-6">
       <ToastContainer />
-      <h1 className='text-center text-dark'>Communities</h1>
+      <h1 className='text-center text-gray-900'>Communities</h1>
       <div className="grid grid-cols-4 gap-5 p-5 mx-auto max-w-6xl">
         {personalityData.map((personality) => {
           // Dynamically assign the image based on personality_type

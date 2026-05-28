@@ -202,17 +202,17 @@ const ProfileSetting= () => {
   };
   
   return (
-    <div className="container py-4">
+    <div className="max-w-4xl mx-auto py-4">
       <ToastContainer />
       
       <div>
-          <h2 className="text-center text-dark mb-4">Your Profile</h2>
+          <h2 className="text-center text-gray-900 mb-4">Your Profile</h2>
       </div>
 
       {!showUpdateForm && (
         <div className="text-center mt-4">
           <button
-            className="form-control w-100 mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="w-full mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             onClick={() => setShowUpdateForm(true)}
           >
             Update Your Details
@@ -221,20 +221,20 @@ const ProfileSetting= () => {
       )}
 
       {showUpdateForm && (
-        <div className="row mt-4">
-          <div className="col-md-4 mb-2">
-            <div className="card shadow-sm h-48">
-              <div className="card-body">
-                <h5 className="card-title">Update Profile Picture</h5>
+        <div className="flex flex-wrap mt-4">
+          <div className="w-full md:w-1/3 mb-2">
+            <div className="bg-white rounded-lg shadow shadow-sm h-48">
+              <div className="p-4">
+                <h5 className="text-xl font-bold mb-3">Update Profile Picture</h5>
                 <form onSubmit={handleProfilePictureUpdate}>
                   <input
                     type="file"
-                    className="form-control mb-2"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
                     accept="image/*"
                     onChange={(e) => setProfilePicture(e.target.files[0])}
                     required
                   />
-                  <button className="form-control mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" type="submit">
+                  <button className="w-full mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" type="submit">
                     Update Picture
                   </button>
                 </form>
@@ -242,20 +242,20 @@ const ProfileSetting= () => {
             </div>
           </div>
 
-          <div className="col-md-4 mb-2">
-            <div className="card shadow-sm h-48">
-              <div className="card-body">
-                <h5 className="card-title">Update Contact</h5>
+          <div className="w-full md:w-1/3 mb-2">
+            <div className="bg-white rounded-lg shadow shadow-sm h-48">
+              <div className="p-4">
+                <h5 className="text-xl font-bold mb-3">Update Contact</h5>
                 <form onSubmit={handleContactUpdate}>
                   <input
                     type="text"
-                    className="form-control mb-2"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
                     value={contact}
                     onChange={(e) => setContact(e.target.value)}
                     placeholder="Enter new contact"
                     required
                   />
-                  <button className="form-control mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" type="submit">
+                  <button className="w-full mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" type="submit">
                     Update Contact
                   </button>
                 </form>
@@ -263,19 +263,19 @@ const ProfileSetting= () => {
             </div>
           </div>
 
-          <div className="col-md-4 mb-2">
-            <div className="card shadow-sm h-48">
-              <div className="card-body">
-                <h5 className="card-title">Update Date of Birth</h5>
+          <div className="w-full md:w-1/3 mb-2">
+            <div className="bg-white rounded-lg shadow shadow-sm h-48">
+              <div className="p-4">
+                <h5 className="text-xl font-bold mb-3">Update Date of Birth</h5>
                 <form onSubmit={handleDobUpdate}>
                   <input
                     type="date"
-                    className="form-control mb-2 abc"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2 abc"
                     value={dob}
                     onChange={(e) => setDob(e.target.value)}
                     required
                   />
-                  <button className="form-control mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" type="submit">
+                  <button className="w-full mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" type="submit">
                     Update DOB
                   </button>
                 </form>
@@ -283,13 +283,13 @@ const ProfileSetting= () => {
             </div>
           </div>
 
-          <div className="col-md-4 mb-2">
-            <div className="card shadow-sm h-48">
-              <div className="card-body">
-                <h5 className="card-title">Update Gender</h5>
+          <div className="w-full md:w-1/3 mb-2">
+            <div className="bg-white rounded-lg shadow shadow-sm h-48">
+              <div className="p-4">
+                <h5 className="text-xl font-bold mb-3">Update Gender</h5>
                 <form onSubmit={handleGenderUpdate}>
                   <select
-                    className="form-select mb-2"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
                     value={gender}
                     onChange={(e) => setGender(e.target.value)}
                     required
@@ -299,7 +299,7 @@ const ProfileSetting= () => {
                     <option value="Female">Female</option>
                     <option value="Other">Other</option>
                   </select>
-                  <button className="form-control mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" type="submit">
+                  <button className="w-full mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" type="submit">
                     Update Gender
                   </button>
                 </form>
@@ -307,20 +307,20 @@ const ProfileSetting= () => {
             </div>
           </div>
 
-          <div className="col-md-4 mb-2">
-            <div className="card shadow-sm h-48">
-              <div className="card-body">
-                <h5 className="card-title">Update Bio</h5>
+          <div className="w-full md:w-1/3 mb-2">
+            <div className="bg-white rounded-lg shadow shadow-sm h-48">
+              <div className="p-4">
+                <h5 className="text-xl font-bold mb-3">Update Bio</h5>
                 <form onSubmit={handleBioUpdate}>
                   <input
                     type="text"
-                    className="form-control mb-2"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
                     placeholder="Enter new Bio"
                     required
                   />
-                  <button className="form-control mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" type="submit">
+                  <button className="w-full mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" type="submit">
                     Update Bio
                   </button>
                 </form>
@@ -328,20 +328,20 @@ const ProfileSetting= () => {
             </div>
           </div>
 
-          <div className="col-md-4 mb-2">
-            <div className="card shadow-sm h-48">
-              <div className="card-body">
-                <h5 className="card-title">Delete User</h5>
+          <div className="w-full md:w-1/3 mb-2">
+            <div className="bg-white rounded-lg shadow shadow-sm h-48">
+              <div className="p-4">
+                <h5 className="text-xl font-bold mb-3">Delete User</h5>
                 <form onSubmit={handleUserDelete}>
                   <input
                     type="text"
-                    className="form-control mb-2"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
                     value={Delete}
                     onChange={(e) => setDelete(e.target.value)}
                     placeholder="Enter yes to delete"
                     required
                   />
-                  <button className="form-control mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" type="submit">
+                  <button className="w-full mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" type="submit">
                     Delete User
                   </button>
                 </form>

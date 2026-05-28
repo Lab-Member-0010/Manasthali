@@ -1,6 +1,8 @@
 import Story from '../model/story.model.js';
+import asyncHandler from "../middleware/asyncHandler.js";
+import logger from "../middleware/logger.js";
 
-export const uploadStory = async (req, res) => {
+export const uploadStory = asyncHandler(async (req, res) => {
   try {
     const userId = req.user._id;
     const { caption } = req.body;
@@ -24,11 +26,11 @@ export const uploadStory = async (req, res) => {
 
     res.status(200).json(populatedStory);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
-};
-export const getAllStories = async (req, res) => {
+});
+export const getAllStories = asyncHandler(async (req, res) => {
   try {
     // Only return stories created within the last 24 hours
     const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -40,10 +42,10 @@ export const getAllStories = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-};
+});
 
  
-export const getStoryByID = async (req, res) => {
+export const getStoryByID = asyncHandler(async (req, res) => {
   // Logic to fetch story details by ID
   try {
     const storyId = req.params.id;
@@ -53,13 +55,13 @@ export const getStoryByID = async (req, res) => {
     }
     res.status(200).json(story);
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     res.status(500).json({ error: "internal server " });
   }
-};
+});
 
 // Get all stories posted by a user
-export const getUserStories = async (req, res) => {
+export const getUserStories = asyncHandler(async (req, res) => {
   try {
     const { userId } = req.params;
     // Only return stories from the last 24 hours
@@ -69,13 +71,13 @@ export const getUserStories = async (req, res) => {
       .sort({ createdAt: -1 });
     return res.status(200).json(stories);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     return res.status(500).json({ error: "Internal Server Error" });
   }
-};
+});
 
 // Delete a story
-export const deleteStory = async (req, res) => {
+export const deleteStory = asyncHandler(async (req, res) => {
   // Logic to delete a story
   try {
     const deletedStory = await Story.findByIdAndDelete(req.params.id);
@@ -88,19 +90,19 @@ export const deleteStory = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-};
+});
 
 
-export const StoryLike = async (req, res, next) => {
+export const StoryLike = asyncHandler(async (req, res, next) => {
   try {
     const StoryId = req.params.id;
     const userId = req.user._id;
-    console.log("StoryId: ", StoryId);  
+    logger.info("StoryId: ", StoryId);  
     const story = await Story.findById(StoryId);
     if (!story) {
       return res.status(404).json({ message: "Story not found" });
     }
-    console.log("Story: ", story);   
+    logger.info("Story: ", story);   
     if (!story.likes.some(l => l.toString() === userId.toString())) {
       story.likes.push(userId);
       await story.save();
@@ -110,12 +112,12 @@ export const StoryLike = async (req, res, next) => {
     }
 
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json({ error: "Internal Server Error" });
   }
-};
+});
 
-export const CommentStory = async (req, res, next) => {
+export const CommentStory = asyncHandler(async (req, res, next) => {
   try {
     const StoryId = req.params.id;
     const { text } = req.body;
@@ -128,13 +130,13 @@ export const CommentStory = async (req, res, next) => {
     await story.save();
     res.status(200).json({ message: "comment add succesfuly" });
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json({ error: "Internal Server Error" });
   }
-};
+});
 
 
-export const viewStory = async (req, res, next) => {
+export const viewStory = asyncHandler(async (req, res, next) => {
   try {
     const StoryId = req.params.id;
     // userId should come from the authenticated user, not the URL param
@@ -154,7 +156,7 @@ export const viewStory = async (req, res, next) => {
       viewers: story.views
     });
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json({ error: "Internal Server Error" });
   }
-};
+});

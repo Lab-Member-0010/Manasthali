@@ -1,3 +1,4 @@
+import { body } from "express-validator";
 import express from 'express';
 import upload from '../middleware/uploadsdb.js';
 import { auth } from '../middleware/auth.js';
@@ -6,7 +7,7 @@ import { createPost, getPostDetails, updatePost, deletePost, likePost, unlikePos
 
 const router = express.Router();
 
-router.post('/', auth, upload.array('media', 5), createPost);
+router.post('/', [body('description').notEmpty().withMessage('Description is required').trim().escape()], auth, upload.array('media', 5), createPost);
 router.get('/all-posts/:id', auth, getAllPosts);
 router.get('/getCommunityPosts/:id', auth, getCommunityPosts);
 router.get('/getUserPosts/:id', auth, getUserPosts);

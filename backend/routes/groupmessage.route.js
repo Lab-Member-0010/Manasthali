@@ -1,3 +1,4 @@
+import { body } from "express-validator";
 import express from 'express';
 import {
   sendGroupMessage,
@@ -9,7 +10,7 @@ import { auth } from '../middleware/auth.js';
 const router = express.Router();
 
 // Send group message
-router.post('/send', auth, sendGroupMessage);
+router.post('/send', [body('message').notEmpty().withMessage('Message is required').trim().escape(), body('groupId').notEmpty()], auth, sendGroupMessage);
 
 // Get messages for a group
 router.get('/:groupId', auth, getGroupMessages);

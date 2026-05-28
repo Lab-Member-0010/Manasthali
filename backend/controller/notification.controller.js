@@ -1,7 +1,8 @@
 import Notification from '../model/notification.model.js';
+import asyncHandler from "../middleware/asyncHandler.js";
+import logger from "../middleware/logger.js";
 
-// send notification
-export const sendNotification = async (req, res, next) => {
+export const sendNotification = asyncHandler(async (req, res, next) => {
   try {
     const { receiver_id, notification_type, sender_id } = req.body;
     const notification = new Notification({
@@ -12,10 +13,9 @@ export const sendNotification = async (req, res, next) => {
   } catch (error) {
     res.status(500).send('Error creating notification');
   }
-}
+})
 
-// get user notifications
-export const getUserNotifications = async (req, res) => {
+export const getUserNotifications = asyncHandler(async (req, res) => {
   try {
     const { userId } = req.params;
     if (!userId) {
@@ -28,10 +28,9 @@ export const getUserNotifications = async (req, res) => {
   } catch (error) {
     res.status(500).send("Error fetching notifications");
   }
-};
+});
 
-// Mark a notification as read
-export const markNotificationAsRead = async (req, res) => {
+export const markNotificationAsRead = asyncHandler(async (req, res) => {
   try {
     const { id } = req.params;
     const notification = await Notification.findById(id);
@@ -44,4 +43,4 @@ export const markNotificationAsRead = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Error fetching notifications', error });
   }
-};
+});

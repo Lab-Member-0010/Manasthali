@@ -1,3 +1,5 @@
+import asyncHandler from "../middleware/asyncHandler.js";
+import logger from "../middleware/logger.js";
 import { validationResult } from "express-validator";
 import { User } from "../model/user.model.js";
 import bcrypt from "bcryptjs";
@@ -8,12 +10,12 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // Sign-up
-export const SignUp = async (request, response, next) => {
+export const SignUp = asyncHandler(async (request, response, next) => {
   try {
     // Validate request data
     const errors = validationResult(request);
     if (!errors.isEmpty()) {
-      console.error("Validation errors:", errors.array());
+      logger.error("Validation errors:", errors.array());
       return response.status(400).json({ error: "Bad request", details: errors.array() });
     }
 
@@ -23,14 +25,14 @@ export const SignUp = async (request, response, next) => {
     // Check if the email already exists in the database
     const existingUserByEmail = await User.findOne({ email });
     if (existingUserByEmail) {
-      console.error(`Email already exists: ${email}`);
+      logger.error(`Email already exists: ${email}`);
       return response.status(409).json({ error: "Email already exists" });
     }
 
     // Check if the username already exists in the database
     const existingUserByUsername = await User.findOne({ username });
     if (existingUserByUsername) {
-      console.error(`Username already exists: ${username}`);
+      logger.error(`Username already exists: ${username}`);
       return response.status(409).json({ error: "Username already taken" });
     }
 
@@ -61,13 +63,13 @@ export const SignUp = async (request, response, next) => {
     });
 
   } catch (err) {
-    console.error("Unexpected error during SignUp process:", err);
+    logger.error("Unexpected error during SignUp process:", err);
     return response.status(500).json({ error: "Internal Server Error" });
   }
-};
+});
 
 // Verify OTP
-export const verifyOtp = async (req, res) => {
+export const verifyOtp = asyncHandler(async (req, res) => {
   try {
     const { email, otp } = req.body;
 
@@ -87,13 +89,13 @@ export const verifyOtp = async (req, res) => {
     await user.save();
     res.status(200).json({ message: "OTP verified successfully. Your account is now active." });
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json({ error: "Internal Server Error" });
   }
-};
+});
 
 // Forgot Password
-export const forgotPassword = async (req, res) => {
+export const forgotPassword = asyncHandler(async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -228,13 +230,13 @@ export const forgotPassword = async (req, res) => {
 
     res.status(200).json({ message: "If this email exists, a reset link has been sent." });
   } catch (err) {
-    console.error("Error in forgotPassword:", err);
+    logger.error("Error in forgotPassword:", err);
     res.status(500).json({ error: "Internal Server Error" });
   }
-};
+});
 
 // Reset Password
-export const resetPassword = async (req, res) => {
+export const resetPassword = asyncHandler(async (req, res) => {
   try {
     const { token, newPassword: password } = req.body;
     const user = await User.findOne({
@@ -256,13 +258,13 @@ export const resetPassword = async (req, res) => {
 
     res.status(200).json({ message: "Password reset successfully" });
   } catch (err) {
-    console.error("Error in resetPassword:", err);
+    logger.error("Error in resetPassword:", err);
     res.status(500).json({ error: "Internal Server Error" });
   }
-};
+});
 
 // Sign-in
-export const SignIn = async (request, response, next) => {
+export const SignIn = asyncHandler(async (request, response, next) => {
   try {
     const { email, password } = request.body;
     const user = await User.findOne({ email });
@@ -287,10 +289,10 @@ export const SignIn = async (request, response, next) => {
       return response.status(401).json({ error: "Invalid email ID" });
     }
   } catch (err) {
-    console.error("Error in SignIn:", err);
+    logger.error("Error in SignIn:", err);
     return response.status(500).json({ error: "Internal Server Error" });
   }
-};
+});
 
 // generate json webtoken
 const generateToken = (userId) => {
@@ -300,7 +302,7 @@ const generateToken = (userId) => {
 };
 
 // get user details
-export const getUserById = async (req, res) => {
+export const getUserById = asyncHandler(async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -309,13 +311,13 @@ export const getUserById = async (req, res) => {
 
     return res.status(200).json({ user });
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     return res.status(500).json({ error: "Internal Server Error" });
   }
-};
+});
 
 // update user details
-export const updateUserById = async (req, res) => {
+export const updateUserById = asyncHandler(async (req, res) => {
   try {
     const { id } = req.params;
     // multer-s3 stores the public S3 URL in req.file.location
@@ -337,14 +339,14 @@ export const updateUserById = async (req, res) => {
       user: updatedUser,
     });
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 
-};
+});
 
 // contact update
-export const contactUpdateById = async (req, res, next) => {
+export const contactUpdateById = asyncHandler(async (req, res, next) => {
   try {
     const { id } = req.params;
     const { contact } = req.body;
@@ -369,13 +371,13 @@ export const contactUpdateById = async (req, res, next) => {
       user: updatedUser,
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.status(500).json({ error: "Internal server error" });
   }
-};
+});
 
 // dob update
-export const DobUpdateById = async (req, res, next) => {
+export const DobUpdateById = asyncHandler(async (req, res, next) => {
   try {
     const { id } = req.params;
     const { dob } = req.body;
@@ -400,13 +402,13 @@ export const DobUpdateById = async (req, res, next) => {
       user: updatedUser,
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.status(500).json({ error: "Internal server error" });
   }
-};
+});
 
 // gender update
-export const genderUpdate = async (req, res, next) => {
+export const genderUpdate = asyncHandler(async (req, res, next) => {
   try {
     const { id } = req.params;
     const { gender } = req.body;
@@ -431,13 +433,13 @@ export const genderUpdate = async (req, res, next) => {
       user: updatedUser,
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+});
 
 // delete user
-export const deleteUserById = async (req, res) => {
+export const deleteUserById = asyncHandler(async (req, res) => {
   try {
     const deletedUser = await User.findOneAndDelete({ _id: req.params.id });
 
@@ -447,12 +449,12 @@ export const deleteUserById = async (req, res) => {
 
     return res.status(200).json({ message: "User deleted successfully" });
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     return res.status(500).json({ error: "Internal Server Error" });
   }
-};
+});
 
-export const getUserFollowers = async (req, res) => {
+export const getUserFollowers = asyncHandler(async (req, res) => {
   try {
     const user = await User.findById(req.params.id).populate("followers", "username profile_picture");
 
@@ -462,13 +464,13 @@ export const getUserFollowers = async (req, res) => {
 
     return res.status(200).json({ followers: user.followers || [] });
   } catch (err) {
-    console.error("Error fetching followers:", err);
+    logger.error("Error fetching followers:", err);
     return res.status(500).json({ error: "Internal Server Error" });
   }
-};
+});
 
 // Fetch following users with username and profile picture
-export const getUserFollowing = async (req, res) => {
+export const getUserFollowing = asyncHandler(async (req, res) => {
   try {
     const user = await User.findById(req.params.id).populate(
       "following",
@@ -481,13 +483,13 @@ export const getUserFollowing = async (req, res) => {
 
     return res.status(200).json({ following: user.following || [] });
   } catch (err) {
-    console.error("Error fetching following users:", err);
+    logger.error("Error fetching following users:", err);
     return res.status(500).json({ error: "Internal Server Error" });
   }
-};
+});
 
 // folllow user
-export const followUser = async (req, res) => {
+export const followUser = asyncHandler(async (req, res) => {
   try {
     // Take the acting user from the auth middleware, never trust the body
     const userId = req.user?._id?.toString();
@@ -522,13 +524,13 @@ export const followUser = async (req, res) => {
 
     res.status(200).json({ message: "Followed successfully" });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.status(500).json({ message: "Server error" });
   }
-};
+});
 
 // unfollow user
-export const unfollowUser = async (req, res) => {
+export const unfollowUser = asyncHandler(async (req, res) => {
   try {
     // Take the acting user from the auth middleware, never trust the body
     const userId = req.user?._id?.toString();
@@ -564,13 +566,13 @@ export const unfollowUser = async (req, res) => {
     return res.status(200).json({ message: "Unfollowed successfully" });
 
   } catch (err) {
-    console.error("Error unfollowing user:", err);
+    logger.error("Error unfollowing user:", err);
     return res.status(500).json({ error: "Internal Server Error" });
   }
-};
+});
 
 // Get all users except you
-export const getAllUsersExceptOne = async (req, res) => {
+export const getAllUsersExceptOne = asyncHandler(async (req, res) => {
   try {
     const excludedId = req.params.id; // Assuming you pass the ID of the user to exclude
     const users = await User.find({ _id: { $ne: excludedId } });
@@ -585,15 +587,15 @@ export const getAllUsersExceptOne = async (req, res) => {
       users,
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return res.status(500).json({
       message: "Server error, could not retrieve users",
     });
   }
-};
+});
 
 // update bio
-export const bioUpdateById = async (req, res) => {
+export const bioUpdateById = asyncHandler(async (req, res) => {
   try {
     const { id } = req.params; // Extract user ID from params
     const { bio } = req.body;  // Extract bio from request body
@@ -623,13 +625,13 @@ export const bioUpdateById = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return res.status(500).json({ error: "Internal server error" });
   }
-}
+});
 
 //get dm list
-export const getDMList = async (req, res) => {
+export const getDMList = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -658,13 +660,13 @@ export const getDMList = async (req, res) => {
     // Send the DM list to the client
     res.json(dmList);
   } catch (error) {
-    console.error('Error fetching DM list:', error);
+    logger.error('Error fetching DM list:', error);
     res.status(500).json({ error: 'Internal Server error' });
   }
-};
+});
 
 // check email
-export const checkEmail = async (req, res) => {
+export const checkEmail = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
   try {
@@ -674,13 +676,13 @@ export const checkEmail = async (req, res) => {
     }
     return res.status(200).json({ available: true });
   } catch (error) {
-    console.error("Error checking email:", error);
+    logger.error("Error checking email:", error);
     return res.status(500).json({ error: "Internal server error." });
   }
-};
+});
 
 // check username
-export const checkUsername = async (req, res) => {
+export const checkUsername = asyncHandler(async (req, res) => {
   const { username } = req.body;
 
   try {
@@ -690,13 +692,13 @@ export const checkUsername = async (req, res) => {
     }
     return res.status(200).json({ available: true });
   } catch (error) {
-    console.error("Error checking username:", error);
+    logger.error("Error checking username:", error);
     return res.status(500).json({ error: "Internal server error." });
   }
-};
+});
 
 // get community users
-export const getCommunityUsers = async (req,res,next) => {
+export const getCommunityUsers = asyncHandler(async (req,res,next) => {
   try {
     const userId = req.params.id;
     const user=await User.findOne({_id:userId});
@@ -711,4 +713,4 @@ export const getCommunityUsers = async (req,res,next) => {
   } catch (error) {
     return res.status(500).json({error});
   }
-};
+});

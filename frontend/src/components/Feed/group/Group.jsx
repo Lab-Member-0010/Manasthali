@@ -96,7 +96,7 @@ const Group = ({ onChatSelect }) => {
   if (error) return <div>{error}</div>;
 
   return (
-    <div className="max-w-4xl mx-auto my-8 p-6 bg-gray-50 rounded-2xl shadow-lg text-center">
+    <div className="max-w-4xl w-full mx-auto my-8 p-6 bg-gray-50 rounded-2xl shadow-lg text-center px-4">
       <h2>{personalityType} Community - Find Groups</h2>
       <div className="mb-5">
         <input
@@ -110,6 +110,7 @@ const Group = ({ onChatSelect }) => {
       {filteredGroups.length === 0 ? (
         <p>No groups found</p>
       ) : (
+        <div className="overflow-x-auto">
         <table className="w-full border-collapse mt-4 bg-white rounded-lg overflow-hidden shadow">
           <thead className="bg-purple-400 text-white">
             <tr>
@@ -146,6 +147,7 @@ const Group = ({ onChatSelect }) => {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   );

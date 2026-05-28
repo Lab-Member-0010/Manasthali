@@ -254,7 +254,7 @@ const FeedHome = ({ refreshKey }) => {
               </div>
               <div className="p-4">
                 <p className="m-0 text-lg">{post.description}</p>
-                {post.media?.[0] && <img src={post.media[0]} alt="Post" className="w-full max-w-[550px] h-96 object-cover rounded" />}
+                {post.media?.[0] && <img src={post.media[0]} alt="Post" className="w-full max-w-[550px] h-48 md:h-96 object-cover rounded" />}
                 {post.shared_post_id && (
                   <div className="border border-[#ddd] rounded-lg p-3 mt-2 bg-[#f9f9f9]">
                     <small>Shared post</small>

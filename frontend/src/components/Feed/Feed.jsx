@@ -124,7 +124,7 @@ const Feed = () => {
       {/* Content Section */}
       <div className="flex flex-1 w-full mt-[18px]">
         {/* Left Navbar */}
-        <div className="w-44 border-r border-gray-300 bg-white">
+        <div className="w-44 border-r border-gray-300 bg-white hidden md:block">
           <div className="nav-item flex items-center pl-[15px] w-[170px] h-[45px] m-[5px] border-0 rounded-sm" onClick={() => setActiveComponent("home")}>
             <HomeIcon />
             <span className="icon-text ml-2">Home</span>
@@ -156,7 +156,7 @@ const Feed = () => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden px-16 bg-white text-2xl">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 md:px-16 bg-white text-lg md:text-2xl">
           <div className="bg-white mb-5 overflow-y-scroll">
             {activeComponent === "home" && (
               <div className="bg-white text-black h-20 max-h-[500px] overflow-y-auto border-b border-gray-300">
@@ -168,7 +168,7 @@ const Feed = () => {
         </div>
 
         {/* Right Navbar */}
-        <div className="w-24 border-l border-gray-300 bg-white flex flex-col items-center py-4 gap-4 overflow-y-auto">
+        <div className="hidden md:block w-24 border-l border-gray-300 bg-white flex flex-col items-center py-4 gap-4 overflow-y-auto">
           <div className="nav-item p-[15px] cursor-pointer border-0 rounded-full text-center" onClick={() => handleProfileClick()}>
             {profileData ? (
               <img src={profileData.profile_picture} alt="user" className="h-[30px] w-[30px] border border-black rounded-full" />

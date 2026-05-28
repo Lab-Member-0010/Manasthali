@@ -1,3 +1,4 @@
+import { body } from "express-validator";
 import express from 'express';
 import { uploadStory, getUserStories, deleteStory, getAllStories,
     getStoryByID,StoryLike,CommentStory,viewStory
@@ -6,7 +7,7 @@ import { uploadStory, getUserStories, deleteStory, getAllStories,
  import { auth } from '../middleware/auth.js';
 const router = express.Router();
 // router.post('/stories',auth, uploadStory);
-router.post("/stories", auth, upload.single("media"), uploadStory);
+router.post("/stories", [body('caption').optional().trim().escape()], auth, upload.single("media"), uploadStory);
 router.get("/stories", auth, getAllStories);
 router.get('/stories/user/:userId', auth, getUserStories);
 router.delete('/stories/:id', auth, deleteStory);

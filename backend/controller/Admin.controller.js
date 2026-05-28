@@ -1,9 +1,10 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { Admin } from "../model/Admin.model.js";
+import asyncHandler from "../middleware/asyncHandler.js";
+import logger from "../middleware/logger.js";
 
-//Admin signup
-export const AdminSignUp = async (request, response, next) => {
+export const AdminSignUp = asyncHandler(async (request, response, next) => {
   try {
     const { username, token } = request.body;
     const saltKey = bcrypt.genSaltSync(10);
@@ -14,10 +15,9 @@ export const AdminSignUp = async (request, response, next) => {
   } catch (err) {
     return response.status(500).json({ error: "Internal Server Error" });
   }
-};
+});
 
-//Admin Login
-export const AdminLogin = async (request, response, next) => {
+export const AdminLogin = asyncHandler(async (request, response, next) => {
   try {
     const { username, token } = request.body;
     const admin = await Admin.findOne({ username });
@@ -32,7 +32,7 @@ export const AdminLogin = async (request, response, next) => {
       return response.status(401).json({ error: "Token Invalid" });
     }
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     return response.status(500).json({ error: "Internal Server Error" });
   }
-};
+});

@@ -1,13 +1,16 @@
 import { Group } from '../model/group.model.js';
 import Community from '../model/community.model.js';
 import { User } from '../model/user.model.js';
+import asyncHandler from "../middleware/asyncHandler.js";
+import logger from "../middleware/logger.js";
+
 // create group
-export const createGroup = async (req, res) => {
+export const createGroup = asyncHandler(async (req, res) => {
   try {
     const { personality_type, name, description } = req.body;
 
     const community = await Community.findOne({ personality_type });
-    console.log(community)
+    logger.info(community)
     if (!community) {
       return res.status(404).json({ message: "Community with this personality type not found" });
     }
@@ -18,18 +21,18 @@ export const createGroup = async (req, res) => {
       communityId: community._id,
       createdBy: req.user?._id,
     });
-    console.log(newGroup)
+    logger.info(newGroup)
     await newGroup.save();
 
     return res.status(201).json({ message: "Group created successfully", group: newGroup });
   } catch (error) {
-    console.error("Error creating group:", error);
+    logger.error("Error creating group:", error);
     return res.status(500).json({ message: "Server error" });
   }
-};
+});
 
 // Get group details
-export const getGroupDetails = async (req, res) => {
+export const getGroupDetails = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -42,13 +45,13 @@ export const getGroupDetails = async (req, res) => {
     }
     res.json(group);
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     res.status(500).json({ message: "Internal Server Error" });
   }
-};
+});
 
 // Update group details
-export const updateGroup = async (req, res) => {
+export const updateGroup = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { name, description, communityId } = req.body;
 
@@ -69,13 +72,13 @@ export const updateGroup = async (req, res) => {
     }
     res.json(updatedGroup);
   } catch (err) {
-    console.log(err.message);
+    logger.error(err.message);
     res.status(500).json({ message: 'Internal Server Error' });
   }
-};
+});
 
 // Delete a group
-export const deleteGroup = async (req, res) => {
+export const deleteGroup = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -95,13 +98,13 @@ export const deleteGroup = async (req, res) => {
     }
     res.json({ message: 'Group deleted' });
   } catch (err) {
-    console.log(err.message);
+    logger.error(err.message);
     res.status(500).json({ message: 'Internal Server Error' });
   }
-};
+});
 
 // Join a group
-export const joinGroup = async (req, res) => {
+export const joinGroup = asyncHandler(async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user._id;
@@ -120,13 +123,13 @@ export const joinGroup = async (req, res) => {
     await group.save();
     res.status(200).json({ message: 'Successfully joined the group', group });
   } catch (err) {
-    console.error(err.message);
+    logger.error(err.message);
     res.status(500).json({ message: 'Internal Server Error' });
   }
-};
+});
 
 // Leave a group
-export const leaveGroup = async (req, res) => {
+export const leaveGroup = asyncHandler(async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user._id;
@@ -145,13 +148,13 @@ export const leaveGroup = async (req, res) => {
     await group.save();
     res.status(200).json({ message: 'Successfully left the group', group });
   } catch (err) {
-    console.error(err.message);
+    logger.error(err.message);
     res.status(500).json({ message: 'Internal Server Error' });
   }
-};
+});
 
 // Get group members
-export const getGroupMembers = async (req, res) => {
+export const getGroupMembers = asyncHandler(async (req, res) => {
   try {
     const { id } = req.params;
     const group = await Group.findById(id).populate('members', 'username email');
@@ -160,13 +163,13 @@ export const getGroupMembers = async (req, res) => {
     }
     res.status(200).json({ members: group.members });
   } catch (err) {
-    console.error(err.message);
+    logger.error(err.message);
     res.status(500).json({ message: 'Internal Server Error' });
   }
-};
+});
 
 // get groups by personality
-export const getGroups = async (req, res) => {
+export const getGroups = asyncHandler(async (req, res) => {
   try {
     const communityName = req.params.personality_type; 
 
@@ -180,13 +183,13 @@ export const getGroups = async (req, res) => {
 
     return res.status(200).json(groups);
   } catch (error) {
-    console.error("Error fetching groups:", error);
+    logger.error("Error fetching groups:", error);
     return res.status(500).json({ message: "Server error" });
   }
-};
+});
 
 
-export const getJoinedGroups = async (req, res) => {
+export const getJoinedGroups = asyncHandler(async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -197,8 +200,7 @@ export const getJoinedGroups = async (req, res) => {
 
     return res.status(200).json(joinedGroups);
   } catch (error) {
-    console.error('Error fetching joined groups:', error);
+    logger.error('Error fetching joined groups:', error);
     return res.status(500).json({ message: 'Internal Server Error' });
   }
-};
- 
+});

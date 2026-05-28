@@ -1,11 +1,11 @@
 import GroupMessage ,{Group} from '../model/group.model.js';
+import asyncHandler from "../middleware/asyncHandler.js";
+import logger from "../middleware/logger.js";
 
-// Function to send a group message
-export const sendGroupMessage = async (req, res) => {
+export const sendGroupMessage = asyncHandler(async (req, res) => {
   const { groupId, message } = req.body;
 
   try {
-    // Check if the group exists and if the user is a member
     const group = await Group.findById(groupId);
     if (!group) {
       return res.status(404).json({ message: "Group not found" });
@@ -15,7 +15,6 @@ export const sendGroupMessage = async (req, res) => {
       return res.status(403).json({ message: "You are not a member of this group" });
     }
 
-    // Create new message
     const newMessage = await GroupMessage.create({
       sender: req.user._id,
       group: groupId,
@@ -25,10 +24,9 @@ export const sendGroupMessage = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "Couldn't send message" });
   }
-};
+});
 
-// Function to get group messages
-export const getGroupMessages = async (req, res) => {
+export const getGroupMessages = asyncHandler(async (req, res) => {
   const { groupId } = req.params;
 
   try {
@@ -37,23 +35,21 @@ export const getGroupMessages = async (req, res) => {
       return res.status(404).json({ message: "Group not found" });
     }
 
-    // Check that the current user is a group member
     if (!group.members.some(id => id.toString() === req.user._id.toString())) {
       return res.status(403).json({ message: "You are not a member of this group" });
     }
 
     const messages = await GroupMessage.find({ group: groupId })
       .populate('sender', 'username profile_picture')
-      .sort({ createdAt: 1 }); // sort oldest first for correct chronological display
+      .sort({ createdAt: 1 });
 
     res.status(200).json({ data: messages });
   } catch (error) {
     res.status(500).json({ error: "Couldn't fetch messages" });
   }
-};
+});
 
-// Function to mark a group message as read
-export const markGroupMessageAsRead = async (req, res) => {
+export const markGroupMessageAsRead = asyncHandler(async (req, res) => {
   const { messageId } = req.body;
 
   try {
@@ -62,7 +58,6 @@ export const markGroupMessageAsRead = async (req, res) => {
       return res.status(404).json({ error: 'Message not found' });
     }
 
-    // Check if the user has already marked this message as read
     if (message.readBy.some(id => id.toString() === req.user._id.toString())) {
       return res.status(400).json({ message: "You have already marked this message as read." });
     }
@@ -73,4 +68,4 @@ export const markGroupMessageAsRead = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "Couldn't mark message as read" });
   }
-};
+});

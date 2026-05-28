@@ -1,9 +1,11 @@
 import Post from '../model/post.model.js';
 import Community from '../model/community.model.js'
 import { User } from "../model/user.model.js";
+import asyncHandler from "../middleware/asyncHandler.js";
+import logger from "../middleware/logger.js";
 
 //Create a new post
-export const createPost = async (request, response, next) => {
+export const createPost = asyncHandler(async (request, response, next) => {
   try {
     let { description } = request.body;
     const userId = request.user._id;
@@ -31,13 +33,13 @@ export const createPost = async (request, response, next) => {
 
     return response.status(201).json({ message: "post created successfully", post: populatedPost });
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     return response.status(500).json({ error: "Internal server error" });
   }
-}
+})
 
 // Get post details
-export const getPostDetails = async (request, response, next) => {
+export const getPostDetails = asyncHandler(async (request, response, next) => {
   try {
     let { id } = request.params;
     let post = await Post.findById(id)
@@ -57,11 +59,11 @@ export const getPostDetails = async (request, response, next) => {
   catch (error) {
     return response.status(500).json({ error: "internal server error" });
   }
-}
+})
 
 
 // Update a post
-export const updatePost = async (request, response, next) => {
+export const updatePost = asyncHandler(async (request, response, next) => {
   // Logic to update a post
   try {
     const { id } = request.params;
@@ -74,13 +76,13 @@ export const updatePost = async (request, response, next) => {
     const result = await Post.updateOne({ _id: id }, { $set: updateData });
     return response.status(200).json({ message: "Post updated successfully", result });
   } catch (error) {
-    console.error("Error updating post:", error);
+    logger.error("Error updating post:", error);
     return response.status(500).json({ error: "Internal server error" });
   }
-};
+});
 
 // Delete a post
-export const deletePost = async (request, response, next) => {
+export const deletePost = asyncHandler(async (request, response, next) => {
   // Logic to delete a post
   try {
     const { id } = request.params;
@@ -93,13 +95,13 @@ export const deletePost = async (request, response, next) => {
 
   }
   catch (error) {
-    console.log(error);
+    logger.error(error);
     return response.status(500).json({ error: "Intenal server error" })
   }
-};
+});
 
 // Like Post 
-export const likePost = async (request, response) => {
+export const likePost = asyncHandler(async (request, response) => {
   try {
     const { id } = request.params;
     const userId = request.user._id;
@@ -118,13 +120,13 @@ export const likePost = async (request, response) => {
     await post.save();
     return response.status(200).json({ message: "Post liked", likes: post.likes, likeCount: post.likes.length });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return response.status(500).json({ error: "Internal server error" });
   }
-};
+});
 
 // Unlike post
-export const unlikePost = async (request, response) => {
+export const unlikePost = asyncHandler(async (request, response) => {
   try {
     const { id } = request.params;
     const userId = request.user._id;
@@ -142,13 +144,13 @@ export const unlikePost = async (request, response) => {
 
     return response.status(200).json({ message: "Post unliked", likes: post.likes, likeCount: post.likes.length });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return response.status(500).json({ error: "Internal server error" });
   }
-};
+});
 
 //unlike post
-export const getPostComments = async (req, res, next) => {
+export const getPostComments = asyncHandler(async (req, res, next) => {
   try {
     const postId = req.params.id;
     const post = await Post.findById(postId).populate('comments'); // Ensure the comments are populated
@@ -159,13 +161,13 @@ export const getPostComments = async (req, res, next) => {
 
     return res.status(200).json({ post });
   } catch (error) {
-    console.error("Error fetching post with comments:", error);
+    logger.error("Error fetching post with comments:", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
-};
+});
 
 // Share a post
-export const sharePost = async (req, res) => {
+export const sharePost = asyncHandler(async (req, res) => {
   // Logic to share a post
 
   try {
@@ -198,10 +200,10 @@ export const sharePost = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: ' internal Server error' });
   }
-};
+});
 
 // get all post excluding current user
-export const getAllPosts = async (req, res) => {
+export const getAllPosts = asyncHandler(async (req, res) => {
   try {
     const excludedId = req.params.id;
     const posts = await Post.find({ userId: { $ne: excludedId } })
@@ -227,15 +229,15 @@ export const getAllPosts = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return res.status(500).json({
       message: "Server error, could not retrieve posts",
     });
   }
-};
+});
 
 // get post of all the community members with pagination
-export const getCommunityPosts = async (req, res, next) => {
+export const getCommunityPosts = asyncHandler(async (req, res, next) => {
   try {
     const userId = req.params.id;
     const page = parseInt(req.query.page) || 1;
@@ -270,13 +272,13 @@ export const getCommunityPosts = async (req, res, next) => {
 
     res.status(200).json({ posts, hasMore });
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
-};
+});
 
 // get user posts
-export const getUserPosts = async (req, res, next) => {
+export const getUserPosts = asyncHandler(async (req, res, next) => {
   try{
     const userId = req.params.id;
     const posts = await Post.find({ userId: userId })
@@ -293,4 +295,4 @@ export const getUserPosts = async (req, res, next) => {
   }catch(err){
     res.status(500).json({err});
   }
-};
+});

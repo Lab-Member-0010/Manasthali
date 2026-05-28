@@ -143,7 +143,7 @@ const MessageComponent = () => {
   return (
     <div className="flex h-full bg-gray-50 flex-wrap border border-black">
       {/* ── Sidebar: contact list ───────────────────────────────────────── */}
-      <div className="w-1/5 p-5 fixed border-r border-gray-300">
+      <div className="w-full md:w-1/5 p-5 md:fixed border-r border-gray-300">
         <div className="flex flex-col h-full">
           <div className="bg-white p-2.5 sticky top-0 z-10 text-2xl text-center text-purple-800">
             <h2>Chats</h2>
@@ -175,7 +175,7 @@ const MessageComponent = () => {
       </div>
 
       {/* ── Main chat panel ─────────────────────────────────────────────── */}
-      <div className="flex flex-col flex-1 bg-white ml-[28%] h-full relative overflow-hidden">
+      <div className="flex flex-col flex-1 bg-white ml-0 md:ml-[28%] h-full relative overflow-hidden">
         {selectedUser ? (
           <div>
             <div className="flex items-center px-4 py-2.5 sticky top-0 z-10 shadow w-full">

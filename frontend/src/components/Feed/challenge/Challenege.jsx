@@ -65,10 +65,10 @@ const Challenge = () => {
             }
             {challenge && (
                 <div className="mt-4">
-                    <h3 className="text-dark">Today's Challenge:</h3>
-                    <p className="text-dark">{challenge}</p>
+                    <h3 className="text-gray-900">Today's Challenge:</h3>
+                    <p className="text-gray-900">{challenge}</p>
 
-                    <div className="d-flex justify-content-evenly align-items-center">
+                    <div className="flex justify-evenly items-center">
                         <button onClick={handleComplete} className="bg-green-600 text-white border-none px-4 py-2 rounded">
                             Complete
                         </button>
@@ -78,7 +78,7 @@ const Challenge = () => {
                     </div>
 
                     {status && (
-                        <div className="text-dark mt-5">
+                        <div className="text-gray-900 mt-5">
                             <p><b>Challenge status:</b> {status}</p>
                         </div>
                     )}

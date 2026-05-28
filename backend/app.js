@@ -6,6 +6,8 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
+import helmet from "helmet";
+import logger from "./middleware/logger.js";
 
 import adminRouter from "./routes/Admin.route.js";
 import badgeRouter from "./routes/badge.route.js";
@@ -36,7 +38,35 @@ const io = new Server(server, {
   },
 });
 
-app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
+const allowedOrigins = [process.env.FRONTEND_URL].filter(Boolean);
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  maxAge: 86400,
+}));
+
+app.use(helmet());
+app.use(helmet.contentSecurityPolicy({
+  directives: {
+    defaultSrc: ["'self'"],
+    scriptSrc: ["'self'", "'unsafe-inline'"],
+    styleSrc: ["'self'", "'unsafe-inline'"],
+    imgSrc: ["'self'", "data:", "https:"],
+  },
+}));
+
+app.use((req, res, next) => {
+  if (req.get('X-Forwarded-Proto') === 'http' || req.get('X-Forwarded-Proto') === 'http, http') {
+    return res.redirect(301, `https://${req.get('Host')}${req.url}`);
+  }
+  next();
+});
+
 app.use('/uploads', express.static('uploads'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -88,7 +118,7 @@ app.use("/auth", googleAuthRouter);
 
 // ─── Centralized Error Handler ────────────────────────────────────────────────
 app.use((err, req, res, next) => {
-  console.error("Unhandled error:", err);
+  logger.error("Unhandled error:", { message: err.message, stack: err.stack });
   const status = err.status || 500;
   res.status(status).json({
     error: err.message || "Internal Server Error",
@@ -98,14 +128,14 @@ app.use((err, req, res, next) => {
 
 // ─── Socket.IO ───────────────────────────────────────────────────────────────
 io.on('connection', (socket) => {
-  console.log('A user connected:', socket.id);
+  logger.info('A user connected:', socket.id);
 
   // ── DM chat: user joins a private room keyed by their own userId ──────────
   // Frontend: socket.emit('join', userId)
   socket.on('join', (userId) => {
     if (!userId) return;
     socket.join(userId.toString());
-    console.log(`User ${userId} joined their private room`);
+    logger.info(`User ${userId} joined their private room`);
   });
 
   // ── Group chat: join a group room ─────────────────────────────────────────
@@ -113,7 +143,7 @@ io.on('connection', (socket) => {
   socket.on('join_group', (groupId) => {
     if (!groupId) return;
     socket.join(groupId.toString());
-    console.log(`Socket ${socket.id} joined group room: ${groupId}`);
+    logger.info(`Socket ${socket.id} joined group room: ${groupId}`);
   });
 
   // ── Group chat: leave a group room ────────────────────────────────────────
@@ -121,7 +151,7 @@ io.on('connection', (socket) => {
   socket.on('leave_group', (groupId) => {
     if (!groupId) return;
     socket.leave(groupId.toString());
-    console.log(`Socket ${socket.id} left group room: ${groupId}`);
+    logger.info(`Socket ${socket.id} left group room: ${groupId}`);
   });
 
   // ── DM: relay saved message to receiver's private room ───────────────────
@@ -135,7 +165,7 @@ io.on('connection', (socket) => {
       // Emit only to the receiver's room (excludes the sender's socket)
       socket.to(receiverId).emit('new_message', messageData);
     } catch (err) {
-      console.error('Error relaying DM:', err.message);
+      logger.error('Error relaying DM:', err.message);
     }
   });
 
@@ -150,25 +180,25 @@ io.on('connection', (socket) => {
       // Broadcast to all other members of the group room (excludes sender)
       socket.to(groupId).emit('new_group_message', messageData);
     } catch (err) {
-      console.error('Error relaying group message:', err.message);
+      logger.error('Error relaying group message:', err.message);
     }
   });
 
   socket.on('disconnect', () => {
-    console.log('A user disconnected:', socket.id);
+    logger.info('A user disconnected:', socket.id);
   });
 });
 
 // ─── Start server after DB connects ──────────────────────────────────────────
 mongoose.connect(process.env.DB_URI)
   .then(() => {
-    console.log("Database connected...");
+    logger.info("Database connected...");
     const port = process.env.PORT || 3001;
     server.listen(port, () => {
-      console.log(`Server started on port ${port}...`);
+      logger.info(`Server started on port ${port}...`);
     });
   })
   .catch(err => {
-    console.error("Database connection error:", err);
+    logger.error("Database connection error:", err);
     process.exit(1);
   });

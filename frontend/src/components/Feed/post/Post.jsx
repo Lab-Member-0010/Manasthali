@@ -42,18 +42,18 @@ const Post = ({ onPostCreated }) => {
   };
 
   return (
-    <div className="mt-5 border card p-5">
+    <div className="mt-5 border border-gray-200 rounded-lg p-5">
       <ToastContainer />
       <form onSubmit={handleSubmit}>
         <div>
-          <center><h1 className="text-dark mb-3">Create Post</h1></center>
+          <center><h1 className="text-gray-900 mb-3">Create Post</h1></center>
         </div>
         <div>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Write a description..."
-            className="form-control mb-3"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md mb-3"
           />
         </div>
         <div>                   
@@ -61,11 +61,11 @@ const Post = ({ onPostCreated }) => {
             type="file"
             multiple
             onChange={(e) => setMedia(e.target.files)}
-            className="form-control mb-3"
+            className="w-full mb-3"
           />
         </div>
         <div>
-          <button type="submit" className="form-control mb-3 border-none py-2 px-6 text-xl rounded-lg bg-[#c093fc] text-white shadow-md transition-transform duration-300 ease-in-out">Create Post</button>
+          <button type="submit" className="w-full mb-3 border-none py-2 px-6 text-xl rounded-lg bg-[#c093fc] text-white shadow-md transition-transform duration-300 ease-in-out">Create Post</button>
         </div>
       </form>
     </div>

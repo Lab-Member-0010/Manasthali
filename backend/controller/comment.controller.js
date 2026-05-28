@@ -1,9 +1,10 @@
 import Comment from "../model/comment.model.js";
 import Post from "../model/post.model.js";
 import { User } from "../model/user.model.js";
+import asyncHandler from "../middleware/asyncHandler.js";
+import logger from "../middleware/logger.js";
 
-// Add a new comment to a post
-export const addComment = async (request, response, next) => {
+export const addComment = asyncHandler(async (request, response, next) => {
   try {
     const { comment, parent_comment_id } = request.body;
     const post_id = request.params.postId;
@@ -26,13 +27,12 @@ export const addComment = async (request, response, next) => {
 
     response.status(201).json({ message: "Comment added successfully", comment: populated });
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     response.status(500).json({ message: "Server error", error });
   }
-};
+});
 
-// Get details of a specific comment
-export const getCommentDetails = async (req, res) => {
+export const getCommentDetails = asyncHandler(async (req, res) => {
   try {
     const { id } = req.params;
     const comment = await Comment.findOne({ _id: id }).populate("userId");
@@ -43,13 +43,12 @@ export const getCommentDetails = async (req, res) => {
 
     res.status(200).json({ message: "comment fetch successfully", comment });
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     res.status(500).json({ message: "Server error" });
   }
-};
+});
 
-// Update a comment
-export const updateComment = async (req, res) => {
+export const updateComment = asyncHandler(async (req, res) => {
   try {
     const { id } = req.params;
     let updateData = req.body;
@@ -64,15 +63,12 @@ export const updateComment = async (req, res) => {
       .status(200)
       .json({ message: "comment updated successfully", result });
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     return res.status(500).json({ error: "Internal server error" });
   }
-};
+});
 
-// Delete a comment
-
-export const deleteComment = async (req, res) => {
-  // Logic to delete a comment
+export const deleteComment = asyncHandler(async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -92,15 +88,12 @@ export const deleteComment = async (req, res) => {
 
     res.status(200).json({ message: "Comment deleted successfully" });
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     res.status(500).json({ message: "Server error" });
   }
-};
+});
 
-// Like a comment
-export const likeComment = async (req, res) => {
-  // Logic to like a comment
-
+export const likeComment = asyncHandler(async (req, res) => {
   try {
     const { id } = req.params;
     const user_id = req.user._id;
@@ -127,7 +120,7 @@ export const likeComment = async (req, res) => {
 
     res.status(200).json({ message: "Comment liked successfully", comment });
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     res.status(500).json({ message: "Server error", error });
   }
-};
+});

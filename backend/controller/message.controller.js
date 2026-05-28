@@ -1,33 +1,33 @@
 import { Message } from "../model/message.model.js";
+import asyncHandler from "../middleware/asyncHandler.js";
+import logger from "../middleware/logger.js";
 
-export const sendMessage = async (req, res) => {
+export const sendMessage = asyncHandler(async (req, res) => {
   try {
-    const { receiverId, message, audioUrl } = req.body; // Assuming 'audioUrl' will be sent if it's a voice message
+    const { receiverId, message, audioUrl } = req.body;
     const senderId = req.user._id;
 
-    // Basic validation
     if (!receiverId || (!message && !audioUrl)) {
       return res.status(400).json({ error: "Receiver ID, message, or audio URL are required" });
     }
 
-    // Create a new message
     const newMessage = new Message({
       sender: senderId,
       receiver: receiverId,
-      message: message || '',  // If there's a text message, store it, otherwise leave it empty
-      audioUrl: audioUrl || '', // If there's an audio message, store the URL
+      message: message || '',
+      audioUrl: audioUrl || '',
     });
 
     await newMessage.save();
     res.status(201).json({ message: 'Message sent successfully', newMessage });
   } catch (err) {
-    console.error('Error sending message:', err);
+    logger.error('Error sending message:', err);
     res.status(500).json({ error: 'Internal Server Error' });
   }
-};
+});
 
 
-export const getMessages = async (req, res) => {
+export const getMessages = asyncHandler(async (req, res) => {
   try {
     const { receiverId } = req.params;
     const senderId = req.user._id;
@@ -37,7 +37,7 @@ export const getMessages = async (req, res) => {
         { sender: senderId, receiver: receiverId },
         { sender: receiverId, receiver: senderId },
       ],
-    }).sort({ createdAt: 1 }); // Sort by createdAt field for proper order
+    }).sort({ createdAt: 1 });
 
     if (messages.length === 0) {
       return res.status(200).json({ messages: [] });
@@ -45,12 +45,12 @@ export const getMessages = async (req, res) => {
 
     res.status(200).json({ messages });
   } catch (err) {
-    console.error("Error fetching messages:", err);
+    logger.error("Error fetching messages:", err);
     res.status(500).json({ error: "Internal Server Error" });
   }
-};
+});
 
-export const markAsRead = async (req, res) => {
+export const markAsRead = asyncHandler(async (req, res) => {
   try {
     const { messageId } = req.body;
     if (!req.user || !req.user._id) {
@@ -70,7 +70,7 @@ export const markAsRead = async (req, res) => {
     await message.save();
     res.status(200).json({ message: "Message marked as read", messageDetails: message });
   } catch (err) {
-    console.error("Error marking message as read:", err);
+    logger.error("Error marking message as read:", err);
     res.status(500).json({ error: "Internal Server Error" });
   }
-};
+});
