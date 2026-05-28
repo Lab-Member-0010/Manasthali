@@ -270,6 +270,12 @@ All endpoints are served from `VITE_API_URL` (default `http://localhost:3001`).
 
 ---
 
+## Performance Notes
+- Frontend code-splits all routes with `React.lazy` + `Suspense`
+- Feed uses infinite scroll (5 posts per page)
+- Key components wrapped with `React.memo`
+- All images use `loading="lazy"`
+
 ## Architecture Notes
 
 **Styling** — There are zero `.css` files in the project. Every component has a sibling `.styles.ts` file that exports typed `React.CSSProperties` objects. Hover states use the `useHover` hook from `src/utils/styleUtils.ts`. Global resets and `@keyframes` animations are injected once at startup via `injectGlobalStyles()` in `main.tsx`.
@@ -285,6 +291,8 @@ All endpoints are served from `VITE_API_URL` (default `http://localhost:3001`).
 ---
 
 ## Contributing
+- **Backend**: Node 18+, MongoDB 6+
+- **Frontend**: Node 18+, Vite dev server
 
 1. Fork the repo
 2. Create a feature branch: `git checkout -b feature/your-feature`

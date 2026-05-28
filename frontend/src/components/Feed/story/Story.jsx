@@ -103,6 +103,7 @@ const Story = () => {
         <img
           src={user?.profile_picture ? user.profile_picture : defaultProfile}
           alt={user?.username ? `${user.username}'s profile` : "Profile"}
+          loading="lazy"
           className="w-full h-full object-cover rounded-full"
         />
       </div>
@@ -119,7 +120,7 @@ const Story = () => {
      
       {showStory && story && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[999]">
-          <img src={getMediaUrl(story.media)} alt="Your story" className="max-w-[90%] max-h-[90%]" onClick={() => setShowStory(false)} />
+          <img src={getMediaUrl(story.media)} alt="Your story" loading="lazy" className="max-w-[90%] max-h-[90%]" onClick={() => setShowStory(false)} />
           <button
             onClick={handleDeleteStory}
             aria-label="Delete story"

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import Modal from "react-modal";
 
 const CommentModal = ({ activeCommentPost, onClose }) => {
@@ -46,4 +46,4 @@ const CommentModal = ({ activeCommentPost, onClose }) => {
   );
 };
 
-export default CommentModal;
+export default memo(CommentModal);
