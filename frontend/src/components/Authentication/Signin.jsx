@@ -124,7 +124,7 @@ const SignIn = () => {
                 value={email}
                 onChange={handleChange}
                 placeholder="Enter email"
-                className={`form-control w-[445px] h-auto bg-transparent text-base ${errors.email ? "border border-red-500" : "border-b border-black"}`}
+                className={`w-[445px] h-auto bg-transparent text-base ${errors.email ? "border border-red-500" : "border-b border-black"}`}
                 autoComplete="off"
                 required
               />
@@ -143,7 +143,7 @@ const SignIn = () => {
                   value={password}
                   onChange={handleChange}
                   placeholder="Enter password"
-                  className={`form-control w-[445px] h-auto bg-transparent text-base ${errors.password ? "border border-red-500" : "border-b border-black"}`}
+                  className={`w-[445px] h-auto bg-transparent text-base ${errors.password ? "border border-red-500" : "border-b border-black"}`}
                   required
                 />
                 <span
@@ -156,11 +156,11 @@ const SignIn = () => {
               {errors.password && <span className="text-[0.7rem] text-red-500 text-left pl-[5px]">{errors.password}</span>}
             </div>
 
-            <button type="submit" className="btn form-control text-black bg-[#55aafe] font-bold border-b border-black w-[200px] h-10 m-5 text-base">
+            <button type="submit" className="text-black bg-[#55aafe] font-bold border-b border-black w-[200px] h-10 m-5 text-base">
               Sign In
             </button>
 
-            <a className="form-control text-[17px] no-underline text-black cursor-pointer bg-transparent border-none" href={"/forgot-password/"}>
+            <a className="text-[17px] no-underline text-black cursor-pointer bg-transparent border-none" href={"/forgot-password/"}>
               Forgot Password?
             </a>
           </form>

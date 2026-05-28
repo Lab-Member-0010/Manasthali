@@ -71,13 +71,13 @@ const ForgetPassword = () => {
               value={email}
               onChange={handleChange}
               placeholder="Enter email"
-              className={`form-control w-[350px] h-auto bg-transparent text-base ${errors.email ? "border border-red-500" : "border-b border-black"}`}
+              className={`w-[350px] h-auto bg-transparent text-base ${errors.email ? "border border-red-500" : "border-b border-black"}`}
               autoComplete="off"
               required
             />
             {errors.email && <span className="text-[0.7rem] text-red-500 text-left pl-[5px]">{errors.email}</span>}
           </div>
-          <button type="submit" className="btn text-black bg-[#55aafe] font-bold border-b border-black w-[310px] h-10 m-5 text-base">
+          <button type="submit" className="text-black bg-[#55aafe] font-bold border-b border-black w-[310px] h-10 m-5 text-base">
             Send Reset Token
           </button>
         </form>

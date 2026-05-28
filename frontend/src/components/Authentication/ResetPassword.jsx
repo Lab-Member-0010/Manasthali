@@ -89,7 +89,7 @@ const ResetPassword = () => {
                   value={password}
                   onChange={handleChange}
                   placeholder="Enter password"
-                  className={`form-control w-[350px] h-auto bg-transparent text-base ${errors.password ? "border border-red-500" : "border-b border-black"}`}
+                  className={`w-[350px] h-auto bg-transparent text-base ${errors.password ? "border border-red-500" : "border-b border-black"}`}
                   required
                 />
                 <span
@@ -101,7 +101,7 @@ const ResetPassword = () => {
               </div>
               {errors.password && <span className="text-[0.65rem] text-red-500 text-left pl-[5px]">{errors.password}</span>}
             </div>
-          <button type="submit" className="btn text-black bg-[#55aafe] font-bold border-b border-black w-[310px] h-10 m-5 text-base">
+          <button type="submit" className="text-black bg-[#55aafe] font-bold border-b border-black w-[310px] h-10 m-5 text-base">
             Reset Password
           </button>
         </form>

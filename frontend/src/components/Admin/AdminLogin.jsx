@@ -34,33 +34,33 @@ const AdminLogin = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-900 to-purple-900 flex items-center justify-center">
       <ToastContainer />
-      <div className="container text-center mt-5 bg-white/10 backdrop-blur-lg rounded-xl p-8 w-96">
-      <div className="w-[100px] h-[100px] mx-auto mb-5 block bg-contain bg-center bg-no-repeat" style={{ backgroundImage: "url(" + manasthaliLogo + ")" }}></div>
+      <div className="text-center mt-5 bg-white/10 backdrop-blur-lg rounded-xl p-8 w-96">
+      <div className="w-[100px] h-[100px] mx-auto mb-5 bg-contain bg-center bg-no-repeat" style={{ backgroundImage: "url(" + manasthaliLogo + ")" }}></div>
         <h2 className="text-center mb-4">Verify Token</h2>
         <form onSubmit={handleSubmit}>
-          <div className="form-group w-4/5 mt-5 mb-5 flex flex-col relative">
+          <div className="w-4/5 mt-5 mb-5 flex flex-col relative">
             <label className="h-[25px] ml-1 text-xl text-black text-left">Username:</label>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="form-control w-full bg-white/20 border border-white/30 rounded-lg px-4 py-3 text-white placeholder-white/50"
+              className="w-full bg-white/20 border border-white/30 rounded-lg px-4 py-3 text-white placeholder-white/50"
               placeholder="Enter Username"
               required
             />
           </div>
-          <div className="form-group w-4/5 mt-5 mb-5 flex flex-col relative">
+          <div className="w-4/5 mt-5 mb-5 flex flex-col relative">
             <label className="h-[25px] ml-1 text-xl text-black text-left">Token:</label>
             <input
               type="text"
               value={token}
               onChange={(e) => setToken(e.target.value)}
-              className="form-control w-full bg-white/20 border border-white/30 rounded-lg px-4 py-3 text-white placeholder-white/50"
+              className="w-full bg-white/20 border border-white/30 rounded-lg px-4 py-3 text-white placeholder-white/50"
               placeholder="Enter Token"
               required
             />
           </div>
-          <button type="submit" className="btn custom-btn w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-lg font-bold">
+          <button type="submit" className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-lg font-bold">
             Verify Token
           </button>
         </form>

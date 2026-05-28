@@ -60,11 +60,11 @@ const Groups = () => {
   };
 
   return (
-    <div className="mt-5 border card p-5 max-w-[600px] mx-auto">
+    <div className="mt-5 border p-5 max-w-[600px] mx-auto">
         <ToastContainer/>
       <form onSubmit={handleSubmit}>
       <div>
-          <center><h1 className="text-dark mb-3">Create Group</h1></center>
+          <center><h1 className="text-gray-900 mb-3">Create Group</h1></center>
         </div>
         <div>
           <label>Personality Type:</label>
@@ -72,7 +72,7 @@ const Groups = () => {
             name="personality_type"
             value={formData.personality_type}
             onChange={handleChange}
-            className="form-control mb-3"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 mb-3"
             required
           >
             <option value="">Select Personality Type</option>
@@ -90,7 +90,7 @@ const Groups = () => {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className="form-control mb-3"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 mb-3"
             required
           />
         </div>
@@ -100,11 +100,11 @@ const Groups = () => {
             name="description"
             value={formData.description}
             onChange={handleChange}
-            className="form-control mb-3"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 mb-3"
             required
           />
         </div>
-        <button type="submit" className="form-control mb-3 bg-blue-600 text-white border-none p-2.5 rounded cursor-pointer">Create Group</button>
+        <button type="submit" className="w-full bg-blue-600 text-white border-none p-2.5 rounded cursor-pointer mb-3">Create Group</button>
       </form>
     </div>
   );

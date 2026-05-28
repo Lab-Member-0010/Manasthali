@@ -22,7 +22,7 @@ const RightNav = ({ profileData, onProfileClick, setActiveComponent, onSignOut }
         role="button"
         tabIndex={0}
         aria-label="Profile"
-        className="nav-item p-[15px] cursor-pointer border-0 rounded-full text-center"
+        className="p-[15px] cursor-pointer border-0 rounded-full text-center"
         onClick={onProfileClick}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onProfileClick(); }}
       >
@@ -38,7 +38,7 @@ const RightNav = ({ profileData, onProfileClick, setActiveComponent, onSignOut }
           role="button"
           tabIndex={0}
           aria-label={item.label}
-          className="nav-item p-[15px] cursor-pointer border-0 rounded-full text-center"
+          className="p-[15px] cursor-pointer border-0 rounded-full text-center"
           onClick={() => setActiveComponent(item.key)}
           onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setActiveComponent(item.key); }}
         >
@@ -49,7 +49,7 @@ const RightNav = ({ profileData, onProfileClick, setActiveComponent, onSignOut }
         role="button"
         tabIndex={0}
         aria-label="Sign Out"
-        className="nav-item p-[15px] cursor-pointer border-0 rounded-full text-center"
+        className="p-[15px] cursor-pointer border-0 rounded-full text-center"
         onClick={onSignOut}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onSignOut(); }}
       >

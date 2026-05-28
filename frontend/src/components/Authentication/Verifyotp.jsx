@@ -34,22 +34,22 @@ const Verifyotp = () => {
   return (
     <div className="min-h-screen flex items-center justify-end bg-cover bg-center bg-fixed pr-[50px]" style={{ backgroundImage: `url(${sporeGif})` }}>
       <ToastContainer />
-      <div className="container text-center bg-transparent p-[10px] rounded-[20px] shadow backdrop-blur-[10px] w-[420px] max-w-[1000px] relative right-0 mx-auto mt-5">
-      <div className="w-[100px] h-[100px] bg-no-repeat bg-center bg-contain mx-auto mt-[10px] mb-[20px] block" style={{ backgroundImage: `url(${manasthaliLogo})` }}></div>
+      <div className="text-center bg-transparent p-[10px] rounded-[20px] shadow backdrop-blur-[10px] w-[420px] max-w-[1000px] relative right-0 mx-auto mt-5">
+      <div className="w-[100px] h-[100px] bg-no-repeat bg-center bg-contain mx-auto mt-[10px] mb-[20px]" style={{ backgroundImage: `url(${manasthaliLogo})` }}></div>
         <h2 className="text-center mb-4">Verify OTP</h2>
         <form onSubmit={handleSubmit}>
-          <div className="form-group w-4/5 mt-5 mb-5 flex flex-col relative mx-auto">
+          <div className="w-4/5 mt-5 mb-5 flex flex-col relative mx-auto">
           <label className="h-[25px] ml-[5px] text-xl text-black text-left">OTP:</label>
             <input
             type="text"
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
-            className="form-control w-[400px] h-auto bg-transparent border-b border-black text-base"
+            className="w-[400px] h-auto bg-transparent border-b border-black text-base"
             placeholder="Enter OTP"
             required
           />
           </div>
-          <button type="submit" className="btn custom-btn text-black bg-[#55aafe] font-bold border-b border-black w-[200px] h-10 m-5 text-base">
+          <button type="submit" className="text-black bg-[#55aafe] font-bold border-b border-black w-[200px] h-10 m-5 text-base">
             Verify OTP
           </button>
         </form>

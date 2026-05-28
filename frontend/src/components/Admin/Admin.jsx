@@ -36,11 +36,11 @@ const Admin = () => {
         <div className="flex flex-1 w-full mt-[18px]">
 
             <div className="w-[180px] border-r border-gray-300 bg-white">
-                <div className="nav-item border-0 rounded-[2px] w-[170px] h-[45px] m-1 p-0 flex justify-start items-center pl-4" onClick={() => setActiveComponent("home")}>
+                <div className="border-0 rounded-[2px] w-[170px] h-[45px] m-1 p-0 flex justify-start items-center pl-4" onClick={() => setActiveComponent("home")}>
                     <HomeIcon />
                     <span className="icon-text ml-2">Admin</span>
                 </div>
-                <div className="nav-item border-0 rounded-[2px] w-[170px] h-[45px] m-1 p-0 flex justify-start items-center pl-4" onClick={() => setActiveComponent("group")}>
+                <div className="border-0 rounded-[2px] w-[170px] h-[45px] m-1 p-0 flex justify-start items-center pl-4" onClick={() => setActiveComponent("group")}>
                     <GroupIcon />
                     <span className="icon-text ml-2">Add Group</span>
                 </div>

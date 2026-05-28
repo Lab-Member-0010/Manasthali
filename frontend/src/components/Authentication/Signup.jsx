@@ -125,42 +125,42 @@ const SignUp = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-end bg-cover bg-center bg-fixed pr-[50px]" style={{ backgroundImage: `url(${sporeGif})` }}>
-      <div className="container text-center bg-transparent rounded-[20px] shadow backdrop-blur-[10px] w-[470px] h-[570px] max-w-[1000px] relative right-0 mx-auto mt-10 mb-10">
-        <div className="row justify-content-center">
-          <div className="w-[80px] h-[80px] bg-no-repeat bg-center bg-contain m-0 block" style={{ backgroundImage: `url(${manasthaliLogo})` }}></div>
-          <h2 className="text-center mb-4">Sign Up</h2>
-          {successMessage && <p className="alert alert-success">{successMessage}</p>}
-          {errorMessage && <p className="alert alert-danger">{errorMessage}</p>}
+      <div className="text-center bg-transparent rounded-[20px] shadow backdrop-blur-[10px] w-[470px] h-[570px] max-w-[1000px] relative right-0 mx-auto mt-10 mb-10">
+        <div className="flex flex-col items-center">
+          <div className="w-[80px] h-[80px] bg-no-repeat bg-center bg-contain" style={{ backgroundImage: `url(${manasthaliLogo})` }}></div>
+          <h2 className="mb-4">Sign Up</h2>
+          {successMessage && <p className="bg-green-100 text-green-800 p-2 rounded">{successMessage}</p>}
+          {errorMessage && <p className="bg-red-100 text-red-800 p-2 rounded">{errorMessage}</p>}
           <form onSubmit={handleSubmit}>
-            <div className="form-group relative mb-4 bg-transparent w-4/5 flex flex-col">
+            <div className="relative mb-4 bg-transparent w-4/5 flex flex-col">
               <label className="h-[25px] ml-[5px] text-xl text-black text-left">Email:</label>
               <input
                 type="email"
                 name="email"
                 value={email}
                 onChange={handleChange}
-                className={`form-control w-[440px] h-[40px] bg-transparent border-b text-base ${errors.email ? "border-red-500" : "border-black"}`}
+                className={`w-[440px] h-[40px] bg-transparent border-b text-base ${errors.email ? "border-red-500" : "border-black"}`}
                 placeholder="Enter your email"
                 autoComplete="off"
                 required
               />
               {errors.email && <span className="text-[0.7rem] text-red-500 text-left w-[410px] pl-[5px]">{errors.email}</span>}
             </div>
-            <div className="form-group relative mb-4 bg-transparent w-4/5 flex flex-col">
+            <div className="relative mb-4 bg-transparent w-4/5 flex flex-col">
               <label className="h-[25px] ml-[5px] text-xl text-black text-left">Username:</label>
               <input
                 type="text"
                 name="username"
                 value={username}
                 onChange={handleChange}
-                className={`form-control w-[440px] h-[40px] bg-transparent border-b text-base ${errors.username ? "border-red-500" : "border-black"}`}
+                className={`w-[440px] h-[40px] bg-transparent border-b text-base ${errors.username ? "border-red-500" : "border-black"}`}
                 placeholder="Enter your username"
                 autoComplete="off"
                 required
               />
               {errors.username && <span className="text-[0.7rem] text-red-500 text-left w-[410px] pl-[5px]">{errors.username}</span>}
             </div>
-            <div className="form-group relative mb-4 bg-transparent w-4/5 flex flex-col">
+            <div className="relative mb-4 bg-transparent w-4/5 flex flex-col">
               <label className="h-[25px] ml-[5px] text-xl text-black text-left">Password:</label>
               <div className="relative w-full">
                 <input
@@ -168,7 +168,7 @@ const SignUp = () => {
                   name="password"
                   value={password}
                   onChange={handleChange}
-                  className={`form-control w-[440px] h-[40px] bg-transparent border-b text-base ${errors.password ? "border-red-500" : "border-black"}`}
+                  className={`w-[440px] h-[40px] bg-transparent border-b text-base ${errors.password ? "border-red-500" : "border-black"}`}
                   placeholder="Enter your Password"
                   autoComplete="off"
                   required
@@ -182,15 +182,13 @@ const SignUp = () => {
               </div>
               {errors.password && <span className="text-[0.7rem] text-red-500 text-left w-[410px] pl-[5px]">{errors.password}</span>}
             </div>
-            <button type="submit" className="btn custom-btn text-black bg-[#55aafe] font-bold border-b border-black w-[200px] h-10 m-5 text-base">
+            <button type="submit" className="text-black bg-[#55aafe] font-bold border-b border-black w-[200px] h-10 m-5 text-base">
               Sign Up
             </button>
           </form>
           <h5>
             Already have an account?
-
-            <Link to="/signin" className="no-underline">Sign In</Link>
-
+            <Link to="/signin" className="no-underline"> Sign In</Link>
           </h5>
         </div>
       </div>
