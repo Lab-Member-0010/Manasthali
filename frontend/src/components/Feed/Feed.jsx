@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense, lazy } from "react";
 import {
   Home as HomeIcon,
   Event as EventIcon,
@@ -17,20 +17,21 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { signOut } from "../../redux-config/UserSlice";
 import ManasthaliLogo from "@assets/Manasthali.png";
-import Chat from "./chat/ChatList";
-import FeedHome from "./home/FeedHome";
-import GroupChat from "./group-chat/GroupChat";
-import Group from "./group/Group";
-import Notification from "./notification/Notification";
-import MentalCoach from "./Mental-Coach/MentalCoach";
-import Profile from "./profile/Profile";
-import Challenge from "./challenge/Challenege";
-import FindFriend from "./Find-friend/FindFriend";
-import Story from "./story/Story";
-import Post from "./post/Post";
-import ProfileSetting from "./profile/ProfileSetting";
-import Community from "./community/community";
 import defaultProfile from "@assets/default_profile.jpg";
+
+const Chat = lazy(() => import("./chat/ChatList"));
+const FeedHome = lazy(() => import("./home/FeedHome"));
+const GroupChat = lazy(() => import("./group-chat/GroupChat"));
+const Group = lazy(() => import("./group/Group"));
+const Notification = lazy(() => import("./notification/Notification"));
+const MentalCoach = lazy(() => import("./Mental-Coach/MentalCoach"));
+const Profile = lazy(() => import("./profile/Profile"));
+const Challenge = lazy(() => import("./challenge/Challenege"));
+const FindFriend = lazy(() => import("./Find-friend/FindFriend"));
+const Story = lazy(() => import("./story/Story"));
+const Post = lazy(() => import("./post/Post"));
+const ProfileSetting = lazy(() => import("./profile/ProfileSetting"));
+const Community = lazy(() => import("./community/community"));
 
 
 const BASE_URL = import.meta.env.VITE_API_URL;
@@ -158,12 +159,14 @@ const Feed = () => {
         {/* Main Content */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 md:px-16 bg-white text-lg md:text-2xl">
           <div className="bg-white mb-5 overflow-y-scroll">
-            {activeComponent === "home" && (
-              <div className="bg-white text-black h-20 max-h-[500px] overflow-y-auto border-b border-gray-300">
-                <Story />
-              </div>
-            )}
-            {renderActiveComponent()}
+            <Suspense fallback={<div className="p-5 text-purple-600 text-center">Loading...</div>}>
+              {activeComponent === "home" && (
+                <div className="bg-white text-black h-20 max-h-[500px] overflow-y-auto border-b border-gray-300">
+                  <Story />
+                </div>
+              )}
+              {renderActiveComponent()}
+            </Suspense>
           </div>
         </div>
 
