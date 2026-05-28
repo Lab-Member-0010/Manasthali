@@ -6,7 +6,6 @@ import logger from "../middleware/logger.js";
 
 //Create a new post
 export const createPost = asyncHandler(async (request, response, next) => {
-  try {
     let { description } = request.body;
     const userId = request.user._id;
     const user = await User.findById(userId);
@@ -32,15 +31,10 @@ export const createPost = asyncHandler(async (request, response, next) => {
       });
 
     return response.status(201).json({ message: "post created successfully", post: populatedPost });
-  } catch (error) {
-    logger.error(error);
-    return response.status(500).json({ error: "Internal server error" });
-  }
 })
 
 // Get post details
 export const getPostDetails = asyncHandler(async (request, response, next) => {
-  try {
     let { id } = request.params;
     let post = await Post.findById(id)
       .populate('userId', 'username profile_picture')
@@ -55,17 +49,12 @@ export const getPostDetails = asyncHandler(async (request, response, next) => {
     }
 
     return response.status(200).json({ message: "post detail successfully fetched", post });
-  }
-  catch (error) {
-    return response.status(500).json({ error: "internal server error" });
-  }
 })
 
 
 // Update a post
 export const updatePost = asyncHandler(async (request, response, next) => {
   // Logic to update a post
-  try {
     const { id } = request.params;
     let updateData = request.body
     const PostById = await Post.findOne({ _id: id });
@@ -75,16 +64,11 @@ export const updatePost = asyncHandler(async (request, response, next) => {
 
     const result = await Post.updateOne({ _id: id }, { $set: updateData });
     return response.status(200).json({ message: "Post updated successfully", result });
-  } catch (error) {
-    logger.error("Error updating post:", error);
-    return response.status(500).json({ error: "Internal server error" });
-  }
 });
 
 // Delete a post
 export const deletePost = asyncHandler(async (request, response, next) => {
   // Logic to delete a post
-  try {
     const { id } = request.params;
     let postbyId = await Post.findOne({ _id: id });
     if (!postbyId) {
@@ -93,16 +77,10 @@ export const deletePost = asyncHandler(async (request, response, next) => {
     await Post.deleteOne({ _id: id });
     return response.status(200).json({ message: "Post deleted successfully" });
 
-  }
-  catch (error) {
-    logger.error(error);
-    return response.status(500).json({ error: "Intenal server error" })
-  }
 });
 
 // Like Post 
 export const likePost = asyncHandler(async (request, response) => {
-  try {
     const { id } = request.params;
     const userId = request.user._id;
     const post = await Post.findById(id);
@@ -119,15 +97,10 @@ export const likePost = asyncHandler(async (request, response) => {
     post.likes.push(userId);
     await post.save();
     return response.status(200).json({ message: "Post liked", likes: post.likes, likeCount: post.likes.length });
-  } catch (error) {
-    logger.error(error);
-    return response.status(500).json({ error: "Internal server error" });
-  }
 });
 
 // Unlike post
 export const unlikePost = asyncHandler(async (request, response) => {
-  try {
     const { id } = request.params;
     const userId = request.user._id;
     const post = await Post.findById(id);
@@ -143,15 +116,10 @@ export const unlikePost = asyncHandler(async (request, response) => {
     await post.save();
 
     return response.status(200).json({ message: "Post unliked", likes: post.likes, likeCount: post.likes.length });
-  } catch (error) {
-    logger.error(error);
-    return response.status(500).json({ error: "Internal server error" });
-  }
 });
 
 //unlike post
 export const getPostComments = asyncHandler(async (req, res, next) => {
-  try {
     const postId = req.params.id;
     const post = await Post.findById(postId).populate('comments'); // Ensure the comments are populated
 
@@ -160,17 +128,12 @@ export const getPostComments = asyncHandler(async (req, res, next) => {
     }
 
     return res.status(200).json({ post });
-  } catch (error) {
-    logger.error("Error fetching post with comments:", error);
-    return res.status(500).json({ error: "Internal Server Error" });
-  }
 });
 
 // Share a post
 export const sharePost = asyncHandler(async (req, res) => {
   // Logic to share a post
 
-  try {
     const userId = req.user._id;
     const postId = req.params.id;
 
@@ -197,14 +160,10 @@ export const sharePost = asyncHandler(async (req, res) => {
     await post.save();
 
     res.status(201).json({ message: 'Post shared successfully', sharedPost });
-  } catch (error) {
-    res.status(500).json({ message: ' internal Server error' });
-  }
 });
 
 // get all post excluding current user
 export const getAllPosts = asyncHandler(async (req, res) => {
-  try {
     const excludedId = req.params.id;
     const posts = await Post.find({ userId: { $ne: excludedId } })
       .populate('userId', 'username profile_picture')
@@ -227,18 +186,10 @@ export const getAllPosts = asyncHandler(async (req, res) => {
     return res.status(200).json({
       posts,
     });
-
-  } catch (error) {
-    logger.error(error);
-    return res.status(500).json({
-      message: "Server error, could not retrieve posts",
-    });
-  }
 });
 
 // get post of all the community members with pagination
 export const getCommunityPosts = asyncHandler(async (req, res, next) => {
-  try {
     const userId = req.params.id;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 5;
@@ -271,15 +222,10 @@ export const getCommunityPosts = asyncHandler(async (req, res, next) => {
       .limit(limit);
 
     res.status(200).json({ posts, hasMore });
-  } catch (err) {
-    logger.error(err);
-    res.status(500).json({ error: "Internal server error" });
-  }
 });
 
 // get user posts
 export const getUserPosts = asyncHandler(async (req, res, next) => {
-  try{
     const userId = req.params.id;
     const posts = await Post.find({ userId: userId })
       .populate('userId', 'username profile_picture')
@@ -292,7 +238,4 @@ export const getUserPosts = asyncHandler(async (req, res, next) => {
         }
       });
     res.status(200).json({posts});
-  }catch(err){
-    res.status(500).json({err});
-  }
 });

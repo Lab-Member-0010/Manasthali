@@ -81,4 +81,6 @@ const userSchema = new mongoose.Schema(
   }
 );
 
+userSchema.index({ personality_type: 1 });
+
 export const User = mongoose.model("User", userSchema);

@@ -3,44 +3,32 @@ import asyncHandler from "../middleware/asyncHandler.js";
 import logger from "../middleware/logger.js";
 
 export const sendNotification = asyncHandler(async (req, res, next) => {
-  try {
-    const { receiver_id, notification_type, sender_id } = req.body;
-    const notification = new Notification({
-      receiver_id, notification_type, sender_id,
-    });
-    await notification.save();
-    res.status(201).json(notification);
-  } catch (error) {
-    res.status(500).send('Error creating notification');
-  }
+  const { receiver_id, notification_type, sender_id } = req.body;
+  const notification = new Notification({
+    receiver_id, notification_type, sender_id,
+  });
+  await notification.save();
+  res.status(201).json(notification);
 })
 
 export const getUserNotifications = asyncHandler(async (req, res) => {
-  try {
-    const { userId } = req.params;
-    if (!userId) {
-      return res.status(400).json({ message: "User ID is required" });
-    }
-    const notifications = await Notification.find({ receiver_id: userId })
-      .populate('sender_id', 'username profile_picture')
-      .sort({ createdAt: -1 });
-    res.status(200).json(notifications);
-  } catch (error) {
-    res.status(500).send("Error fetching notifications");
+  const { userId } = req.params;
+  if (!userId) {
+    return res.status(400).json({ message: "User ID is required" });
   }
+  const notifications = await Notification.find({ receiver_id: userId })
+    .populate('sender_id', 'username profile_picture')
+    .sort({ createdAt: -1 });
+  res.status(200).json(notifications);
 });
 
 export const markNotificationAsRead = asyncHandler(async (req, res) => {
-  try {
-    const { id } = req.params;
-    const notification = await Notification.findById(id);
-    if (!notification) {
-      return res.status(400).json({ message: "notification not found" });
-    }
-    notification.read_status = true;
-    await notification.save();
-    res.status(200).json({ message: 'Notification marked as read', notification });
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching notifications', error });
+  const { id } = req.params;
+  const notification = await Notification.findById(id);
+  if (!notification) {
+    return res.status(400).json({ message: "notification not found" });
   }
+  notification.read_status = true;
+  await notification.save();
+  res.status(200).json({ message: 'Notification marked as read', notification });
 });

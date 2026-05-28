@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from "react";
 import { Routes, Route } from "react-router-dom";
 import Auth from "./components/Authorization/Auth";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const Home = lazy(() => import("./components/Home/Home"));
 const SignUp = lazy(() => import("./components/Authentication/Signup"));
@@ -19,8 +20,9 @@ const AdminLogin = lazy(() => import("./components/Admin/AdminLogin"));
 
 const App = () => {
   return (
-    <Suspense fallback={<div className="flex justify-center items-center h-screen text-purple-600 text-xl">Loading...</div>}>
-      <Routes>
+    <ErrorBoundary>
+      <Suspense fallback={<div className="flex justify-center items-center h-screen text-purple-600 text-xl">Loading...</div>}>
+        <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/admin" element={<Admin/>}/>
         <Route path="/admin-login" element={<AdminLogin/>}/>
@@ -35,8 +37,9 @@ const App = () => {
         <Route path="/settings" element={<Auth><ProfileSetting /></Auth>} />
         <Route path="/notifications" element={<Auth><Notification /></Auth>} />
         <Route path="/personality" element={<Auth><Personality/></Auth>}/>
-      </Routes>
-    </Suspense>
+        </Routes>
+      </Suspense>
+    </ErrorBoundary>
   );
 };
 export default App; 

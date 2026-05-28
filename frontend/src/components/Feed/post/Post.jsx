@@ -54,6 +54,7 @@ const Post = ({ onPostCreated }) => {
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Write a description..."
             className="w-full px-3 py-2 border border-gray-300 rounded-md mb-3"
+            aria-label="Post description"
           />
         </div>
         <div>                   
@@ -62,6 +63,7 @@ const Post = ({ onPostCreated }) => {
             multiple
             onChange={(e) => setMedia(e.target.files)}
             className="w-full mb-3"
+            aria-label="Upload media files"
           />
         </div>
         <div>

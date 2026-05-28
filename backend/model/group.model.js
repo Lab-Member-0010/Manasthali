@@ -30,6 +30,8 @@ const groupMessageSchema = new mongoose.Schema(
   }
 );
 
+groupMessageSchema.index({ group: 1, createdAt: -1 });
+
 const groupSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
   description: String,
@@ -40,6 +42,9 @@ const groupSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
+groupSchema.index({ communityId: 1 });
+groupSchema.index({ members: 1 });
 
 export const Group = mongoose.model('Group', groupSchema);
 export default mongoose.model('GroupMessage', groupMessageSchema);

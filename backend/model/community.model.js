@@ -12,4 +12,6 @@ const communitySchema = new mongoose.Schema({
     timestamps: true
 });
 
+communitySchema.index({ personality_type: 1 });
+
 export default mongoose.model('Community', communitySchema);

@@ -11,7 +11,6 @@ dotenv.config();
 
 // Sign-up
 export const SignUp = asyncHandler(async (request, response, next) => {
-  try {
     // Validate request data
     const errors = validationResult(request);
     if (!errors.isEmpty()) {
@@ -61,16 +60,10 @@ export const SignUp = asyncHandler(async (request, response, next) => {
       message: "Sign up successful. OTP sent to your email.",
       user: { id: user.id, email: user.email, username: user.username },
     });
-
-  } catch (err) {
-    logger.error("Unexpected error during SignUp process:", err);
-    return response.status(500).json({ error: "Internal Server Error" });
-  }
 });
 
 // Verify OTP
 export const verifyOtp = asyncHandler(async (req, res) => {
-  try {
     const { email, otp } = req.body;
 
     const user = await User.findOne({ email, otp });
@@ -88,15 +81,10 @@ export const verifyOtp = asyncHandler(async (req, res) => {
     user.otpExpiresAt = null;
     await user.save();
     res.status(200).json({ message: "OTP verified successfully. Your account is now active." });
-  } catch (err) {
-    logger.error(err);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
 });
 
 // Forgot Password
 export const forgotPassword = asyncHandler(async (req, res) => {
-  try {
     const { email } = req.body;
 
     const user = await User.findOne({ email });
@@ -229,15 +217,10 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     });
 
     res.status(200).json({ message: "If this email exists, a reset link has been sent." });
-  } catch (err) {
-    logger.error("Error in forgotPassword:", err);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
 });
 
 // Reset Password
 export const resetPassword = asyncHandler(async (req, res) => {
-  try {
     const { token, newPassword: password } = req.body;
     const user = await User.findOne({
       resetToken: token,
@@ -257,15 +240,10 @@ export const resetPassword = asyncHandler(async (req, res) => {
     await user.save();
 
     res.status(200).json({ message: "Password reset successfully" });
-  } catch (err) {
-    logger.error("Error in resetPassword:", err);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
 });
 
 // Sign-in
 export const SignIn = asyncHandler(async (request, response, next) => {
-  try {
     const { email, password } = request.body;
     const user = await User.findOne({ email });
     if (user) {
@@ -288,10 +266,6 @@ export const SignIn = asyncHandler(async (request, response, next) => {
     } else {
       return response.status(401).json({ error: "Invalid email ID" });
     }
-  } catch (err) {
-    logger.error("Error in SignIn:", err);
-    return response.status(500).json({ error: "Internal Server Error" });
-  }
 });
 
 // generate json webtoken
@@ -303,22 +277,16 @@ const generateToken = (userId) => {
 
 // get user details
 export const getUserById = asyncHandler(async (req, res) => {
-  try {
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
     return res.status(200).json({ user });
-  } catch (err) {
-    logger.error(err);
-    return res.status(500).json({ error: "Internal Server Error" });
-  }
 });
 
 // update user details
 export const updateUserById = asyncHandler(async (req, res) => {
-  try {
     const { id } = req.params;
     // multer-s3 stores the public S3 URL in req.file.location
     const profile_picture = req.file ? req.file.location : null;
@@ -338,16 +306,10 @@ export const updateUserById = asyncHandler(async (req, res) => {
       message: "User updated successfully",
       user: updatedUser,
     });
-  } catch (err) {
-    logger.error(err);
-    return res.status(500).json({ error: "Internal Server Error" });
-  }
-
 });
 
 // contact update
 export const contactUpdateById = asyncHandler(async (req, res, next) => {
-  try {
     const { id } = req.params;
     const { contact } = req.body;
 
@@ -370,15 +332,10 @@ export const contactUpdateById = asyncHandler(async (req, res, next) => {
       message: "Contact updated successfully",
       user: updatedUser,
     });
-  } catch (error) {
-    logger.error(error);
-    res.status(500).json({ error: "Internal server error" });
-  }
 });
 
 // dob update
 export const DobUpdateById = asyncHandler(async (req, res, next) => {
-  try {
     const { id } = req.params;
     const { dob } = req.body;
 
@@ -401,15 +358,10 @@ export const DobUpdateById = asyncHandler(async (req, res, next) => {
       message: "Date of Birth updated successfully",
       user: updatedUser,
     });
-  } catch (error) {
-    logger.error(error);
-    res.status(500).json({ error: "Internal server error" });
-  }
 });
 
 // gender update
 export const genderUpdate = asyncHandler(async (req, res, next) => {
-  try {
     const { id } = req.params;
     const { gender } = req.body;
 
@@ -432,15 +384,10 @@ export const genderUpdate = asyncHandler(async (req, res, next) => {
       message: "Gender updated successfully",
       user: updatedUser,
     });
-  } catch (error) {
-    logger.error(error);
-    res.status(500).json({ error: "Internal server error" });
-  }
 });
 
 // delete user
 export const deleteUserById = asyncHandler(async (req, res) => {
-  try {
     const deletedUser = await User.findOneAndDelete({ _id: req.params.id });
 
     if (!deletedUser) {
@@ -448,14 +395,9 @@ export const deleteUserById = asyncHandler(async (req, res) => {
     }
 
     return res.status(200).json({ message: "User deleted successfully" });
-  } catch (err) {
-    logger.error(err);
-    return res.status(500).json({ error: "Internal Server Error" });
-  }
 });
 
 export const getUserFollowers = asyncHandler(async (req, res) => {
-  try {
     const user = await User.findById(req.params.id).populate("followers", "username profile_picture");
 
     if (!user) {
@@ -463,15 +405,10 @@ export const getUserFollowers = asyncHandler(async (req, res) => {
     }
 
     return res.status(200).json({ followers: user.followers || [] });
-  } catch (err) {
-    logger.error("Error fetching followers:", err);
-    return res.status(500).json({ error: "Internal Server Error" });
-  }
 });
 
 // Fetch following users with username and profile picture
 export const getUserFollowing = asyncHandler(async (req, res) => {
-  try {
     const user = await User.findById(req.params.id).populate(
       "following",
       "username profile_picture"
@@ -482,15 +419,10 @@ export const getUserFollowing = asyncHandler(async (req, res) => {
     }
 
     return res.status(200).json({ following: user.following || [] });
-  } catch (err) {
-    logger.error("Error fetching following users:", err);
-    return res.status(500).json({ error: "Internal Server Error" });
-  }
 });
 
 // folllow user
 export const followUser = asyncHandler(async (req, res) => {
-  try {
     // Take the acting user from the auth middleware, never trust the body
     const userId = req.user?._id?.toString();
     const { userIdToFollow } = req.body;
@@ -523,15 +455,10 @@ export const followUser = asyncHandler(async (req, res) => {
     await targetUser.save();
 
     res.status(200).json({ message: "Followed successfully" });
-  } catch (error) {
-    logger.error(error);
-    res.status(500).json({ message: "Server error" });
-  }
 });
 
 // unfollow user
 export const unfollowUser = asyncHandler(async (req, res) => {
-  try {
     // Take the acting user from the auth middleware, never trust the body
     const userId = req.user?._id?.toString();
     const { userIdToUnfollow } = req.body;
@@ -564,16 +491,10 @@ export const unfollowUser = asyncHandler(async (req, res) => {
     await targetUser.save();
 
     return res.status(200).json({ message: "Unfollowed successfully" });
-
-  } catch (err) {
-    logger.error("Error unfollowing user:", err);
-    return res.status(500).json({ error: "Internal Server Error" });
-  }
 });
 
 // Get all users except you
 export const getAllUsersExceptOne = asyncHandler(async (req, res) => {
-  try {
     const excludedId = req.params.id; // Assuming you pass the ID of the user to exclude
     const users = await User.find({ _id: { $ne: excludedId } });
 
@@ -586,17 +507,10 @@ export const getAllUsersExceptOne = asyncHandler(async (req, res) => {
     return res.status(200).json({
       users,
     });
-  } catch (error) {
-    logger.error(error);
-    return res.status(500).json({
-      message: "Server error, could not retrieve users",
-    });
-  }
 });
 
 // update bio
 export const bioUpdateById = asyncHandler(async (req, res) => {
-  try {
     const { id } = req.params; // Extract user ID from params
     const { bio } = req.body;  // Extract bio from request body
 
@@ -623,18 +537,12 @@ export const bioUpdateById = asyncHandler(async (req, res) => {
       message: "Bio updated successfully",
       user: updatedUser,
     });
-
-  } catch (error) {
-    logger.error(error);
-    return res.status(500).json({ error: "Internal server error" });
-  }
 });
 
 //get dm list
 export const getDMList = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  try {
     const user = await User.findById(id)
       .populate('followers following', 'username profile_picture');
 
@@ -659,47 +567,32 @@ export const getDMList = asyncHandler(async (req, res) => {
 
     // Send the DM list to the client
     res.json(dmList);
-  } catch (error) {
-    logger.error('Error fetching DM list:', error);
-    res.status(500).json({ error: 'Internal Server error' });
-  }
 });
 
 // check email
 export const checkEmail = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
-  try {
     const user = await User.findOne({ email });
     if (user) {
       return res.status(409).json({ available: false, message: "Email already exists." });
     }
     return res.status(200).json({ available: true });
-  } catch (error) {
-    logger.error("Error checking email:", error);
-    return res.status(500).json({ error: "Internal server error." });
-  }
 });
 
 // check username
 export const checkUsername = asyncHandler(async (req, res) => {
   const { username } = req.body;
 
-  try {
     const user = await User.findOne({ username });
     if (user) {
       return res.status(409).json({ available: false, message: "Username already exists." });
     }
     return res.status(200).json({ available: true });
-  } catch (error) {
-    logger.error("Error checking username:", error);
-    return res.status(500).json({ error: "Internal server error." });
-  }
 });
 
 // get community users
 export const getCommunityUsers = asyncHandler(async (req,res,next) => {
-  try {
     const userId = req.params.id;
     const user=await User.findOne({_id:userId});
     const users = await User.find({personality_type:user.personality_type});
@@ -710,7 +603,4 @@ export const getCommunityUsers = asyncHandler(async (req,res,next) => {
     }
 
     return res.status(200).json({users});
-  } catch (error) {
-    return res.status(500).json({error});
-  }
 });

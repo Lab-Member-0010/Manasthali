@@ -4,43 +4,38 @@ import asyncHandler from "../middleware/asyncHandler.js";
 import logger from "../middleware/logger.js";
 
 export const submitQuiz = asyncHandler(async (req, res) => {
-  try {
-    if (!req.user || !req.user._id) {
-      return res.status(400).json({ error: 'User not authenticated' });
-    }
-
-    const { answers } = req.body;
-    const userId = req.user._id;
-
-    const scores = calculateScores(answers);
-
-    const personalityType = getPersonalityType(scores);
-
-    const quiz = new Quiz({
-      userId,
-      answers,
-      scores,
-      personality_type: personalityType,
-    });
-
-    await quiz.save();
-
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    user.personality_type = personalityType;
-    await user.save();
-
-    return res.status(200).json({
-      message: 'Quiz submitted successfully and personality type set!',
-      personality_type: personalityType,
-    });
-  } catch (error) {
-    logger.error("Error in submitQuiz:", error);
-    return res.status(500).json({ error: 'Internal Server Error' });
+  if (!req.user || !req.user._id) {
+    return res.status(400).json({ error: 'User not authenticated' });
   }
+
+  const { answers } = req.body;
+  const userId = req.user._id;
+
+  const scores = calculateScores(answers);
+
+  const personalityType = getPersonalityType(scores);
+
+  const quiz = new Quiz({
+    userId,
+    answers,
+    scores,
+    personality_type: personalityType,
+  });
+
+  await quiz.save();
+
+  const user = await User.findById(userId);
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+
+  user.personality_type = personalityType;
+  await user.save();
+
+  return res.status(200).json({
+    message: 'Quiz submitted successfully and personality type set!',
+    personality_type: personalityType,
+  });
 });
 
 const calculateScores = (answers) => {

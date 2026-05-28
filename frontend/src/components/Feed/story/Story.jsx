@@ -93,12 +93,16 @@ const Story = () => {
     <div>
      
       <div
+        role="button"
+        tabIndex={0}
+        aria-label={story ? "View your story" : "Add a story"}
         className={`w-[60px] h-[60px] rounded-full bg-[#3498db] flex items-center justify-center overflow-hidden ${story ? "border-2 border-red-500" : ""}`}
         onClick={handleProfileClick}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleProfileClick(); }}
       >
         <img
           src={user?.profile_picture ? user.profile_picture : defaultProfile}
-          alt="Profile"
+          alt={user?.username ? `${user.username}'s profile` : "Profile"}
           className="w-full h-full object-cover rounded-full"
         />
       </div>
@@ -115,9 +119,10 @@ const Story = () => {
      
       {showStory && story && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[999]">
-          <img src={getMediaUrl(story.media)} alt="Story" className="max-w-[90%] max-h-[90%]" onClick={() => setShowStory(false)} />
+          <img src={getMediaUrl(story.media)} alt="Your story" className="max-w-[90%] max-h-[90%]" onClick={() => setShowStory(false)} />
           <button
             onClick={handleDeleteStory}
+            aria-label="Delete story"
             className="fixed top-5 right-20 bg-red-500/80 text-white border-none rounded p-2 cursor-pointer z-50"
           >
             Delete

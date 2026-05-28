@@ -99,19 +99,20 @@ const Group = ({ onChatSelect }) => {
     <div className="max-w-4xl w-full mx-auto my-8 p-6 bg-gray-50 rounded-2xl shadow-lg text-center px-4">
       <h2>{personalityType} Community - Find Groups</h2>
       <div className="mb-5">
-        <input
-          type="text"
-          placeholder="Search by group name"
-          value={searchTerm}
-           onChange={handleSearchChange}
-           className="w-full px-4 py-2 text-base border border-gray-300 rounded-md mb-4"
-        />
+          <input
+            type="text"
+            placeholder="Search by group name"
+            value={searchTerm}
+             onChange={handleSearchChange}
+             className="w-full px-4 py-2 text-base border border-gray-300 rounded-md mb-4"
+             aria-label="Search groups"
+          />
       </div>
       {filteredGroups.length === 0 ? (
         <p>No groups found</p>
       ) : (
         <div className="overflow-x-auto">
-        <table className="w-full border-collapse mt-4 bg-white rounded-lg overflow-hidden shadow">
+        <table className="w-full border-collapse mt-4 bg-white rounded-lg overflow-hidden shadow" role="table" aria-label="Available groups">
           <thead className="bg-purple-400 text-white">
             <tr>
               <th>Group Name</th>
@@ -125,24 +126,26 @@ const Group = ({ onChatSelect }) => {
               <tr key={group._id}>
                 <td>{group.name}</td>
                 <td>{group.description}</td>
-                <td>
-                  <button
-                    onClick={() => handleJoinLeaveToggle(group._id, group.isJoined)}
-                    className="px-5 py-2 rounded-full bg-purple-400 text-white font-medium hover:bg-purple-500 transition-colors w-28"
-                  >
-                    {group.isJoined ? 'Leave Group' : 'Join Group'}
-                  </button>
-                </td>
-                <td>
-                  {group.isJoined && (
+                  <td>
                     <button
-                      onClick={() => onChatSelect && onChatSelect(group)}
-                      className="px-5 py-2 rounded-full bg-blue-500 text-white font-medium hover:bg-blue-600 transition-colors w-28"
+                      onClick={() => handleJoinLeaveToggle(group._id, group.isJoined)}
+                      aria-label={group.isJoined ? `Leave ${group.name}` : `Join ${group.name}`}
+                      className="px-5 py-2 rounded-full bg-purple-400 text-white font-medium hover:bg-purple-500 transition-colors w-28"
                     >
-                      Chat
+                      {group.isJoined ? 'Leave Group' : 'Join Group'}
                     </button>
-                  )}
-                </td>
+                  </td>
+                  <td>
+                    {group.isJoined && (
+                      <button
+                        onClick={() => onChatSelect && onChatSelect(group)}
+                        aria-label={`Chat in ${group.name}`}
+                        className="px-5 py-2 rounded-full bg-blue-500 text-white font-medium hover:bg-blue-600 transition-colors w-28"
+                      >
+                        Chat
+                      </button>
+                    )}
+                  </td>
               </tr>
             ))}
           </tbody>

@@ -5,67 +5,55 @@ import logger from "../middleware/logger.js";
 export const sendGroupMessage = asyncHandler(async (req, res) => {
   const { groupId, message } = req.body;
 
-  try {
-    const group = await Group.findById(groupId);
-    if (!group) {
-      return res.status(404).json({ message: "Group not found" });
-    }
-
-    if (!group.members.some(id => id.toString() === req.user._id.toString())) {
-      return res.status(403).json({ message: "You are not a member of this group" });
-    }
-
-    const newMessage = await GroupMessage.create({
-      sender: req.user._id,
-      group: groupId,
-      message,
-    });
-    res.status(201).json({ message: 'Message sent', data: newMessage });
-  } catch (error) {
-    res.status(500).json({ error: "Couldn't send message" });
+  const group = await Group.findById(groupId);
+  if (!group) {
+    return res.status(404).json({ message: "Group not found" });
   }
+
+  if (!group.members.some(id => id.toString() === req.user._id.toString())) {
+    return res.status(403).json({ message: "You are not a member of this group" });
+  }
+
+  const newMessage = await GroupMessage.create({
+    sender: req.user._id,
+    group: groupId,
+    message,
+  });
+  res.status(201).json({ message: 'Message sent', data: newMessage });
 });
 
 export const getGroupMessages = asyncHandler(async (req, res) => {
   const { groupId } = req.params;
 
-  try {
-    const group = await Group.findById(groupId);
-    if (!group) {
-      return res.status(404).json({ message: "Group not found" });
-    }
-
-    if (!group.members.some(id => id.toString() === req.user._id.toString())) {
-      return res.status(403).json({ message: "You are not a member of this group" });
-    }
-
-    const messages = await GroupMessage.find({ group: groupId })
-      .populate('sender', 'username profile_picture')
-      .sort({ createdAt: 1 });
-
-    res.status(200).json({ data: messages });
-  } catch (error) {
-    res.status(500).json({ error: "Couldn't fetch messages" });
+  const group = await Group.findById(groupId);
+  if (!group) {
+    return res.status(404).json({ message: "Group not found" });
   }
+
+  if (!group.members.some(id => id.toString() === req.user._id.toString())) {
+    return res.status(403).json({ message: "You are not a member of this group" });
+  }
+
+  const messages = await GroupMessage.find({ group: groupId })
+    .populate('sender', 'username profile_picture')
+    .sort({ createdAt: 1 });
+
+  res.status(200).json({ data: messages });
 });
 
 export const markGroupMessageAsRead = asyncHandler(async (req, res) => {
   const { messageId } = req.body;
 
-  try {
-    const message = await GroupMessage.findById(messageId);
-    if (!message) {
-      return res.status(404).json({ error: 'Message not found' });
-    }
-
-    if (message.readBy.some(id => id.toString() === req.user._id.toString())) {
-      return res.status(400).json({ message: "You have already marked this message as read." });
-    }
-
-    message.readBy.push(req.user._id);
-    await message.save();
-    res.status(200).json({ message: 'Message marked as read' });
-  } catch (error) {
-    res.status(500).json({ error: "Couldn't mark message as read" });
+  const message = await GroupMessage.findById(messageId);
+  if (!message) {
+    return res.status(404).json({ error: 'Message not found' });
   }
+
+  if (message.readBy.some(id => id.toString() === req.user._id.toString())) {
+    return res.status(400).json({ message: "You have already marked this message as read." });
+  }
+
+  message.readBy.push(req.user._id);
+  await message.save();
+  res.status(200).json({ message: 'Message marked as read' });
 });
