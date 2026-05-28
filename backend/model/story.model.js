@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const storySchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  media: [{ type: String, required: true, }],
+  media: { type: String, required: true, },
   caption: String,
   views: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],

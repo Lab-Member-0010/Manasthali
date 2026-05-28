@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
@@ -15,31 +15,68 @@ Modal.setAppElement('#root');
 
 const FeedHome = ({ refreshKey }) => {
   const [posts, setPosts] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   // Per-post comment state, keyed by post ID — prevents one input controlling every post
   const [comments, setComments] = useState({});
   const [activeCommentPost, setActiveCommentPost] = useState(null);
   const [activeEmojiPicker, setActiveEmojiPicker] = useState(null);
+  const sentinelRef = useRef(null);
 
   const userId = useSelector((state) => state?.user?.user?._id);
   const token = useSelector((state) => state?.user?.token);
 
-  const fetchPosts = () => {
-    if (userId && token) {
-      axios
-        .get(`${Api.GET_COMMUNITY_POST}/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((response) => {
-          const fetchedPosts = response.data.posts || [];
-          setPosts(fetchedPosts);
-        })
-        .catch((error) => toast.error(error.response?.data?.message || "Error fetching posts"));
+  const fetchPosts = async (pageNum, append = false) => {
+    if (!userId || !token) return;
+    setLoading(true);
+    try {
+      const response = await axios.get(`${Api.GET_COMMUNITY_POST}/${userId}?page=${pageNum}&limit=5`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const fetchedPosts = response.data.posts || [];
+      setHasMore(response.data.hasMore !== false);
+      if (append) {
+        setPosts((prev) => [...prev, ...fetchedPosts]);
+      } else {
+        setPosts(fetchedPosts);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error fetching posts");
+    } finally {
+      setLoading(false);
+      setInitialLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchPosts();
+    setPage(1);
+    setHasMore(true);
+    setPosts([]);
+    setInitialLoading(true);
+    fetchPosts(1, false);
   }, [userId, token, refreshKey]);
+
+  useEffect(() => {
+    if (page > 1) {
+      fetchPosts(page, true);
+    }
+  }, [page]);
+
+  useEffect(() => {
+    if (!sentinelRef.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loading) {
+          setPage((prev) => prev + 1);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [hasMore, loading]);
 
   // Safe check whether userId is in the likes array (handles ObjectIds and populated user objects)
   const isLikedByUser = (likes) => {
@@ -196,6 +233,14 @@ const FeedHome = ({ refreshKey }) => {
     setActiveEmojiPicker(activeEmojiPicker === postId ? null : postId);
   };
 
+  if (initialLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-purple-600 text-xl">Loading posts...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex justify-center">
       <ToastContainer />
@@ -254,6 +299,19 @@ const FeedHome = ({ refreshKey }) => {
           </div>
         ))}
       </div>
+
+      {/* Sentinel for infinite scroll */}
+      <div ref={sentinelRef} className="w-full h-10" />
+      {loading && (
+        <div className="w-full text-center py-4 text-purple-600">
+          Loading more posts...
+        </div>
+      )}
+      {!hasMore && posts.length > 0 && (
+        <div className="w-full text-center py-4 text-gray-500">
+          You've reached the end of the feed.
+        </div>
+      )}
 
       {/* Modal for Commenting — now renders comments list */}
 

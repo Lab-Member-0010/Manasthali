@@ -6,7 +6,7 @@ import { debounce } from 'lodash';
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
-const Group = () => {
+const Group = ({ onChatSelect }) => {
   const [groups, setGroups] = useState([]);
   const [filteredGroups, setFilteredGroups] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -116,6 +116,7 @@ const Group = () => {
               <th>Group Name</th>
               <th>Description</th>
               <th>Action</th>
+              <th>Chat</th>
             </tr>
           </thead>
           <tbody >
@@ -130,6 +131,16 @@ const Group = () => {
                   >
                     {group.isJoined ? 'Leave Group' : 'Join Group'}
                   </button>
+                </td>
+                <td>
+                  {group.isJoined && (
+                    <button
+                      onClick={() => onChatSelect && onChatSelect(group)}
+                      className="px-5 py-2 rounded-full bg-blue-500 text-white font-medium hover:bg-blue-600 transition-colors w-28"
+                    >
+                      Chat
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}

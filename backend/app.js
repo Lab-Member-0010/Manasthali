@@ -5,6 +5,7 @@ import { Server } from 'socket.io';
 import bodyParser from "body-parser";
 import cors from "cors";
 import dotenv from 'dotenv';
+import rateLimit from 'express-rate-limit';
 
 import adminRouter from "./routes/Admin.route.js";
 import badgeRouter from "./routes/badge.route.js";
@@ -40,6 +41,34 @@ app.use('/uploads', express.static('uploads'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// ─── Rate Limiting ─────────────────────────────────────────────────────────────
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: { error: "Too many requests, please try again later." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: { error: "Too many requests, please try again later." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use('/users/register', authLimiter);
+app.use('/users/login', authLimiter);
+app.use('/users/forgot-password', authLimiter);
+app.use('/users/reset-password', authLimiter);
+app.use('/users/verify-otp', authLimiter);
+app.use('/posts', apiLimiter);
+app.use('/comments', apiLimiter);
+app.use('/story', apiLimiter);
+app.use('/message', apiLimiter);
+app.use('/groupchat', apiLimiter);
+
 // ─── Routes ──────────────────────────────────────────────────────────────────
 app.use("/admin", adminRouter);
 app.use("/comments", commentRouter);
@@ -56,6 +85,16 @@ app.use("/badges", badgeRouter);
 app.use("/users", userRouter);
 app.use("/challenge", challengesRoute);
 app.use("/auth", googleAuthRouter);
+
+// ─── Centralized Error Handler ────────────────────────────────────────────────
+app.use((err, req, res, next) => {
+  console.error("Unhandled error:", err);
+  const status = err.status || 500;
+  res.status(status).json({
+    error: err.message || "Internal Server Error",
+    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+  });
+});
 
 // ─── Socket.IO ───────────────────────────────────────────────────────────────
 io.on('connection', (socket) => {

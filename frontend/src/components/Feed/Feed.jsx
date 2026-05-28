@@ -44,10 +44,15 @@ const Feed = () => {
   const [profileData, setProfileData] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [feedRefreshKey, setFeedRefreshKey] = useState(0);
+  const [selectedChatGroup, setSelectedChatGroup] = useState(null);
 
   const handlePostCreated = () => {
     setFeedRefreshKey((k) => k + 1);
     setActiveComponent("home");
+  };
+  const handleChatSelect = (group) => {
+    setSelectedChatGroup(group);
+    setActiveComponent("group-chat");
   };
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -80,11 +85,11 @@ const Feed = () => {
       case "home":
         return <FeedHome refreshKey={feedRefreshKey} />;
       case "groups":
-        return <Group />;
+        return <Group onChatSelect={handleChatSelect} />;
       case "chat":
         return <Chat />;
       case "group-chat":
-        return <GroupChat />;
+        return <GroupChat preselectedGroup={selectedChatGroup} onBackToGroups={() => { setSelectedChatGroup(null); setActiveComponent("groups"); }} />;
       case "notifications":
         return <Notification />;
       case "find-friends":

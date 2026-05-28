@@ -40,12 +40,15 @@ const Groups = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { personality_type, name, description } = formData;
+    const adminToken = localStorage.getItem("adminToken");
 
     try {
       const response = await axios.post(Api.CREATE_GROUP, {
         personality_type,
         name,
         description
+      }, {
+        headers: { Authorization: `Bearer ${adminToken}` },
       });
 
       if (response.status === 201) {

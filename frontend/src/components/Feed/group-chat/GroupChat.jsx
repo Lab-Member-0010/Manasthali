@@ -7,7 +7,7 @@ import EmojiEmotionsOutlinedIcon from '@mui/icons-material/EmojiEmotionsOutlined
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
-const GroupChat = () => {
+const GroupChat = ({ preselectedGroup, onBackToGroups }) => {
   const [groupList, setGroupList] = useState([]);
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
@@ -27,7 +27,13 @@ const GroupChat = () => {
         const response = await axios.get(`${BASE_URL}/groups/view/joinedList`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setGroupList(response.data);
+        const groups = response.data;
+        setGroupList(groups);
+        // Auto-select preselected group if provided
+        if (preselectedGroup) {
+          const match = groups.find((g) => g._id === preselectedGroup._id);
+          if (match) setSelectedGroup(match);
+        }
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to fetch groups');
       } finally {
@@ -35,7 +41,7 @@ const GroupChat = () => {
       }
     };
     if (token) fetchGroupList();
-  }, [token]);
+  }, [token, preselectedGroup]);
 
   // ── Socket.IO connection + group room join ────────────────────────────────
   useEffect(() => {
@@ -141,6 +147,14 @@ const GroupChat = () => {
         <div className="flex flex-col h-full">
           <div className="bg-white p-2.5 sticky top-0 z-10 text-2xl text-center text-purple-800">
             <h2>Groups</h2>
+            {onBackToGroups && (
+              <button
+                onClick={onBackToGroups}
+                className="text-sm text-blue-600 underline bg-transparent border-none cursor-pointer mt-1"
+              >
+                Back to Groups
+              </button>
+            )}
           </div>
           <div className="max-h-[520px] overflow-y-auto flex-1 p-2.5">
             {groupList.length === 0 ? (

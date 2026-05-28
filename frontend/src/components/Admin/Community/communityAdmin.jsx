@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Api from '../../../apis/Api';
 import { toast, ToastContainer } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 import INFJ from "@assets/community/infj.png";
 import ISFJ from "@assets/community/isfj.png";
@@ -22,6 +23,7 @@ import ESTP from "@assets/community/estp.png";
 
 const CommunityAdmin = () => {
   const [personalityData, setPersonalityData] = useState([]);
+  const navigate = useNavigate();
 
   const personalityImages = {
     INFJ,
@@ -44,15 +46,22 @@ const CommunityAdmin = () => {
 
   useEffect(() => {
     const fetchPersonalityData = async () => {
+      const adminToken = localStorage.getItem("adminToken");
+      if (!adminToken) {
+        navigate("/admin-login");
+        return;
+      }
       try {
-        const response = await axios.get(Api.COMMUNITY_GET_URL);
+        const response = await axios.get(Api.COMMUNITY_GET_URL, {
+          headers: { Authorization: `Bearer ${adminToken}` },
+        });
         setPersonalityData(Array.isArray(response.data.data) ? response.data.data : []);
       } catch (err) {
         toast.error("No Community found!");
       }
     };
     fetchPersonalityData();
-  }, []);
+  }, [navigate]);
 
   return (
     <div className="mb-20 p-5">

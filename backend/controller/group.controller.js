@@ -1,4 +1,4 @@
-import GroupMessage, { Group } from '../model/group.model.js';
+import { Group } from '../model/group.model.js';
 import Community from '../model/community.model.js';
 import { User } from '../model/user.model.js';
 // create group
@@ -35,7 +35,7 @@ export const getGroupDetails = async (req, res) => {
   try {
     const group = await Group.findById(id)
       .populate('communityId')
-      .populate('members', 'name email'); // Populate member details
+      .populate('members', 'username email');
 
     if (!group) {
       return res.status(404).json({ message: 'Group not found' });
@@ -154,7 +154,7 @@ export const leaveGroup = async (req, res) => {
 export const getGroupMembers = async (req, res) => {
   try {
     const { id } = req.params;
-    const group = await Group.findById(id).populate('members', 'name email');
+    const group = await Group.findById(id).populate('members', 'username email');
     if (!group) {
       return res.status(404).json({ message: 'Group not found' });
     }

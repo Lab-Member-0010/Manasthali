@@ -211,7 +211,7 @@ export const getAllPosts = async (req, res) => {
         path: 'comments',
         populate: {
           path: 'userId',
-          select: 'username profilePicture',
+          select: 'username profile_picture',
         }
       })
       .sort({ createdAt: -1 });
@@ -234,18 +234,26 @@ export const getAllPosts = async (req, res) => {
   }
 };
 
-// get post of all the community members
+// get post of all the community members with pagination
 export const getCommunityPosts = async (req, res, next) => {
   try {
     const userId = req.params.id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const skip = (page - 1) * limit;
+
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(200).json({ posts: [] });
+      return res.status(200).json({ posts: [], hasMore: false });
     }
     const community = await Community.findOne({ personality_type: user.personality_type });
     if (!community) {
-      return res.status(200).json({ posts: [] });
+      return res.status(200).json({ posts: [], hasMore: false });
     }
+
+    const totalPosts = await Post.countDocuments({ communityId: community._id });
+    const hasMore = skip + limit < totalPosts;
+
     const posts = await Post.find({ communityId: community._id })
       .populate('userId', 'username profile_picture')
       .populate('likes', 'username profile_picture')
@@ -256,9 +264,11 @@ export const getCommunityPosts = async (req, res, next) => {
           select: 'username profile_picture',
         }
       })
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
-    res.status(200).json({ posts });
+    res.status(200).json({ posts, hasMore });
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: "Internal server error" });
@@ -276,7 +286,7 @@ export const getUserPosts = async (req, res, next) => {
         path: 'comments',
         populate: {
           path: 'userId',
-          select: 'username profilePicture',
+          select: 'username profile_picture',
         }
       });
     res.status(200).json({posts});

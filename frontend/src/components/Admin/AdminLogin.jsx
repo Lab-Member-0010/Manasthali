@@ -22,6 +22,7 @@ const AdminLogin = () => {
       });
 
       if (response.status === 200) {
+        localStorage.setItem("adminToken", response.data.token);
         toast.success("Welcome Home Admin!");
         navigate("/admin");
       }

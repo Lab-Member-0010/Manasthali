@@ -4,7 +4,7 @@ import {auth} from "../middleware/auth.js"
 const router = express.Router();
 
 router.post('/create', auth, createGroup);
-router.get("/get-groups/:personality_type", getGroups);
+router.get("/get-groups/:personality_type", auth, getGroups);
 router.get('/groups/:id',auth, getGroupDetails);
 router.put('/groups/:id',auth, updateGroup);
 router.delete('/groups/:id',auth, deleteGroup);

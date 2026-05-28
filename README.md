@@ -136,7 +136,7 @@ Manasthali/
 
 - **Node.js** ≥ 18
 - **MongoDB** running locally or a [MongoDB Atlas](https://www.mongodb.com/atlas) URI
-- A **Cloudinary** account (free tier is enough)
+- An **AWS S3** bucket for media storage (or compatible S3 provider)
 - A **Gmail** account with an [App Password](https://support.google.com/accounts/answer/185833) for SMTP
 
 ---
@@ -179,6 +179,8 @@ MAIL_HOST=gmail
 MAIL_PORT=465
 MAIL_USER=your_email@gmail.com
 MAIL_PASS=your_gmail_app_password
+
+GEMINI_API_KEY=your_gemini_api_key
 ```
 
 **Frontend:**
